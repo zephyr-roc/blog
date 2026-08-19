@@ -1071,6 +1071,8 @@ a {
   border-radius: 2px;
   transform: rotate(15deg);
 }
+
+.about-shell {
   min-height: 100svh;
 }
 
