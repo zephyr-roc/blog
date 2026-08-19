@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
 
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -30,7 +34,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/zephyr-roc/blog:latest
+          tags: |
+            ghcr.io/zephyr-roc/blog:${{ github.sha }}
+            ghcr.io/zephyr-roc/blog:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -41,11 +47,43 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            docker pull ghcr.io/zephyr-roc/blog:latest
+            set -eu
+
+            IMAGE="ghcr.io/zephyr-roc/blog:${{ github.sha }}"
+            PREVIOUS_IMAGE="$(docker inspect --format='{{.Config.Image}}' blog 2>/dev/null || true)"
+
+            start_blog() {
+              docker run -d \
+                --name blog \
+                --restart unless-stopped \
+                -p 127.0.0.1:3100:3000 \
+                "$1"
+            }
+
+            docker pull "$IMAGE"
             docker stop blog || true
             docker rm blog || true
-            docker run -d \
-              --name blog \
-              --restart unless-stopped \
-              -p 127.0.0.1:3100:3000 \
-              ghcr.io/zephyr-roc/blog:latest
+
+            if ! start_blog "$IMAGE"; then
+              if [ -n "$PREVIOUS_IMAGE" ]; then
+                start_blog "$PREVIOUS_IMAGE"
+              fi
+              exit 1
+            fi
+
+            attempt=0
+            while [ "$attempt" -lt 15 ]; do
+              if docker exec blog node -e "fetch('http://127.0.0.1:3000/tinkering').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"; then
+                exit 0
+              fi
+              attempt=$((attempt + 1))
+              sleep 2
+            done
+
+            docker logs blog || true
+            docker stop blog || true
+            docker rm blog || true
+            if [ -n "$PREVIOUS_IMAGE" ]; then
+              start_blog "$PREVIOUS_IMAGE"
+            fi
+            exit 1
