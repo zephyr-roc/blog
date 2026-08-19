@@ -1583,6 +1583,18 @@ a {
   cursor: pointer;
 }
 
+/* Link wrapper around the whole card */
+.collection-card-link {
+  display: contents;
+  text-decoration: none;
+  color: inherit;
+}
+
+.collection-card-link:focus-visible .glass-card {
+  outline: 2px solid rgba(174, 151, 255, 0.9);
+  outline-offset: 7px;
+}
+
 .collection-card__content {
   left: 5.22cqw;
   right: 5.22cqw;
@@ -1628,19 +1640,6 @@ a {
   font-weight: 700;
   letter-spacing: 0.15em;
   color: rgba(247,244,255,.55);
-}
-
-.collection-card__link {
-  position: absolute;
-  inset: 0;
-  z-index: 6;
-  border-radius: inherit;
-  text-decoration: none;
-}
-
-.collection-card__link:focus-visible {
-  outline: 2px solid rgba(174, 151, 255, 0.9);
-  outline-offset: 4px;
 }
 
 /* ── Collection Page ─────────────────────────────────────────── */

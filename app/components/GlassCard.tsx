@@ -7,6 +7,8 @@ type GlassCardProps = {
   children: ReactNode;
   className?: string;
   ariaLabel: string;
+  /** When set, wraps card-perspective in a block element so a parent Link works */
+  asChild?: boolean;
 };
 
 type CardStyle = CSSProperties & Record<`--${string}`, string>;
@@ -38,7 +40,7 @@ export function GlassCard({ children, className = "", ariaLabel }: GlassCardProp
         data-motion-card="true"
         role="group"
         aria-label={ariaLabel}
-        tabIndex={0}
+        tabIndex={-1}
       >
         <div className="glass-card__base" aria-hidden="true">
           <div className="glass-card__surface" />

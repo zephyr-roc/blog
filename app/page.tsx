@@ -2,7 +2,9 @@ import { getAllCollections } from "./lib/content";
 import { CollectionCard } from "./components/CollectionCard";
 
 export default async function Home() {
-  const collections = await getAllCollections();
+  const collections = (await getAllCollections()).filter(
+    (c) => c.slug !== "tinkering"
+  );
 
   return (
     <main className="experience-shell">
