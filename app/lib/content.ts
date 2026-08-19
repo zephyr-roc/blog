@@ -1,8 +1,22 @@
-import fs from "fs";
-import path from "path";
+/// <reference types="vite/client" />
+
 import { marked } from "marked";
 
-const COLLECTIONS_DIR = path.join(process.cwd(), "content", "collections");
+// Import Markdown at build time so it is available in the Cloudflare Worker.
+// Runtime filesystem paths resolve inside the Worker bundle and cannot reach
+// the repository's content directory.
+const markdownModules = import.meta.glob("../../content/collections/**/*.md", {
+  eager: true,
+  import: "default",
+  query: "?raw",
+}) as Record<string, string>;
+
+const collectionFiles = new Map<string, string>();
+
+for (const [modulePath, raw] of Object.entries(markdownModules)) {
+  const match = modulePath.match(/content\/collections\/(.+\.md)$/);
+  if (match) collectionFiles.set(match[1], raw);
+}
 
 export type CollectionMeta = {
   slug: string;
@@ -26,7 +40,6 @@ export type Post = PostMeta & {
 };
 
 // Minimal YAML frontmatter parser — handles string/number/quoted values only.
-// Avoids gray-matter's eval() which breaks Rolldown/RSC bundling.
 function parseFrontmatter(raw: string): { data: Record<string, string>; content: string } {
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
   if (!match) return { data: {}, content: raw };
@@ -42,40 +55,37 @@ function parseFrontmatter(raw: string): { data: Record<string, string>; content:
   return { data, content: match[2] };
 }
 
+function getCollectionSlugs(): string[] {
+  return [...collectionFiles.keys()]
+    .filter((file) => file.endsWith("/_meta.md"))
+    .map((file) => file.slice(0, -"/_meta.md".length))
+    .sort();
+}
+
+function getPostFiles(collectionSlug: string): string[] {
+  const prefix = `${collectionSlug}/`;
+  return [...collectionFiles.keys()]
+    .filter(
+      (file) =>
+        file.startsWith(prefix) &&
+        file.endsWith(".md") &&
+        file !== `${prefix}_meta.md` &&
+        !file.slice(prefix.length).includes("/"),
+    )
+    .map((file) => file.slice(prefix.length))
+    .sort();
+}
+
 export async function getAllCollections(): Promise<CollectionMeta[]> {
-  const entries = fs.readdirSync(COLLECTIONS_DIR, { withFileTypes: true });
-  const collections: CollectionMeta[] = [];
-
-  for (const entry of entries) {
-    if (!entry.isDirectory()) continue;
-    const slug = entry.name;
-    const metaPath = path.join(COLLECTIONS_DIR, slug, "_meta.md");
-    if (!fs.existsSync(metaPath)) continue;
-
-    const raw = fs.readFileSync(metaPath, "utf-8");
-    const { data } = parseFrontmatter(raw);
-    const postCount = getPostFiles(slug).length;
-
-    collections.push({
-      slug,
-      title: data.title ?? slug,
-      description: data.description ?? "",
-      color: data.color ?? "#7f52ff",
-      icon: data.icon ?? slug,
-      postCount,
-    });
-  }
-
-  return collections;
+  const collections = await Promise.all(getCollectionSlugs().map(getCollection));
+  return collections.filter((collection): collection is CollectionMeta => collection !== null);
 }
 
 export async function getCollection(slug: string): Promise<CollectionMeta | null> {
-  const metaPath = path.join(COLLECTIONS_DIR, slug, "_meta.md");
-  if (!fs.existsSync(metaPath)) return null;
+  const raw = collectionFiles.get(`${slug}/_meta.md`);
+  if (raw === undefined) return null;
 
-  const raw = fs.readFileSync(metaPath, "utf-8");
   const { data } = parseFrontmatter(raw);
-  const postCount = getPostFiles(slug).length;
 
   return {
     slug,
@@ -83,37 +93,32 @@ export async function getCollection(slug: string): Promise<CollectionMeta | null
     description: data.description ?? "",
     color: data.color ?? "#7f52ff",
     icon: data.icon ?? slug,
-    postCount,
+    postCount: getPostFiles(slug).length,
   };
 }
 
 export async function getPostsInCollection(collectionSlug: string): Promise<PostMeta[]> {
-  const files = getPostFiles(collectionSlug);
-  const posts: PostMeta[] = [];
-
-  for (const file of files) {
-    const filePath = path.join(COLLECTIONS_DIR, collectionSlug, file);
-    const raw = fs.readFileSync(filePath, "utf-8");
+  const posts = getPostFiles(collectionSlug).map((file) => {
+    const raw = collectionFiles.get(`${collectionSlug}/${file}`)!;
     const { data } = parseFrontmatter(raw);
     const slug = file.replace(/\.md$/, "");
 
-    posts.push({
+    return {
       slug,
       collectionSlug,
       title: data.title ?? slug,
       date: data.date ? String(data.date).slice(0, 10) : "",
       excerpt: data.excerpt ?? "",
-    });
-  }
+    };
+  });
 
   return posts.sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export async function getPost(collectionSlug: string, postSlug: string): Promise<Post | null> {
-  const filePath = path.join(COLLECTIONS_DIR, collectionSlug, `${postSlug}.md`);
-  if (!fs.existsSync(filePath)) return null;
+  const raw = collectionFiles.get(`${collectionSlug}/${postSlug}.md`);
+  if (raw === undefined) return null;
 
-  const raw = fs.readFileSync(filePath, "utf-8");
   const { data, content } = parseFrontmatter(raw);
   const htmlContent = await marked.parse(content);
 
@@ -128,24 +133,10 @@ export async function getPost(collectionSlug: string, postSlug: string): Promise
 }
 
 export async function getAllPostSlugs(): Promise<Array<{ collection: string; post: string }>> {
-  const entries = fs.readdirSync(COLLECTIONS_DIR, { withFileTypes: true });
-  const result: Array<{ collection: string; post: string }> = [];
-
-  for (const entry of entries) {
-    if (!entry.isDirectory()) continue;
-    const files = getPostFiles(entry.name);
-    for (const file of files) {
-      result.push({ collection: entry.name, post: file.replace(/\.md$/, "") });
-    }
-  }
-
-  return result;
-}
-
-function getPostFiles(collectionSlug: string): string[] {
-  const dir = path.join(COLLECTIONS_DIR, collectionSlug);
-  if (!fs.existsSync(dir)) return [];
-  return fs
-    .readdirSync(dir)
-    .filter((f) => f.endsWith(".md") && f !== "_meta.md");
+  return getCollectionSlugs().flatMap((collection) =>
+    getPostFiles(collection).map((file) => ({
+      collection,
+      post: file.replace(/\.md$/, ""),
+    })),
+  );
 }

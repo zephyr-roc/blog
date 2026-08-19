@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { CSSProperties } from "react";
 import { GlassCard } from "./GlassCard";
 import type { CollectionMeta } from "../lib/content";
@@ -57,7 +56,7 @@ export function CollectionCard({
   };
 
   return (
-    <Link
+    <a
       href={`/collections/${collection.slug}`}
       className="collection-card-link"
       aria-label={`进入 ${collection.title} 合集`}
@@ -88,6 +87,6 @@ export function CollectionCard({
           </span>
         </div>
       </GlassCard>
-    </Link>
+    </a>
   );
 }

@@ -35,6 +35,21 @@ test("server-renders the collection cards before client hydration", async () => 
   assert.match(html, /记录想法，/);
   assert.match(html, /分享所学/);
   assert.match(html, /data-motion-card="true"/);
+  assert.match(html, /href="\/collections\/kotlin"/);
+});
+
+test("renders working collection and post destinations", async () => {
+  const collectionResponse = await render("/collections/kotlin");
+  assert.equal(collectionResponse.status, 200);
+
+  const collectionHtml = await collectionResponse.text();
+  assert.match(collectionHtml, /href="\/collections\/kotlin\/getting-started"/);
+
+  const postResponse = await render("/collections/kotlin/getting-started");
+  assert.equal(postResponse.status, 200);
+
+  const postHtml = await postResponse.text();
+  assert.match(postHtml, /Kotlin/);
 });
 
 test("server-renders the about content before client hydration", async () => {
@@ -42,7 +57,7 @@ test("server-renders the about content before client hydration", async () => {
   assert.equal(response.status, 200);
 
   const html = await response.text();
-  assert.match(html, /让复杂的技术/);
+  assert.match(html, /喜欢折腾代码/);
   assert.match(html, /Code × Motion/);
   assert.match(html, /CREATIVE CODE/);
   assert.match(html, /data-motion-card="true"/);

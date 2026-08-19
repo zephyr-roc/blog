@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { PostMeta } from "../lib/content";
 
 export function PostListItem({
@@ -16,7 +15,7 @@ export function PostListItem({
 
   return (
     <li className="post-list__item">
-      <Link
+      <a
         href={`/collections/${post.collectionSlug}/${post.slug}`}
         className="post-list__link"
       >
@@ -30,7 +29,7 @@ export function PostListItem({
           <p className="post-list__excerpt">{post.excerpt}</p>
         )}
         <span className="post-list__arrow" aria-hidden="true">→</span>
-      </Link>
+      </a>
     </li>
   );
 }
