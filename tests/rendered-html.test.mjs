@@ -25,17 +25,15 @@ async function render(pathname = "/") {
   );
 }
 
-test("server-renders the language cards before client hydration", async () => {
+test("server-renders the collection cards before client hydration", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<title>Kotlin, Nim &amp; Zig — Languages in Motion<\/title>/i);
-  assert.match(html, /让想法，跨越/);
-  assert.match(html, />Kotlin</);
-  assert.match(html, />Nim</);
-  assert.match(html, />Zig</);
+  assert.match(html, /<title>積雨雲的空間站<\/title>/i);
+  assert.match(html, /记录想法，/);
+  assert.match(html, /分享所学/);
   assert.match(html, /data-motion-card="true"/);
 });
 
