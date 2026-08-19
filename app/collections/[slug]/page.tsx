@@ -30,6 +30,13 @@ export default async function CollectionPage({ params }: Props) {
 
   if (!collection) notFound();
 
+  const chapters = posts.reduce<Map<string, typeof posts>>((groups, post) => {
+    const chapterPosts = groups.get(post.chapter) ?? [];
+    chapterPosts.push(post);
+    groups.set(post.chapter, chapterPosts);
+    return groups;
+  }, new Map());
+
   return (
     <main className="experience-shell">
       <div className="ambient ambient--violet" aria-hidden="true" />
@@ -52,11 +59,29 @@ export default async function CollectionPage({ params }: Props) {
         {posts.length === 0 ? (
           <p className="collection-page__empty">暂无文章</p>
         ) : (
-          <ul className="post-list" aria-label={`${collection.title} 文章列表`}>
-            {posts.map((post) => (
-              <PostListItem key={post.slug} post={post} />
-            ))}
-          </ul>
+          <div className="post-chapters">
+            {[...chapters.entries()].map(([chapter, chapterPosts], index) => {
+              const headingId = `chapter-${index + 1}`;
+              const chapterLabel = `CHAPTER ${String(index + 1).padStart(2, "0")}`;
+
+              return (
+                <section className="post-chapter" aria-labelledby={headingId} key={chapter}>
+                  <header className="post-chapter__header">
+                    <div>
+                      <p>{chapterLabel}</p>
+                      <h2 id={headingId}>{chapter}</h2>
+                    </div>
+                    <span>{chapterPosts.length} 篇</span>
+                  </header>
+                  <ul className="post-list" aria-label={`${chapter}文章列表`}>
+                    {chapterPosts.map((post) => (
+                      <PostListItem key={post.slug} post={post} />
+                    ))}
+                  </ul>
+                </section>
+              );
+            })}
+          </div>
         )}
       </div>
     </main>

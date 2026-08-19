@@ -2,6 +2,8 @@
 title: Kotlin 协程：结构化并发
 date: 2026-08-10
 excerpt: 协程不是线程，也不只是回调的语法糖。理解结构化并发，才能写出真正健壮的异步代码。
+chapter: 并发进阶
+chapterOrder: 2
 ---
 
 ## 什么是协程？

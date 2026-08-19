@@ -2,6 +2,8 @@
 title: Kotlin 入门：为什么选择它？
 date: 2026-08-01
 excerpt: 从 Java 迁移到 Kotlin 的理由已经不需要反复讨论了——它更简洁、更安全，而且与现有 JVM 生态完全兼容。
+chapter: 基础入门
+chapterOrder: 1
 ---
 
 ## 为什么是 Kotlin？

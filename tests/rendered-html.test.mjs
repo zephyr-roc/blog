@@ -44,6 +44,9 @@ test("renders working collection and post destinations", async () => {
 
   const collectionHtml = await collectionResponse.text();
   assert.match(collectionHtml, /href="\/collections\/kotlin\/getting-started"/);
+  assert.match(collectionHtml, /CHAPTER 01/);
+  assert.match(collectionHtml, /基础入门/);
+  assert.match(collectionHtml, /并发进阶/);
 
   const postResponse = await render("/collections/kotlin/getting-started");
   assert.equal(postResponse.status, 200);

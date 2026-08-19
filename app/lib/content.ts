@@ -33,6 +33,8 @@ export type PostMeta = {
   title: string;
   date: string;
   excerpt: string;
+  chapter: string;
+  chapterOrder: number;
 };
 
 export type Post = PostMeta & {
@@ -109,10 +111,14 @@ export async function getPostsInCollection(collectionSlug: string): Promise<Post
       title: data.title ?? slug,
       date: data.date ? String(data.date).slice(0, 10) : "",
       excerpt: data.excerpt ?? "",
+      chapter: data.chapter ?? "文章",
+      chapterOrder: Number(data.chapterOrder ?? 999),
     };
   });
 
-  return posts.sort((a, b) => b.date.localeCompare(a.date));
+  return posts.sort(
+    (a, b) => a.chapterOrder - b.chapterOrder || b.date.localeCompare(a.date),
+  );
 }
 
 export async function getPost(collectionSlug: string, postSlug: string): Promise<Post | null> {
@@ -128,6 +134,8 @@ export async function getPost(collectionSlug: string, postSlug: string): Promise
     title: data.title ?? postSlug,
     date: data.date ? String(data.date).slice(0, 10) : "",
     excerpt: data.excerpt ?? "",
+    chapter: data.chapter ?? "文章",
+    chapterOrder: Number(data.chapterOrder ?? 999),
     htmlContent,
   };
 }
