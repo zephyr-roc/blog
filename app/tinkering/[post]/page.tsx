@@ -1,32 +1,25 @@
-import { notFound, redirect } from "next/navigation";
-import Link from "next/link";
 import type { Metadata } from "next";
-import { getAllPostSlugs, getCollection, getPost } from "../../../lib/content";
-import { PostContent } from "../../../components/PostContent";
+import { notFound } from "next/navigation";
+import { PostContent } from "../../components/PostContent";
+import { getPost, getPostsInCollection } from "../../lib/content";
 
-type Props = { params: Promise<{ slug: string; post: string }> };
+type Props = { params: Promise<{ post: string }> };
 
 export async function generateStaticParams() {
-  const slugs = await getAllPostSlugs();
-  return slugs.map((s) => ({ slug: s.collection, post: s.post }));
+  const posts = await getPostsInCollection("tinkering");
+  return posts.map((post) => ({ post: post.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug, post: postSlug } = await params;
-  const post = await getPost(slug, postSlug);
+  const { post: postSlug } = await params;
+  const post = await getPost("tinkering", postSlug);
   if (!post) return {};
   return { title: `${post.title} — 積雨雲的空間站` };
 }
 
-export default async function PostPage({ params }: Props) {
-  const { slug, post: postSlug } = await params;
-
-  if (slug === "tinkering") redirect(`/tinkering/${postSlug}`);
-
-  const [post, collection] = await Promise.all([
-    getPost(slug, postSlug),
-    getCollection(slug),
-  ]);
+export default async function TinkeringPostPage({ params }: Props) {
+  const { post: postSlug } = await params;
+  const post = await getPost("tinkering", postSlug);
 
   if (!post) notFound();
 
@@ -46,9 +39,7 @@ export default async function PostPage({ params }: Props) {
 
       <article className="post-page">
         <nav className="collection-page__breadcrumb">
-          <Link href="/">主页</Link>
-          <span aria-hidden="true"> / </span>
-          <Link href={`/collections/${slug}`}>{collection?.title ?? slug}</Link>
+          <a href="/tinkering">折腾</a>
           <span aria-hidden="true"> / </span>
           <span>{post.title}</span>
         </nav>
@@ -60,9 +51,7 @@ export default async function PostPage({ params }: Props) {
             </time>
           )}
           <h1>{post.title}</h1>
-          {post.excerpt && (
-            <p className="post-page__excerpt">{post.excerpt}</p>
-          )}
+          {post.excerpt && <p className="post-page__excerpt">{post.excerpt}</p>}
         </header>
 
         <PostContent html={post.htmlContent} />

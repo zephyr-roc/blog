@@ -19,6 +19,8 @@ test("supports mouse dragging while keeping touch taps distinct", async () => {
   assert.match(navigation, /event\.pointerType !== "mouse"/);
   assert.match(navigation, /onClick=\{\(event: MouseEvent<HTMLAnchorElement>\)/);
   assert.match(navigation, /router\.push\(item\.href\)/);
+  assert.match(navigation, /href: "\/tinkering"/);
+  assert.doesNotMatch(navigation, /href: "\/collections\/tinkering"/);
 });
 
 test("uses a live backdrop lens without mirrored background copies", async () => {

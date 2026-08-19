@@ -13,7 +13,7 @@ import {
 
 const navigationItems = [
   { href: "/", label: "主页", icon: "home" },
-  { href: "/collections/tinkering", label: "折腾", icon: "tinkering" },
+  { href: "/tinkering", label: "折腾", icon: "tinkering" },
   { href: "/about", label: "关于我", icon: "profile" },
 ] as const;
 
@@ -56,7 +56,7 @@ export function LiquidGlassNavigation() {
   const dragOffset = useRef(0);
   const pointerTravel = useRef(0);
   const suppressClickUntil = useRef(0);
-  const activeIndex = pathname === "/about" ? 2 : pathname.startsWith("/collections/tinkering") ? 1 : 0;
+  const activeIndex = pathname === "/about" ? 2 : pathname.startsWith("/tinkering") ? 1 : 0;
   const navigationStyle: NavigationStyle = {
     "--active-index": String(activeIndex),
     "--drag-offset": "0px",
@@ -228,8 +228,8 @@ export function LiquidGlassNavigation() {
           </Glass>
           <span className="liquid-navigation__indicator" aria-hidden="true" />
           <span className="sr-only">可拖动活动玻璃块切换页面</span>
-          {navigationItems.map((item) => {
-            const isActive = pathname === item.href;
+          {navigationItems.map((item, index) => {
+            const isActive = index === activeIndex;
 
             return (
               <Link

@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getAllCollections, getCollection, getPostsInCollection } from "../../lib/content";
@@ -20,6 +20,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CollectionPage({ params }: Props) {
   const { slug } = await params;
+
+  if (slug === "tinkering") redirect("/tinkering");
+
   const [collection, posts] = await Promise.all([
     getCollection(slug),
     getPostsInCollection(slug),

@@ -1451,6 +1451,216 @@ a {
 
 }
 
+/* ── Tinkering Page ─────────────────────────────────────────── */
+
+.tinkering-shell {
+  min-height: 100svh;
+}
+
+.tinkering-hero {
+  grid-template-columns: minmax(300px, 0.68fr) minmax(640px, 1.32fr);
+}
+
+.tinkering-hero__stage .card-perspective {
+  width: min(100%, 720px);
+}
+
+.tinkering-card {
+  --card-bloom: radial-gradient(circle at 44% 40%, rgba(255, 138, 52, .92) 0%, rgba(226, 73, 126, .58) 31%, rgba(127, 82, 255, .3) 57%, transparent 74%);
+  overflow: visible;
+}
+
+.tinkering-card .glass-card__surface {
+  background:
+    linear-gradient(118deg, rgba(255,255,255,.17), rgba(255,255,255,.04) 32%, rgba(255,138,52,.025) 72%),
+    rgba(24, 19, 31, .62);
+}
+
+.tinkering-card__header,
+.tinkering-card__mark,
+.tinkering-card__content {
+  position: absolute;
+  z-index: 4;
+  transition:
+    filter 100ms linear,
+    transform 560ms cubic-bezier(.2,.8,.2,1);
+  filter:
+    drop-shadow(var(--content-shadow-x) var(--content-shadow-y) 9px rgba(0, 0, 0, .66))
+    drop-shadow(0 3px 3px rgba(0, 0, 0, .72));
+}
+
+.tinkering-card[data-active="true"] .tinkering-card__header,
+.tinkering-card[data-active="true"] .tinkering-card__mark,
+.tinkering-card[data-active="true"] .tinkering-card__content {
+  transition-duration: 80ms;
+}
+
+.tinkering-card__header {
+  top: 4.64cqw;
+  left: 4.93cqw;
+  right: 4.93cqw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgba(245, 243, 250, .42);
+  font-size: 1.16cqw;
+  font-weight: 650;
+  letter-spacing: .22em;
+  pointer-events: none;
+  transform: translate3d(var(--detail-x), var(--detail-y), 3.77cqw);
+}
+
+.tinkering-card__mark {
+  top: 8.2cqw;
+  left: 5.22cqw;
+  display: grid;
+  width: 14cqw;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid rgba(255, 171, 94, .28);
+  border-radius: 3.2cqw;
+  background:
+    linear-gradient(145deg, rgba(255, 164, 80, .2), rgba(127, 82, 255, .05)),
+    rgba(255, 255, 255, .025);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16);
+  color: #ff9f55;
+  pointer-events: none;
+  transform: translate3d(var(--logo-x), var(--logo-y), 8cqw) rotate(-7deg);
+}
+
+.tinkering-card__mark span {
+  font-size: 7.2cqw;
+  line-height: 1;
+  text-shadow: 0 5px 14px rgba(255, 112, 50, .32);
+}
+
+.tinkering-card__content {
+  right: 5.22cqw;
+  bottom: 5.22cqw;
+  left: 5.22cqw;
+  transform: translate3d(var(--content-x), var(--content-y), 7.25cqw);
+}
+
+.tinkering-card__content > p:first-child {
+  margin: 0 0 1.05cqw;
+  color: rgba(255, 190, 136, .65);
+  font-size: 1.16cqw;
+  font-weight: 700;
+  letter-spacing: .24em;
+}
+
+.tinkering-card__content > h2 {
+  margin: 0;
+  font-size: 7.6cqw;
+  font-weight: 560;
+  line-height: 1;
+  letter-spacing: -.06em;
+  text-shadow:
+    var(--content-shadow-x) var(--content-shadow-y) 12px rgba(0,0,0,.62),
+    0 3px 3px rgba(0,0,0,.76);
+}
+
+.tinkering-card__entries {
+  display: grid;
+  gap: 1.15cqw;
+  margin-top: 2.5cqw;
+}
+
+.tinkering-card__entry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2.2cqw;
+  align-items: center;
+  padding: 1.8cqw 2cqw;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 1.45cqw;
+  background: rgba(8, 7, 15, .22);
+  color: inherit;
+  text-decoration: none;
+  transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.tinkering-card__entry:hover {
+  border-color: rgba(255, 174, 106, .27);
+  background: rgba(255, 138, 52, .08);
+  transform: translateX(.4cqw);
+}
+
+.tinkering-card__entry:focus-visible {
+  outline: 2px solid rgba(255, 176, 108, .9);
+  outline-offset: 3px;
+}
+
+.tinkering-card__entry strong,
+.tinkering-card__entry small {
+  display: block;
+}
+
+.tinkering-card__entry strong {
+  overflow: hidden;
+  font-size: 2.05cqw;
+  font-weight: 580;
+  letter-spacing: -.025em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tinkering-card__entry small {
+  overflow: hidden;
+  margin-top: .75cqw;
+  color: rgba(244, 241, 250, .52);
+  font-size: 1.15cqw;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tinkering-card__arrow {
+  color: rgba(255, 184, 124, .62);
+  font-size: 2.25cqw;
+  transition: transform 180ms ease;
+}
+
+.tinkering-card__entry:hover .tinkering-card__arrow {
+  transform: translateX(.45cqw);
+}
+
+.tinkering-card__empty {
+  margin: 2.5cqw 0 0;
+  color: var(--muted);
+  font-size: 1.8cqw;
+}
+
+@media (max-width: 1180px) {
+  .tinkering-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .tinkering-hero__stage .card-perspective {
+    width: min(690px, 100%);
+  }
+}
+
+@media (max-width: 640px) {
+  .tinkering-hero__stage {
+    margin-inline: -8px;
+    width: calc(100% + 16px);
+  }
+
+  .tinkering-card__header,
+  .tinkering-card__content > p:first-child {
+    font-size: clamp(8px, 2.3cqw, 10px);
+  }
+
+  .tinkering-card__entry strong {
+    font-size: clamp(11px, 3.4cqw, 15px);
+  }
+
+  .tinkering-card__entry small {
+    font-size: clamp(8px, 2.4cqw, 10px);
+  }
+}
+
 /* ── Collection Card ─────────────────────────────────────────── */
 
 .collection-card__index,

@@ -52,6 +52,20 @@ test("renders working collection and post destinations", async () => {
   assert.match(postHtml, /Kotlin/);
 });
 
+test("renders tinkering as a top-level page", async () => {
+  const response = await render("/tinkering");
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(html, /保持好奇/);
+  assert.match(html, /TINKERING · LAB/);
+  assert.match(html, /href="\/tinkering\/github-actions-deploy"/);
+  assert.doesNotMatch(html, /COLLECTION · 合集/);
+
+  const postResponse = await render("/tinkering/github-actions-deploy");
+  assert.equal(postResponse.status, 200);
+});
+
 test("server-renders the about content before client hydration", async () => {
   const response = await render("/about");
   assert.equal(response.status, 200);
