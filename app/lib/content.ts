@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import matter from "gray-matter";
 import { marked } from "marked";
 
 const COLLECTIONS_DIR = path.join(process.cwd(), "content", "collections");
@@ -26,6 +25,23 @@ export type Post = PostMeta & {
   htmlContent: string;
 };
 
+// Minimal YAML frontmatter parser — handles string/number/quoted values only.
+// Avoids gray-matter's eval() which breaks Rolldown/RSC bundling.
+function parseFrontmatter(raw: string): { data: Record<string, string>; content: string } {
+  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+  if (!match) return { data: {}, content: raw };
+
+  const data: Record<string, string> = {};
+  for (const line of match[1].split(/\r?\n/)) {
+    const colon = line.indexOf(":");
+    if (colon === -1) continue;
+    const key = line.slice(0, colon).trim();
+    const val = line.slice(colon + 1).trim().replace(/^["']|["']$/g, "");
+    if (key) data[key] = val;
+  }
+  return { data, content: match[2] };
+}
+
 export async function getAllCollections(): Promise<CollectionMeta[]> {
   const entries = fs.readdirSync(COLLECTIONS_DIR, { withFileTypes: true });
   const collections: CollectionMeta[] = [];
@@ -37,7 +53,7 @@ export async function getAllCollections(): Promise<CollectionMeta[]> {
     if (!fs.existsSync(metaPath)) continue;
 
     const raw = fs.readFileSync(metaPath, "utf-8");
-    const { data } = matter(raw);
+    const { data } = parseFrontmatter(raw);
     const postCount = getPostFiles(slug).length;
 
     collections.push({
@@ -58,7 +74,7 @@ export async function getCollection(slug: string): Promise<CollectionMeta | null
   if (!fs.existsSync(metaPath)) return null;
 
   const raw = fs.readFileSync(metaPath, "utf-8");
-  const { data } = matter(raw);
+  const { data } = parseFrontmatter(raw);
   const postCount = getPostFiles(slug).length;
 
   return {
@@ -78,7 +94,7 @@ export async function getPostsInCollection(collectionSlug: string): Promise<Post
   for (const file of files) {
     const filePath = path.join(COLLECTIONS_DIR, collectionSlug, file);
     const raw = fs.readFileSync(filePath, "utf-8");
-    const { data } = matter(raw);
+    const { data } = parseFrontmatter(raw);
     const slug = file.replace(/\.md$/, "");
 
     posts.push({
@@ -98,7 +114,7 @@ export async function getPost(collectionSlug: string, postSlug: string): Promise
   if (!fs.existsSync(filePath)) return null;
 
   const raw = fs.readFileSync(filePath, "utf-8");
-  const { data, content } = matter(raw);
+  const { data, content } = parseFrontmatter(raw);
   const htmlContent = await marked.parse(content);
 
   return {
