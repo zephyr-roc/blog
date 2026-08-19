@@ -10,6 +10,7 @@ export type CollectionMeta = {
   title: string;
   description: string;
   color: string;
+  icon: string;
   postCount: number;
 };
 
@@ -44,6 +45,7 @@ export async function getAllCollections(): Promise<CollectionMeta[]> {
       title: data.title ?? slug,
       description: data.description ?? "",
       color: data.color ?? "#7f52ff",
+      icon: data.icon ?? slug,
       postCount,
     });
   }
@@ -64,6 +66,7 @@ export async function getCollection(slug: string): Promise<CollectionMeta | null
     title: data.title ?? slug,
     description: data.description ?? "",
     color: data.color ?? "#7f52ff",
+    icon: data.icon ?? slug,
     postCount,
   };
 }

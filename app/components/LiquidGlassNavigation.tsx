@@ -13,6 +13,7 @@ import {
 
 const navigationItems = [
   { href: "/", label: "主页", icon: "home" },
+  { href: "/collections/tinkering", label: "折腾", icon: "tinkering" },
   { href: "/about", label: "关于我", icon: "profile" },
 ] as const;
 
@@ -42,7 +43,7 @@ const TOUCH_TAP_DISTANCE = 28;
 type GestureStart = {
   x: number;
   y: number;
-  targetIndex: 0 | 1;
+  targetIndex: 0 | 1 | 2;
 };
 
 type NavigationStyle = CSSProperties & Record<`--${string}`, string>;
@@ -55,7 +56,7 @@ export function LiquidGlassNavigation() {
   const dragOffset = useRef(0);
   const pointerTravel = useRef(0);
   const suppressClickUntil = useRef(0);
-  const activeIndex = pathname === "/about" ? 1 : 0;
+  const activeIndex = pathname === "/about" ? 2 : pathname.startsWith("/collections/tinkering") ? 1 : 0;
   const navigationStyle: NavigationStyle = {
     "--active-index": String(activeIndex),
     "--drag-offset": "0px",
@@ -119,8 +120,11 @@ export function LiquidGlassNavigation() {
       }
     } else if (shouldSwitch) {
       suppressGeneratedClick();
-      const targetIndex = activeIndex === 0 ? 1 : 0;
-      setDragOffset(targetIndex === 1 ? travel : -travel);
+      const targetIndex = (offset > 0
+        ? Math.min(navigationItems.length - 1, activeIndex + 1)
+        : Math.max(0, activeIndex - 1)) as 0 | 1 | 2;
+      const targetTravel = (targetIndex - activeIndex) * travel;
+      setDragOffset(targetTravel);
       router.push(navigationItems[targetIndex].href);
     } else {
       setDragOffset(0);
@@ -153,10 +157,15 @@ export function LiquidGlassNavigation() {
           onPointerDown={(event) => {
             if (event.button !== 0) return;
             const bounds = event.currentTarget.getBoundingClientRect();
+            const fraction = (event.clientX - bounds.left) / bounds.width;
+            const targetIndex = Math.min(
+              navigationItems.length - 1,
+              Math.floor(fraction * navigationItems.length),
+            ) as 0 | 1 | 2;
             dragStart.current = {
               x: event.clientX,
               y: event.clientY,
-              targetIndex: event.clientX < bounds.left + bounds.width / 2 ? 0 : 1,
+              targetIndex,
             };
             pointerTravel.current = 0;
             suppressClickUntil.current = 0;
@@ -174,7 +183,9 @@ export function LiquidGlassNavigation() {
             );
             const directionalOffset = activeIndex === 0
               ? Math.max(0, rawOffset)
-              : Math.min(0, rawOffset);
+              : activeIndex === navigationItems.length - 1
+              ? Math.min(0, rawOffset)
+              : rawOffset;
             const boundedOffset = Math.sign(directionalOffset)
               * Math.min(travel, Math.abs(directionalOffset));
 
@@ -197,7 +208,11 @@ export function LiquidGlassNavigation() {
             if ((event.target as Element).closest("a")) return;
 
             const bounds = event.currentTarget.getBoundingClientRect();
-            const targetIndex = event.clientX < bounds.left + bounds.width / 2 ? 0 : 1;
+            const fraction = (event.clientX - bounds.left) / bounds.width;
+            const targetIndex = Math.min(
+              navigationItems.length - 1,
+              Math.floor(fraction * navigationItems.length),
+            ) as 0 | 1 | 2;
             if (targetIndex !== activeIndex) {
               router.push(navigationItems[targetIndex].href);
             }
