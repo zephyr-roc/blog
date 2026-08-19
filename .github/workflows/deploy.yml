@@ -46,6 +46,7 @@ jobs:
           host: 101.34.21.42
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 8m
           script: |
             set -eu
 
@@ -60,7 +61,18 @@ jobs:
                 "$1"
             }
 
-            docker pull "$IMAGE"
+            pkill -f '[d]ocker pull ghcr.io/zephyr-roc/blog:' || true
+
+            pull_attempt=1
+            while ! timeout 120 docker pull "$IMAGE"; do
+              if [ "$pull_attempt" -ge 3 ]; then
+                echo "Unable to pull $IMAGE after $pull_attempt attempts"
+                exit 1
+              fi
+              pull_attempt=$((pull_attempt + 1))
+              sleep 5
+            done
+
             docker stop blog || true
             docker rm blog || true
 
