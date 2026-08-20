@@ -38,9 +38,14 @@ export default function RootLayout({
               </a>
             </div>
           </div>
-          <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>
-            沪ICP备2026040143号
-          </a>
+          <div style={{ display: "flex", justifyContent: "center", gap: "1rem", flexWrap: "wrap" }}>
+            <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>
+              沪ICP备2026040143号
+            </a>
+            <a href="https://github.com/zephyr-roc" target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>
+              Copyright © 2026 zephyr-roc
+            </a>
+          </div>
         </footer>
       </body>
     </html>
