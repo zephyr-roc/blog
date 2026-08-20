@@ -96,7 +96,19 @@ export function CollectionCard({
           </time>
         )}
 
-        <div className="collection-card__bloom" style={style} aria-hidden="true" />
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            zIndex: 1,
+            inset: 0,
+            overflow: "hidden",
+            borderRadius: "inherit",
+            pointerEvents: "none",
+          }}
+        >
+          <div className="collection-card__bloom" style={style} />
+        </div>
 
         <div className="collection-card__icon-wrap" aria-hidden="true">
           <CollectionIcon icon={collection.icon} color={collection.color} />
