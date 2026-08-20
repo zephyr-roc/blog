@@ -82,7 +82,10 @@ export function CollectionCard({
           <CollectionIcon icon={collection.icon} color={collection.color} />
         </div>
 
-        <div className="collection-card__content">
+        <div
+          className="collection-card__content"
+          style={featured ? undefined : { bottom: "9cqw" }}
+        >
           {featured && <p className="collection-card__eyebrow">BLOG · 合集</p>}
           <h2>{collection.title}</h2>
           {featured && (
