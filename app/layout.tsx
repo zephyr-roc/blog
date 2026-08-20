@@ -26,9 +26,12 @@ export default function RootLayout({
           <div style={{ marginBottom: "1.5rem" }}>
             <p style={{ margin: "0 0 0.75rem", opacity: 0.5, letterSpacing: "0.05em" }}>友情链接</p>
             <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem", flexWrap: "wrap" }}>
-              {/* 在此添加友情链接，例如：
-              <a href="https://example.com" target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>示例站点</a>
-              */}
+              <a href="https://mxte.cc/" target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>
+                mxte.cc
+              </a>
+              <a href="https://qingyou.studio" target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>
+                qingyou.studio
+              </a>
             </div>
           </div>
           <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>
