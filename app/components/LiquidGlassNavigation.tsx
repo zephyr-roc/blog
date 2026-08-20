@@ -120,9 +120,12 @@ export function LiquidGlassNavigation() {
       }
     } else if (shouldSwitch) {
       suppressGeneratedClick();
-      const targetIndex = (offset > 0
-        ? Math.min(navigationItems.length - 1, activeIndex + 1)
-        : Math.max(0, activeIndex - 1)) as 0 | 1 | 2;
+      const tabDelta = Math.sign(offset)
+        * Math.max(1, Math.round(Math.abs(offset) / travel));
+      const targetIndex = Math.max(
+        0,
+        Math.min(navigationItems.length - 1, activeIndex + tabDelta),
+      ) as 0 | 1 | 2;
       const targetTravel = (targetIndex - activeIndex) * travel;
       setDragOffset(targetTravel);
       router.push(navigationItems[targetIndex].href);
@@ -181,13 +184,12 @@ export function LiquidGlassNavigation() {
               pointerTravel.current,
               Math.hypot(rawOffset, rawVerticalOffset),
             );
-            const directionalOffset = activeIndex === 0
-              ? Math.max(0, rawOffset)
-              : activeIndex === navigationItems.length - 1
-              ? Math.min(0, rawOffset)
-              : rawOffset;
-            const boundedOffset = Math.sign(directionalOffset)
-              * Math.min(travel, Math.abs(directionalOffset));
+            const minOffset = -activeIndex * travel;
+            const maxOffset = (navigationItems.length - 1 - activeIndex) * travel;
+            const boundedOffset = Math.max(
+              minOffset,
+              Math.min(maxOffset, rawOffset),
+            );
 
             if (pointerTravel.current >= DRAG_ACTIVATION_DISTANCE) {
               event.currentTarget.dataset.dragging = "true";
