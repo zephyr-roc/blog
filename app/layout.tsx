@@ -7,6 +7,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "積雨雲的空間站",
   description: "積雨雲的空間站",
+  verification: {
+    google: "tLrExgZ6RF0M_O2E_7xx2rkTIuWOvI6oGTv-ync8ccE",
+  },
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     shortcut: ["/favicon.svg"],
