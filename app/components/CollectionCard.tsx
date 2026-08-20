@@ -44,12 +44,8 @@ function CollectionIcon({ icon, color }: { icon: string; color: string }) {
 
 export function CollectionCard({
   collection,
-  index,
-  total,
 }: {
   collection: CollectionMeta;
-  index: number;
-  total: number;
 }) {
   const style: CollectionCardStyle = {
     "--collection-color": collection.color,
@@ -65,13 +61,6 @@ export function CollectionCard({
         className="collection-card"
         ariaLabel={`${collection.title} 合集，共 ${collection.postCount} 篇文章`}
       >
-        <div className="collection-card__index" aria-hidden="true">
-          <span>COLLECTION</span>
-          <span>
-            {String(index).padStart(2, "0")} / {String(total).padStart(2, "0")}
-          </span>
-        </div>
-
         <div className="collection-card__bloom" style={style} aria-hidden="true" />
 
         <div className="collection-card__icon-wrap" aria-hidden="true">
@@ -79,12 +68,7 @@ export function CollectionCard({
         </div>
 
         <div className="collection-card__content">
-          <p className="collection-card__eyebrow">BLOG · 合集</p>
           <h2>{collection.title}</h2>
-          <p className="collection-card__description">{collection.description}</p>
-          <span className="collection-card__count">
-            {collection.postCount} 篇文章
-          </span>
         </div>
       </GlassCard>
     </a>
