@@ -7,7 +7,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "積雨雲的空間站",
   description: "積雨雲的空間站",
-  icons: { icon: "/favicon.svg" },
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    shortcut: ["/favicon.svg"],
+    apple: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+  },
 };
 
 export default function RootLayout({
