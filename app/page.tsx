@@ -46,7 +46,12 @@ export default async function Home() {
                     : "card-collection__companion"
                 }
               >
-                <CollectionCard collection={collection} />
+                <CollectionCard
+                  collection={collection}
+                  featured={i === 0}
+                  index={i + 1}
+                  total={collections.length}
+                />
               </div>
             ))}
           </div>
