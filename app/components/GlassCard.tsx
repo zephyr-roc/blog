@@ -14,6 +14,19 @@ type GlassCardProps = {
 
 type CardStyle = CSSProperties & Record<`--${string}`, string>;
 
+const clippedBaseStyle: CSSProperties = {
+  overflow: "hidden",
+  clipPath: "inset(0 round var(--card-radius, 4.93cqw))",
+  WebkitClipPath: "inset(0 round var(--card-radius, 4.93cqw))",
+  WebkitMaskImage: "linear-gradient(#fff 0 0)",
+  contain: "paint",
+  transform: "none",
+};
+
+const planarBloomStyle: CSSProperties = {
+  transform: "none",
+};
+
 const initialStyle: CardStyle = {
   "--rotate-x": "0deg",
   "--rotate-y": "0deg",
@@ -43,11 +56,11 @@ export function GlassCard({ children, className = "", ariaLabel, style }: GlassC
         aria-label={ariaLabel}
         tabIndex={-1}
       >
-        <div className="glass-card__base" aria-hidden="true">
+        <div className="glass-card__base" style={clippedBaseStyle} aria-hidden="true">
           <div className="glass-card__surface" />
           <div className="glass-card__edge" />
           <div className="glass-card__shine" />
-          <div className="glass-card__bloom" />
+          <div className="glass-card__bloom" style={planarBloomStyle} />
         </div>
         {children}
       </div>
