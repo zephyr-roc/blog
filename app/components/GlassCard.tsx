@@ -7,6 +7,7 @@ type GlassCardProps = {
   children: ReactNode;
   className?: string;
   ariaLabel: string;
+  style?: CSSProperties;
   /** When set, wraps card-perspective in a block element so a parent Link works */
   asChild?: boolean;
 };
@@ -30,12 +31,12 @@ const initialStyle: CardStyle = {
   "--detail-y": "0px",
 };
 
-export function GlassCard({ children, className = "", ariaLabel }: GlassCardProps) {
+export function GlassCard({ children, className = "", ariaLabel, style }: GlassCardProps) {
   return (
     <div className="card-perspective">
       <div
         className={`glass-card ${className}`}
-        style={initialStyle}
+        style={{ ...initialStyle, ...style } as CardStyle}
         data-active="false"
         data-motion-card="true"
         role="group"
