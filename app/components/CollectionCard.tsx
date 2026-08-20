@@ -2,7 +2,10 @@ import type { CSSProperties } from "react";
 import { GlassCard } from "./GlassCard";
 import type { CollectionMeta } from "../lib/content";
 
-type CollectionCardStyle = CSSProperties & { "--collection-color": string };
+type CollectionCardStyle = CSSProperties & {
+  "--collection-color": string;
+  "--card-bloom": string;
+};
 
 function CollectionIcon({ icon, color }: { icon: string; color: string }) {
   if (icon === "kotlin") {
@@ -55,6 +58,7 @@ export function CollectionCard({
 }) {
   const style: CollectionCardStyle = {
     "--collection-color": collection.color,
+    "--card-bloom": `radial-gradient(circle at 44% 40%, ${collection.color} 0%, transparent 70%)`,
   };
 
   return (
@@ -66,6 +70,7 @@ export function CollectionCard({
       <GlassCard
         className="collection-card"
         ariaLabel={`${collection.title} 合集，共 ${collection.postCount} 篇文章`}
+        style={style}
       >
         {featured && index !== undefined && total !== undefined && (
           <div className="collection-card__index" aria-hidden="true">
@@ -95,20 +100,6 @@ export function CollectionCard({
             {collection.latestDate}
           </time>
         )}
-
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            zIndex: 1,
-            inset: 0,
-            overflow: "hidden",
-            borderRadius: "inherit",
-            pointerEvents: "none",
-          }}
-        >
-          <div className="collection-card__bloom" style={style} />
-        </div>
 
         <div className="collection-card__icon-wrap" aria-hidden="true">
           <CollectionIcon icon={collection.icon} color={collection.color} />
