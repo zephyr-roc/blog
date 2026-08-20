@@ -25,6 +25,7 @@ export type CollectionMeta = {
   color: string;
   icon: string;
   postCount: number;
+  latestDate: string;
 };
 
 export type PostMeta = {
@@ -88,6 +89,16 @@ export async function getCollection(slug: string): Promise<CollectionMeta | null
   if (raw === undefined) return null;
 
   const { data } = parseFrontmatter(raw);
+  const postFiles = getPostFiles(slug);
+  const latestDate = postFiles
+    .map((file) => {
+      const postRaw = collectionFiles.get(`${slug}/${file}`);
+      if (postRaw === undefined) return "";
+      return parseFrontmatter(postRaw).data.date?.slice(0, 10) ?? "";
+    })
+    .filter(Boolean)
+    .sort()
+    .reverse()[0] ?? "";
 
   return {
     slug,
@@ -95,7 +106,8 @@ export async function getCollection(slug: string): Promise<CollectionMeta | null
     description: data.description ?? "",
     color: data.color ?? "#7f52ff",
     icon: data.icon ?? slug,
-    postCount: getPostFiles(slug).length,
+    postCount: postFiles.length,
+    latestDate,
   };
 }
 
