@@ -31,10 +31,10 @@ export default function RootLayout({
             <p style={{ margin: "0 0 0.75rem", opacity: 0.5, letterSpacing: "0.05em" }}>友情链接</p>
             <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem", flexWrap: "wrap" }}>
               <a href="https://mxte.cc/" target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>
-                mxte.cc
+                Maxtune&apos;s Blog
               </a>
-              <a href="https://qingyou.studio" target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>
-                qingyou.studio
+              <a href="https://qingyou.studio/" target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>
+                青柚工作室 - 用热爱创造无限可能
               </a>
             </div>
           </div>
