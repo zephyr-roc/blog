@@ -33,7 +33,6 @@ function getColumnCount(width: number) {
 
 export function TinkeringNotesGrid({ posts }: TinkeringNotesGridProps) {
   const [query, setQuery] = useState("");
-  const [columnCount, setColumnCount] = useState(1);
   const [layoutReady, setLayoutReady] = useState(false);
   const waterfallRef = useRef<HTMLDivElement>(null);
 
@@ -53,33 +52,87 @@ export function TinkeringNotesGrid({ posts }: TinkeringNotesGridProps) {
     const waterfall = waterfallRef.current;
     if (!waterfall) return;
 
-    const updateColumns = (width: number) => {
-      setColumnCount(getColumnCount(width));
+    let animationFrame = 0;
+    let previousWidth = 0;
+
+    const layout = () => {
+      const width = waterfall.clientWidth;
+      if (width <= 0) return;
+
+      const styles = window.getComputedStyle(waterfall);
+      const gap = Number.parseFloat(styles.columnGap || styles.gap) || 24;
+      const columnCount = getColumnCount(width);
+      const columnWidth = (width - gap * (columnCount - 1)) / columnCount;
+      const columnHeights = Array.from({ length: columnCount }, () => 0);
+      const cards = Array.from(
+        waterfall.querySelectorAll<HTMLElement>(":scope > .note-tile"),
+      );
+
+      waterfall.style.setProperty("--notes-columns", String(columnCount));
+
+      for (const card of cards) {
+        card.style.width = `${columnWidth}px`;
+      }
+
+      for (const card of cards) {
+        let shortestColumn = 0;
+
+        for (let column = 1; column < columnCount; column += 1) {
+          if (columnHeights[column] < columnHeights[shortestColumn]) {
+            shortestColumn = column;
+          }
+        }
+
+        const x = shortestColumn * (columnWidth + gap);
+        const y = columnHeights[shortestColumn];
+
+        card.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        columnHeights[shortestColumn] += card.getBoundingClientRect().height + gap;
+      }
+
+      const tallestColumn = Math.max(...columnHeights, 0);
+      waterfall.style.height = `${Math.max(0, tallestColumn - gap)}px`;
+      waterfall.dataset.ready = "true";
+      waterfall.setAttribute("aria-busy", "false");
+      setLayoutReady(true);
     };
 
-    updateColumns(waterfall.clientWidth);
-    setLayoutReady(true);
+    const scheduleLayout = () => {
+      window.cancelAnimationFrame(animationFrame);
+      animationFrame = window.requestAnimationFrame(layout);
+    };
 
-    const observer = new ResizeObserver(([entry]) => {
-      updateColumns(entry.contentRect.width);
+    setLayoutReady(false);
+    layout();
+    previousWidth = waterfall.clientWidth;
+
+    const observer = new ResizeObserver((entries) => {
+      const containerEntry = entries.find((entry) => entry.target === waterfall);
+      const nextWidth = containerEntry?.contentRect.width ?? waterfall.clientWidth;
+
+      if (Math.abs(nextWidth - previousWidth) > 0.5) {
+        previousWidth = nextWidth;
+        scheduleLayout();
+        return;
+      }
+
+      if (entries.some((entry) => entry.target !== waterfall)) {
+        scheduleLayout();
+      }
     });
+
     observer.observe(waterfall);
+    waterfall
+      .querySelectorAll<HTMLElement>(":scope > .note-tile")
+      .forEach((card) => observer.observe(card));
 
-    return () => observer.disconnect();
-  }, []);
+    document.fonts?.ready.then(scheduleLayout);
 
-  const columns = useMemo(() => {
-    const nextColumns = Array.from(
-      { length: columnCount },
-      () => [] as Array<{ post: PostMeta; index: number }>,
-    );
-
-    filteredPosts.forEach((post, index) => {
-      nextColumns[index % columnCount].push({ post, index });
-    });
-
-    return nextColumns;
-  }, [columnCount, filteredPosts]);
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      observer.disconnect();
+    };
+  }, [filteredPosts]);
 
   return (
     <>
@@ -112,38 +165,33 @@ export function TinkeringNotesGrid({ posts }: TinkeringNotesGridProps) {
           data-ready={layoutReady}
           aria-busy={!layoutReady}
           ref={waterfallRef}
-          style={{ "--notes-columns": columnCount } as CSSProperties}
         >
-          {columns.map((column, columnIndex) => (
-            <div className="notes-waterfall__column" key={columnIndex}>
-              {column.map(({ post, index }) => (
-                <article
-                  className="note-tile"
-                  key={post.slug}
-                  style={{
-                    "--tile-accent": noteAccents[index % noteAccents.length],
-                  } as NoteStyle}
-                >
-                  <a href={`/tinkering/${post.slug}`}>
-                    {post.cover && (
-                      <div className="note-tile__cover">
-                        <img src={post.cover} alt="" loading="lazy" />
-                      </div>
-                    )}
-                    <div className="note-tile__body">
-                    <span className="note-tile__index">
-                      NOTE {String(index + 1).padStart(2, "0")}
-                    </span>
-                    <h2>{post.title}</h2>
-                    {post.excerpt && <p>{post.excerpt}</p>}
-                    <footer>
-                      <time dateTime={post.date}>{post.date}</time>
-                    </footer>
-                    </div>
-                  </a>
-                </article>
-              ))}
-            </div>
+          {filteredPosts.map((post, index) => (
+            <article
+              className="note-tile"
+              key={post.slug}
+              style={{
+                "--tile-accent": noteAccents[index % noteAccents.length],
+              } as NoteStyle}
+            >
+              <a href={`/tinkering/${post.slug}`}>
+                {post.cover && (
+                  <div className="note-tile__cover">
+                    <img src={post.cover} alt="" loading="lazy" />
+                  </div>
+                )}
+                <div className="note-tile__body">
+                  <span className="note-tile__index">
+                    NOTE {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <h2>{post.title}</h2>
+                  {post.excerpt && <p>{post.excerpt}</p>}
+                  <footer>
+                    <time dateTime={post.date}>{post.date}</time>
+                  </footer>
+                </div>
+              </a>
+            </article>
           ))}
         </div>
       )}
