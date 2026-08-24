@@ -18,49 +18,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const targets = [
-          "codex/add-caddy-wildcard-cert-sync-guide",
-          "codex/add-footer-copyright",
-          "codex/add-friend-links",
-          "codex/add-global-post-likes",
-          "codex/add-hyperos-adb-debloat-guide",
-          "codex/add-kvm-device-guides",
-          "codex/add-notes-side-space",
-          "codex/add-tinkering-note-covers",
-          "codex/add-xiaomi-logo-to-adb-cover",
-          "codex/balance-tinkering-waterfall",
-          "codex/bust-cover-svg-cache",
-          "codex/clip-mobile-card-bloom",
-          "codex/compact-mobile-navigation",
-          "codex/drag-navigation-across-tabs",
-          "codex/enrich-companion-cards",
-          "codex/fit-aware-navigation",
-          "codex/fix-cover-corner-seam",
-          "codex/fix-cover-hover-clipping",
-          "codex/fix-ios-card-bloom-clipping",
-          "codex/fix-notes-initial-flash",
-          "codex/harden-safari-card-clipping",
-          "codex/raise-companion-card-titles",
-          "codex/refine-notes-spacing",
-          "codex/remove-note-card-arrow",
-          "codex/remove-sites-build-config",
-          "codex/remove-tinkering-field-notes",
-          "codex/reorder-friend-links",
-          "codex/restore-primary-card-details",
-          "codex/shortest-column-masonry",
-          "codex/simplify-home-cards",
-          "codex/tinkering-notes-masonry",
-          "codex/use-cloud-icon-on-about",
-          "codex/use-friend-site-titles",
-          "feat/add-friend-links-aug24",
-          "fix/dreamlike-friend-title",
-          "fix/favicon-png-fallback",
-          "fix/responsive-post-images",
-          "fix/restore-liquid-glass",
-          "fix/search-snippets-seo",
-          "perf/reduce-main-thread-work",
-          "chore/cleanup-branches-once"
-];
+            const targets = ["codex/add-caddy-wildcard-cert-sync-guide","codex/add-footer-copyright","codex/add-friend-links","codex/add-global-post-likes","codex/add-hyperos-adb-debloat-guide","codex/add-kvm-device-guides","codex/add-notes-side-space","codex/add-tinkering-note-covers","codex/add-xiaomi-logo-to-adb-cover","codex/balance-tinkering-waterfall","codex/bust-cover-svg-cache","codex/clip-mobile-card-bloom","codex/compact-mobile-navigation","codex/drag-navigation-across-tabs","codex/enrich-companion-cards","codex/fit-aware-navigation","codex/fix-cover-corner-seam","codex/fix-cover-hover-clipping","codex/fix-ios-card-bloom-clipping","codex/fix-notes-initial-flash","codex/harden-safari-card-clipping","codex/raise-companion-card-titles","codex/refine-notes-spacing","codex/remove-note-card-arrow","codex/remove-sites-build-config","codex/remove-tinkering-field-notes","codex/reorder-friend-links","codex/restore-primary-card-details","codex/shortest-column-masonry","codex/simplify-home-cards","codex/tinkering-notes-masonry","codex/use-cloud-icon-on-about","codex/use-friend-site-titles","feat/add-friend-links-aug24","fix/dreamlike-friend-title","fix/favicon-png-fallback","fix/responsive-post-images","fix/restore-liquid-glass","fix/search-snippets-seo","perf/reduce-main-thread-work","chore/cleanup-branches-once"];
             const failures = [];
 
             for (const branch of targets) {
