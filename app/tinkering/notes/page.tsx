@@ -16,14 +16,6 @@ export default async function TinkeringNotesPage() {
       <div className="ambient ambient--orange" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
 
-      <header className="site-header">
-        <a className="wordmark" href="/tinkering" aria-label="返回折腾页面">
-          <span className="wordmark__mark" aria-hidden="true" />
-          <span>积雨云的空间站</span>
-        </a>
-        <span className="edition">FIELD NOTES</span>
-      </header>
-
       <section className="tinkering-notes-page" aria-labelledby="notes-title">
         <div className="tinkering-notes-page__heading">
           <a href="/tinkering" className="tinkering-notes-page__back">← 返回折腾</a>
