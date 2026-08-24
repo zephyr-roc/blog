@@ -4,6 +4,10 @@ import { GlassCard } from "../components/GlassCard";
 import { getCollection, getPostsInCollection } from "../lib/content";
 import { SITE_NAME } from "../lib/seo";
 
+// Markdown content changes only when a new build is deployed, so render this
+// route once instead of repeating the complete RSC render for every visitor.
+export const dynamic = "force-static";
+
 const TINKERING_DESCRIPTION =
   "积雨云的技术折腾记录，涵盖 Linux、KVM/QEMU、网络配置、NAS、Caddy、Android ADB 与自动化部署。";
 

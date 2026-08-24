@@ -5,6 +5,10 @@ import { getAllCollections, getCollection, getPostsInCollection } from "../../li
 import { PostListItem } from "../../components/PostListItem";
 import { SITE_NAME } from "../../lib/seo";
 
+// Markdown content changes only when a new build is deployed, so render this
+// route once instead of repeating the complete RSC render for every visitor.
+export const dynamic = "force-static";
+
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {

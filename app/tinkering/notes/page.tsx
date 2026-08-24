@@ -3,6 +3,10 @@ import { getPostsInCollection } from "../../lib/content";
 import { SITE_NAME } from "../../lib/seo";
 import { TinkeringNotesGrid } from "./TinkeringNotesGrid";
 
+// Markdown content changes only when a new build is deployed, so render this
+// route once instead of repeating the complete RSC render for every visitor.
+export const dynamic = "force-static";
+
 const NOTES_DESCRIPTION =
   "浏览积雨云的技术笔记：Linux、KVM/QEMU、网络、NAS、Caddy、Android ADB 与自动化部署实践。";
 

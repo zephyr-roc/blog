@@ -34,16 +34,11 @@ function applyTilt(card: HTMLElement, x: number, y: number, active = true) {
 
 function applyPointerPressure(
   card: HTMLElement,
+  bounds: DOMRect,
+  transitionSize: number,
   clientX: number,
   clientY: number,
 ) {
-  const perspective = card.closest<HTMLElement>(".card-perspective");
-  if (!perspective) return;
-
-  const bounds = card.getBoundingClientRect();
-  const transitionSize = Number.parseFloat(
-    getComputedStyle(perspective).getPropertyValue("--edge-transition"),
-  ) || 44;
   const rawX = ((clientX - bounds.left) / bounds.width) * 2 - 1;
   const rawY = ((clientY - bounds.top) / bounds.height) * 2 - 1;
   const outsideX = Math.max(bounds.left - clientX, clientX - bounds.right, 0);
@@ -67,23 +62,75 @@ export function GlassMotionController() {
   const pathname = usePathname();
   const cardsRef = useRef<HTMLElement[]>([]);
   const keyboardTilt = useRef(new WeakMap<HTMLElement, Tilt>());
+  const pointerFrame = useRef<number | null>(null);
+  const latestPointer = useRef<{ x: number; y: number } | null>(null);
+  const pointerActiveCards = useRef(new Set<HTMLElement>());
+  const edgeTransitions = useRef(new WeakMap<HTMLElement, number>());
 
   useEffect(() => {
     cardsRef.current = Array.from(
       document.querySelectorAll<HTMLElement>("[data-motion-card='true']"),
     );
+    cardsRef.current.forEach((card) => {
+      const perspective = card.closest<HTMLElement>(".card-perspective");
+      const transitionSize = perspective
+        ? Number.parseFloat(
+            getComputedStyle(perspective).getPropertyValue("--edge-transition"),
+          ) || 44
+        : 44;
+      edgeTransitions.current.set(card, transitionSize);
+    });
 
     const resetCard = (card: HTMLElement) => {
       keyboardTilt.current.delete(card);
       applyTilt(card, 0, 0, false);
     };
-    const resetAll = () => cardsRef.current.forEach(resetCard);
+    const resetAll = () => {
+      pointerActiveCards.current.clear();
+      cardsRef.current.forEach(resetCard);
+    };
+
+    const flushPointer = () => {
+      pointerFrame.current = null;
+      const pointer = latestPointer.current;
+      if (!pointer) return;
+
+      // Read every rectangle first, then write styles. This avoids a forced
+      // layout after each card update and keeps one pointer event to one frame.
+      const measurements = cardsRef.current.map((card) => ({
+        card,
+        bounds: card.getBoundingClientRect(),
+        transitionSize: edgeTransitions.current.get(card) ?? 44,
+      }));
+      const nextActiveCards = new Set<HTMLElement>();
+
+      measurements.forEach(({ card, bounds, transitionSize }) => {
+        const isNear = pointer.x >= bounds.left - transitionSize
+          && pointer.x <= bounds.right + transitionSize
+          && pointer.y >= bounds.top - transitionSize
+          && pointer.y <= bounds.bottom + transitionSize;
+
+        if (isNear) {
+          nextActiveCards.add(card);
+          applyPointerPressure(
+            card,
+            bounds,
+            transitionSize,
+            pointer.x,
+            pointer.y,
+          );
+        } else if (pointerActiveCards.current.has(card)) {
+          resetCard(card);
+        }
+      });
+
+      pointerActiveCards.current = nextActiveCards;
+    };
 
     const handlePointerMove = (event: globalThis.PointerEvent) => {
-      if (event.pointerType === "touch") return;
-      cardsRef.current.forEach((card) => {
-        applyPointerPressure(card, event.clientX, event.clientY);
-      });
+      latestPointer.current = { x: event.clientX, y: event.clientY };
+      if (pointerFrame.current !== null) return;
+      pointerFrame.current = window.requestAnimationFrame(flushPointer);
     };
     const handlePointerExit = (event: globalThis.PointerEvent) => {
       if (event.relatedTarget === null) resetAll();
@@ -129,16 +176,27 @@ export function GlassMotionController() {
       if (card && !card.contains(event.relatedTarget as Node | null)) resetCard(card);
     };
 
-    window.addEventListener("pointermove", handlePointerMove, { passive: true });
-    window.addEventListener("pointerout", handlePointerExit, { passive: true });
+    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    if (finePointer) {
+      window.addEventListener("pointermove", handlePointerMove, { passive: true });
+      window.addEventListener("pointerout", handlePointerExit, { passive: true });
+    }
     window.addEventListener(GLASS_MOTION_TILT_EVENT, handleMotionTilt);
     window.addEventListener(GLASS_MOTION_RESET_EVENT, resetAll);
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("focusout", handleFocusOut);
 
     return () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerout", handlePointerExit);
+      if (finePointer) {
+        window.removeEventListener("pointermove", handlePointerMove);
+        window.removeEventListener("pointerout", handlePointerExit);
+      }
+      if (pointerFrame.current !== null) {
+        window.cancelAnimationFrame(pointerFrame.current);
+        pointerFrame.current = null;
+      }
+      latestPointer.current = null;
+      pointerActiveCards.current.clear();
       window.removeEventListener(GLASS_MOTION_TILT_EVENT, handleMotionTilt);
       window.removeEventListener(GLASS_MOTION_RESET_EVENT, resetAll);
       document.removeEventListener("keydown", handleKeyDown);
