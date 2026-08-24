@@ -2720,3 +2720,30 @@ a {
     height: 19px;
   }
 }
+
+
+/* True masonry: JavaScript measures cards and places each into the shortest column. */
+.notes-waterfall {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.notes-waterfall > .note-tile {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  will-change: transform;
+  transition: transform 260ms cubic-bezier(.2, .8, .2, 1);
+}
+
+.notes-waterfall[data-ready="false"] > .note-tile {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notes-waterfall > .note-tile {
+    transition: none;
+  }
+}
