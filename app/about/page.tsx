@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import { AboutProfileCard } from "../components/AboutProfileCard";
+
+export const metadata: Metadata = {
+  title: "关于我",
+};
 
 export default function About() {
   return (
