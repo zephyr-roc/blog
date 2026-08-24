@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getAllCollections, getCollection, getPostsInCollection } from "../../lib/content";
 import { PostListItem } from "../../components/PostListItem";
+import { SITE_NAME } from "../../lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -15,7 +16,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const collection = await getCollection(slug);
   if (!collection) return {};
-  return { title: collection.title };
+
+  const canonical =
+    slug === "tinkering" ? "/tinkering" : `/collections/${slug}`;
+
+  return {
+    title: collection.title,
+    description: collection.description,
+    alternates: { canonical },
+    openGraph: {
+      type: "website",
+      locale: "zh_CN",
+      url: canonical,
+      siteName: SITE_NAME,
+      title: `${collection.title} — ${SITE_NAME}`,
+      description: collection.description,
+    },
+  };
 }
 
 export default async function CollectionPage({ params }: Props) {
