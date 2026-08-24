@@ -251,7 +251,7 @@ export function LiquidGlassNavigation() {
                   className={`liquid-navigation__icon liquid-navigation__icon--${item.icon}`}
                   aria-hidden="true"
                 />
-                <span>{item.label}</span>
+                <span className="liquid-navigation__label">{item.label}</span>
               </Link>
             );
           })}
