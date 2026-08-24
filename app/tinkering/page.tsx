@@ -51,7 +51,6 @@ export default async function TinkeringPage() {
             ariaLabel={`折腾日志，共 ${posts.length} 篇记录`}
           >
             <div className="tinkering-card__header" aria-hidden="true">
-              <span>FIELD NOTES</span>
               <span>{String(posts.length).padStart(2, "0")} ENTRIES</span>
             </div>
 
