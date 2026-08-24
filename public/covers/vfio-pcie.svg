@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+<title id="title">VFIO PCIe 直通</title><desc id="desc">发光芯片和 PCIe 扩展卡跨过隔离边界</desc>
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#0a0912"/><stop offset=".5" stop-color="#21163a"/><stop offset="1" stop-color="#63319a"/></linearGradient><linearGradient id="metal" x2="1" y2="1"><stop stop-color="#302a45"/><stop offset=".5" stop-color="#151421"/><stop offset="1" stop-color="#51406f"/></linearGradient><radialGradient id="hot"><stop stop-color="#ff9d50" stop-opacity=".85"/><stop offset="1" stop-color="#ff7043" stop-opacity="0"/></radialGradient><filter id="shadow"><feDropShadow dx="0" dy="28" stdDeviation="30" flood-color="#030207" flood-opacity=".7"/></filter></defs>
+<rect width="1200" height="900" rx="72" fill="url(#bg)"/><circle cx="940" cy="700" r="360" fill="url(#hot)" opacity=".55"/>
+<path d="M600 90v720" stroke="#fff" stroke-opacity=".12" stroke-width="3" stroke-dasharray="16 18"/>
+<g filter="url(#shadow)">
+<rect x="130" y="220" width="380" height="380" rx="52" fill="url(#metal)" stroke="#fff" stroke-opacity=".22" stroke-width="5"/>
+<rect x="225" y="315" width="190" height="190" rx="28" fill="#171321" stroke="#b99cff" stroke-width="7"/>
+<g stroke="#c8b7ff" stroke-width="12"><path d="M170 280h55M170 350h55M170 420h55M170 490h55M415 280h55M415 350h55M415 420h55M415 490h55"/><path d="M285 255v60M355 255v60M285 505v60M355 505v60"/></g>
+<path d="M290 410l38 38 70-82" fill="none" stroke="#ff9d50" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(690 240)">
+<path d="M0 80Q0 20 60 20h300q60 0 60 60v300H0z" fill="#13131f" stroke="#fff" stroke-opacity=".22" stroke-width="5"/>
+<circle cx="120" cy="180" r="74" fill="none" stroke="#8f76ff" stroke-width="20"/><circle cx="300" cy="180" r="74" fill="none" stroke="#ff8b48" stroke-width="20"/>
+<path d="M45 380h330v58H45z" fill="#d8b34c"/><path d="M85 380v58M145 380v58M205 380v58M265 380v58M325 380v58" stroke="#6d5220" stroke-width="8"/>
+</g>
+<path d="M520 410h150" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-dasharray="12 24"/>
+</g></svg>

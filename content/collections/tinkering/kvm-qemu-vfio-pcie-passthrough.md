@@ -2,6 +2,7 @@
 title: 用 VFIO 给 KVM 虚拟机直通 PCIe 设备
 date: 2026-08-21
 excerpt: 显卡、网卡、HBA 和 NVMe 直通的核心不是一条 vfio-pci 命令，而是 IOMMU Group、驱动解绑和可回退的管理链路。
+cover: /covers/vfio-pcie.svg
 ---
 
 ## VFIO 在做什么

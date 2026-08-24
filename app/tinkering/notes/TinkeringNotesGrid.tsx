@@ -121,6 +121,12 @@ export function TinkeringNotesGrid({ posts }: TinkeringNotesGridProps) {
                   } as NoteStyle}
                 >
                   <a href={`/tinkering/${post.slug}`}>
+                    {post.cover && (
+                      <div className="note-tile__cover">
+                        <img src={post.cover} alt="" loading="lazy" />
+                      </div>
+                    )}
+                    <div className="note-tile__body">
                     <span className="note-tile__index">
                       NOTE {String(index + 1).padStart(2, "0")}
                     </span>
@@ -129,6 +135,7 @@ export function TinkeringNotesGrid({ posts }: TinkeringNotesGridProps) {
                     <footer>
                       <time dateTime={post.date}>{post.date}</time>
                     </footer>
+                    </div>
                   </a>
                 </article>
               ))}

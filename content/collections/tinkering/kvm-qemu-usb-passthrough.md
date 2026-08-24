@@ -2,6 +2,7 @@
 title: KVM/QEMU 的 USB 设备直通怎么选
 date: 2026-08-24
 excerpt: 从单个 U 盘、打印机到整块 USB 控制器，直通方式不同，热插拔、稳定性和宿主机占用也完全不同。
+cover: /covers/usb-passthrough.svg
 ---
 
 ## 三种接法

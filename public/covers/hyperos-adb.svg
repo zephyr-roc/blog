@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+<title id="title">ADB 连接手机</title><desc id="desc">紫色终端窗口连接一部带有系统模块的手机</desc>
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#11101c"/><stop offset=".55" stop-color="#29204d"/><stop offset="1" stop-color="#7f52ff"/></linearGradient>
+<radialGradient id="glow"><stop stop-color="#ff8a34" stop-opacity=".9"/><stop offset="1" stop-color="#ff8a34" stop-opacity="0"/></radialGradient>
+<pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse"><path d="M64 0H0V64" fill="none" stroke="#fff" stroke-opacity=".055"/></pattern>
+<filter id="shadow"><feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#05030c" flood-opacity=".65"/></filter>
+</defs>
+<rect width="1200" height="900" rx="72" fill="url(#bg)"/><rect width="1200" height="900" rx="72" fill="url(#grid)"/>
+<circle cx="1020" cy="760" r="310" fill="url(#glow)" opacity=".5"/>
+<g filter="url(#shadow)">
+<rect x="120" y="180" width="560" height="420" rx="32" fill="#0c0b14" fill-opacity=".82" stroke="#fff" stroke-opacity=".16" stroke-width="3"/>
+<circle cx="168" cy="226" r="10" fill="#ff6b62"/><circle cx="202" cy="226" r="10" fill="#f7c84b"/><circle cx="236" cy="226" r="10" fill="#63d58b"/>
+<path d="M180 322l72 58-72 58M286 438h128" fill="none" stroke="#bba7ff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M180 510h330" stroke="#fff" stroke-opacity=".22" stroke-width="14" stroke-linecap="round"/>
+<rect x="750" y="100" width="300" height="650" rx="58" fill="#12101c" stroke="#fff" stroke-opacity=".22" stroke-width="5"/>
+<rect x="778" y="166" width="244" height="500" rx="28" fill="#221a3d"/>
+<rect x="850" y="122" width="100" height="12" rx="6" fill="#fff" fill-opacity=".25"/>
+<g fill="none" stroke="#c7b6ff" stroke-width="12"><rect x="820" y="230" width="70" height="70" rx="18"/><rect x="910" y="230" width="70" height="70" rx="18"/><rect x="820" y="320" width="70" height="70" rx="18"/><rect x="910" y="320" width="70" height="70" rx="18"/></g>
+<path d="M680 470C735 470 710 530 778 530" fill="none" stroke="#ff9a4e" stroke-width="16" stroke-linecap="round" stroke-dasharray="8 28"/>
+</g></svg>
