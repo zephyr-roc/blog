@@ -46,42 +46,33 @@ export default async function TinkeringPage() {
         </div>
 
         <div className="hero__stage tinkering-hero__stage">
-          <GlassCard
-            className="tinkering-card"
-            ariaLabel={`折腾日志，共 ${posts.length} 篇记录`}
+          <a
+            className="tinkering-card-link"
+            href="/tinkering/notes"
+            aria-label={`打开折腾日志，共 ${posts.length} 篇记录`}
           >
-            <div className="tinkering-card__header" aria-hidden="true">
-              <span>{String(posts.length).padStart(2, "0")} ENTRIES</span>
-            </div>
+            <GlassCard
+              className="tinkering-card"
+              ariaLabel={`折腾日志，共 ${posts.length} 篇记录`}
+            >
+              <div className="tinkering-card__header" aria-hidden="true">
+                <span>{String(posts.length).padStart(2, "0")} ENTRIES</span>
+              </div>
 
-            <div className="tinkering-card__mark" aria-hidden="true">
-              <span>⚙</span>
-            </div>
+              <div className="tinkering-card__mark" aria-hidden="true">
+                <span>⚙</span>
+              </div>
 
-            <div className="tinkering-card__content">
-              <p>RECENT EXPERIMENTS</p>
-              <h2>折腾日志</h2>
-              {posts.length === 0 ? (
-                <p className="tinkering-card__empty">新的实验正在酝酿中。</p>
-              ) : (
-                <div className="tinkering-card__entries">
-                  {posts.map((post) => (
-                    <a
-                      className="tinkering-card__entry"
-                      href={`/tinkering/${post.slug}`}
-                      key={post.slug}
-                    >
-                      <span>
-                        <strong>{post.title}</strong>
-                        <small>{post.excerpt}</small>
-                      </span>
-                      <span className="tinkering-card__arrow" aria-hidden="true">→</span>
-                    </a>
-                  ))}
-                </div>
-              )}
-            </div>
-          </GlassCard>
+              <div className="tinkering-card__content">
+                <p>RECENT EXPERIMENTS</p>
+                <h2>折腾日志</h2>
+                <span className="tinkering-card__summary">
+                  工具、配置、踩坑，以及那些值得记下来的意外发现。
+                </span>
+                <span className="tinkering-card__cta">浏览全部记录 →</span>
+              </div>
+            </GlassCard>
+          </a>
 
           <div className="interaction-hint" aria-hidden="true">
             <span className="interaction-hint__line" />
