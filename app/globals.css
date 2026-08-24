@@ -2274,7 +2274,7 @@ a {
   z-index: 2;
   width: min(1440px, calc(100% - clamp(16px, 6vw, 120px)));
   margin: 0 auto;
-  padding: clamp(64px, 8vw, 112px) 0 96px;
+  padding: clamp(36px, 5vw, 72px) 0 96px;
 }
 
 .tinkering-notes-page__heading {
@@ -2594,4 +2594,14 @@ a {
   background:
     radial-gradient(circle at 92% 105%, var(--tile-accent), transparent 48%),
     linear-gradient(135deg, rgba(255, 255, 255, .065), rgba(255, 255, 255, .02));
+}
+
+
+/* Give note cards the same calm breathing room as collection subpages. */
+.notes-waterfall {
+  gap: clamp(22px, 1.8vw, 30px);
+}
+
+.notes-waterfall__column {
+  gap: clamp(22px, 1.8vw, 30px);
 }
