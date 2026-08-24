@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const collection = await getCollection(slug);
   if (!collection) return {};
-  return { title: `${collection.title} — 積雨雲的空間站` };
+  return { title: collection.title };
 }
 
 export default async function CollectionPage({ params }: Props) {

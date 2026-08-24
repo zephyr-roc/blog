@@ -5,8 +5,11 @@ import { MotionTiltControl } from "./components/MotionTiltControl";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "積雨雲的空間站",
-  description: "積雨雲的空間站",
+  title: {
+    default: "积雨云的空间站",
+    template: "%s — 积雨云的空间站",
+  },
+  description: "积雨云的空间站",
   verification: {
     google: "tLrExgZ6RF0M_O2E_7xx2rkTIuWOvI6oGTv-ync8ccE",
   },
