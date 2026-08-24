@@ -2565,3 +2565,33 @@ a {
     min-height: 210px;
   }
 }
+
+
+/* Width-first masonry: fill the first row before stacking vertically. */
+.notes-waterfall {
+  display: grid;
+  grid-template-columns: repeat(var(--notes-columns, 1), minmax(0, 1fr));
+  align-items: start;
+  gap: 18px;
+  column-count: initial;
+  column-gap: initial;
+}
+
+.notes-waterfall__column {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.notes-waterfall .note-tile {
+  display: block;
+  width: 100%;
+  margin: 0;
+}
+
+.notes-waterfall .note-tile a {
+  background:
+    radial-gradient(circle at 92% 105%, var(--tile-accent), transparent 48%),
+    linear-gradient(135deg, rgba(255, 255, 255, .065), rgba(255, 255, 255, .02));
+}
