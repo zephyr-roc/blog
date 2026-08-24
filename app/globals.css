@@ -2697,3 +2697,26 @@ a {
     transition: none;
   }
 }
+
+
+/* Compact bottom navigation for narrow screens: icons stay, labels collapse. */
+@media (max-width: 520px) {
+  .liquid-navigation__surface {
+    --segment-width: 58px;
+  }
+
+  .liquid-navigation__item {
+    min-width: var(--segment-width);
+    padding-inline: 0;
+    gap: 0;
+  }
+
+  .liquid-navigation__label {
+    display: none;
+  }
+
+  .liquid-navigation__icon {
+    width: 19px;
+    height: 19px;
+  }
+}
