@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -34,6 +34,7 @@ function getColumnCount(width: number) {
 export function TinkeringNotesGrid({ posts }: TinkeringNotesGridProps) {
   const [query, setQuery] = useState("");
   const [columnCount, setColumnCount] = useState(1);
+  const [layoutReady, setLayoutReady] = useState(false);
   const waterfallRef = useRef<HTMLDivElement>(null);
 
   const filteredPosts = useMemo(() => {
@@ -48,7 +49,7 @@ export function TinkeringNotesGrid({ posts }: TinkeringNotesGridProps) {
     );
   }, [posts, query]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const waterfall = waterfallRef.current;
     if (!waterfall) return;
 
@@ -57,6 +58,7 @@ export function TinkeringNotesGrid({ posts }: TinkeringNotesGridProps) {
     };
 
     updateColumns(waterfall.clientWidth);
+    setLayoutReady(true);
 
     const observer = new ResizeObserver(([entry]) => {
       updateColumns(entry.contentRect.width);
@@ -107,6 +109,8 @@ export function TinkeringNotesGrid({ posts }: TinkeringNotesGridProps) {
       ) : (
         <div
           className="notes-waterfall"
+          data-ready={layoutReady}
+          aria-busy={!layoutReady}
           ref={waterfallRef}
           style={{ "--notes-columns": columnCount } as CSSProperties}
         >
