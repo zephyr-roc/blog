@@ -13,13 +13,18 @@ FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV LIKES_DB_PATH=/data/blog.db
 
 RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+    adduser --system --uid 1001 nextjs && \
+    mkdir -p /data && \
+    chown nextjs:nodejs /data
 
 COPY --from=builder --chown=nextjs:nodejs /app/dist/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/content ./content
+COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
+COPY --from=builder --chown=nextjs:nodejs /app/db/migrations ./db/migrations
 
 USER nextjs
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "node scripts/migrate-likes.mjs && node server.js"]
