@@ -35,7 +35,7 @@ export default async function TinkeringPage() {
       <div className="ambient ambient--orange" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
 
-      <header className="site-header">
+      <header className="site-header" data-nosnippet>
         <a className="wordmark" href="/" aria-label="返回主页">
           <span className="wordmark__mark" aria-hidden="true" />
           <span>积雨云的空间站</span>
@@ -45,7 +45,7 @@ export default async function TinkeringPage() {
 
       <section className="hero tinkering-hero" aria-labelledby="tinkering-title">
         <div className="hero__intro">
-          <p className="hero__kicker">BUILD / BREAK / LEARN</p>
+          <p className="hero__kicker" data-nosnippet>BUILD / BREAK / LEARN</p>
           <h1 id="tinkering-title">
             保持好奇，
             <br />
@@ -87,14 +87,14 @@ export default async function TinkeringPage() {
             </GlassCard>
           </a>
 
-          <div className="interaction-hint" aria-hidden="true">
+          <div className="interaction-hint" aria-hidden="true" data-nosnippet>
             <span className="interaction-hint__line" />
             CLICK TO READ
           </div>
         </div>
       </section>
 
-      <footer className="site-footer">
+      <footer className="site-footer" data-nosnippet>
         <span>TOOLS · CONFIGS · HAPPY ACCIDENTS</span>
         <span>积雨云的实验场</span>
       </footer>
