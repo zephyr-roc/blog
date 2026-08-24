@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PostContent } from "../../components/PostContent";
+import { LikeButton } from "../../components/LikeButton";
 import { getPost, getPostsInCollection } from "../../lib/content";
 
 type Props = { params: Promise<{ post: string }> };
@@ -55,6 +56,7 @@ export default async function TinkeringPostPage({ params }: Props) {
         </header>
 
         <PostContent html={post.htmlContent} />
+        <LikeButton collectionSlug="tinkering" postSlug={postSlug} />
       </article>
     </main>
   );
