@@ -1,4 +1,4 @@
-import { getLikeCount, incrementLikeCount } from "../../../../../lib/likes-db";
+import { getLikeCount, incrementLikeCount } from "../../../../lib/likes-db";
 
 type RouteContext = {
   params: Promise<{ collection: string; post: string }>;
