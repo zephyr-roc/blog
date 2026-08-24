@@ -4,7 +4,7 @@ import { GlassCard } from "../components/GlassCard";
 import { getCollection, getPostsInCollection } from "../lib/content";
 
 export const metadata: Metadata = {
-  title: "折腾 — 積雨雲的空間站",
+  title: "折腾",
   description: "工具、配置、踩坑与意外发现。",
 };
 
