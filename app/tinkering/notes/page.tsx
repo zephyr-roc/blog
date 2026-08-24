@@ -3,7 +3,7 @@ import { getPostsInCollection } from "../../lib/content";
 import { TinkeringNotesGrid } from "./TinkeringNotesGrid";
 
 export const metadata: Metadata = {
-  title: "折腾日志 — 積雨雲的空間站",
+  title: "折腾日志",
   description: "工具、配置、踩坑与意外发现。",
 };
 
