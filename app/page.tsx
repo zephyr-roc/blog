@@ -1,5 +1,21 @@
+import type { Metadata } from "next";
 import { getAllCollections } from "./lib/content";
 import { CollectionCard } from "./components/CollectionCard";
+import { SITE_DESCRIPTION, SITE_NAME } from "./lib/seo";
+
+export const metadata: Metadata = {
+  title: { absolute: SITE_NAME },
+  description: SITE_DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "zh_CN",
+    url: "/",
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
+};
 
 export default async function Home() {
   const collections = (await getAllCollections()).filter(
