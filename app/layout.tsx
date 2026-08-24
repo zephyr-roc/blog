@@ -50,9 +50,20 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
   },
   icons: {
-    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
-    shortcut: ["/favicon.svg"],
-    apple: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    icon: [
+      { url: "/favicon.png?v=2", type: "image/png", sizes: "64x64" },
+      { url: "/favicon.svg?v=2", type: "image/svg+xml", sizes: "any" },
+    ],
+    shortcut: [
+      { url: "/favicon.png?v=2", type: "image/png", sizes: "64x64" },
+    ],
+    apple: [
+      {
+        url: "/apple-touch-icon.png?v=2",
+        type: "image/png",
+        sizes: "180x180",
+      },
+    ],
   },
 };
 
