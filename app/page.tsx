@@ -1,5 +1,21 @@
+import type { Metadata } from "next";
 import { getAllCollections } from "./lib/content";
 import { CollectionCard } from "./components/CollectionCard";
+import { SITE_DESCRIPTION, SITE_NAME } from "./lib/seo";
+
+export const metadata: Metadata = {
+  title: { absolute: SITE_NAME },
+  description: SITE_DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "zh_CN",
+    url: "/",
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
+};
 
 export default async function Home() {
   const collections = (await getAllCollections()).filter(
@@ -12,7 +28,7 @@ export default async function Home() {
       <div className="ambient ambient--orange" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
 
-      <header className="site-header">
+      <header className="site-header" data-nosnippet>
         <a className="wordmark" href="#collections" aria-label="积雨云的空间站首页">
           <span className="wordmark__mark" aria-hidden="true" />
           <span>积雨云的空间站</span>
@@ -22,7 +38,7 @@ export default async function Home() {
 
       <section className="hero" aria-labelledby="page-title">
         <div className="hero__intro">
-          <p className="hero__kicker">WRITING, IN MOTION</p>
+          <p className="hero__kicker" data-nosnippet>WRITING, IN MOTION</p>
           <h1 id="page-title">
             记录想法，
             <br />
@@ -55,14 +71,14 @@ export default async function Home() {
               </div>
             ))}
           </div>
-          <div className="interaction-hint" aria-hidden="true">
+          <div className="interaction-hint" aria-hidden="true" data-nosnippet>
             <span className="interaction-hint__line" />
             CLICK TO EXPLORE
           </div>
         </div>
       </section>
 
-      <footer className="site-footer">
+      <footer className="site-footer" data-nosnippet>
         <span>MODERN LANGUAGES · OPEN SOURCE</span>
         <div className="site-footer__actions">
           <span>积雨云的空间站</span>

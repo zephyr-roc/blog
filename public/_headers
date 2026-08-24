@@ -1,0 +1,7 @@
+# Decorative article-cover SVG files should remain usable by pages but should
+# not appear as standalone results in search engines.
+/covers/*
+  X-Robots-Tag: noindex
+
+/zig-logomark.svg
+  X-Robots-Tag: noindex

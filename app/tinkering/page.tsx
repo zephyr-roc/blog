@@ -2,10 +2,23 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { GlassCard } from "../components/GlassCard";
 import { getCollection, getPostsInCollection } from "../lib/content";
+import { SITE_NAME } from "../lib/seo";
+
+const TINKERING_DESCRIPTION =
+  "积雨云的技术折腾记录，涵盖 Linux、KVM/QEMU、网络配置、NAS、Caddy、Android ADB 与自动化部署。";
 
 export const metadata: Metadata = {
   title: "折腾",
-  description: "工具、配置、踩坑与意外发现。",
+  description: TINKERING_DESCRIPTION,
+  alternates: { canonical: "/tinkering" },
+  openGraph: {
+    type: "website",
+    locale: "zh_CN",
+    url: "/tinkering",
+    siteName: SITE_NAME,
+    title: `折腾 — ${SITE_NAME}`,
+    description: TINKERING_DESCRIPTION,
+  },
 };
 
 export default async function TinkeringPage() {
@@ -22,7 +35,7 @@ export default async function TinkeringPage() {
       <div className="ambient ambient--orange" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
 
-      <header className="site-header">
+      <header className="site-header" data-nosnippet>
         <a className="wordmark" href="/" aria-label="返回主页">
           <span className="wordmark__mark" aria-hidden="true" />
           <span>积雨云的空间站</span>
@@ -32,7 +45,7 @@ export default async function TinkeringPage() {
 
       <section className="hero tinkering-hero" aria-labelledby="tinkering-title">
         <div className="hero__intro">
-          <p className="hero__kicker">BUILD / BREAK / LEARN</p>
+          <p className="hero__kicker" data-nosnippet>BUILD / BREAK / LEARN</p>
           <h1 id="tinkering-title">
             保持好奇，
             <br />
@@ -74,14 +87,14 @@ export default async function TinkeringPage() {
             </GlassCard>
           </a>
 
-          <div className="interaction-hint" aria-hidden="true">
+          <div className="interaction-hint" aria-hidden="true" data-nosnippet>
             <span className="interaction-hint__line" />
             CLICK TO READ
           </div>
         </div>
       </section>
 
-      <footer className="site-footer">
+      <footer className="site-footer" data-nosnippet>
         <span>TOOLS · CONFIGS · HAPPY ACCIDENTS</span>
         <span>积雨云的实验场</span>
       </footer>
