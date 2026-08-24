@@ -1415,7 +1415,7 @@ a {
   }
 
   .liquid-navigation__surface {
-    --segment-width: 116px;
+    --segment-width: clamp(104px, calc((100vw - 46px) / 3), 116px);
     --surface-padding: 6px;
     padding: 6px;
   }
@@ -1431,7 +1431,7 @@ a {
   }
 
   .liquid-navigation__item {
-    min-width: 116px;
+    min-width: var(--segment-width);
     height: 50px;
     padding-inline: 18px;
   }
@@ -2699,8 +2699,8 @@ a {
 }
 
 
-/* Compact bottom navigation for narrow screens: icons stay, labels collapse. */
-@media (max-width: 520px) {
+/* Collapse only when the smallest complete navigation can no longer fit. */
+@media (max-width: 347px) {
   .liquid-navigation__surface {
     --segment-width: 58px;
   }
