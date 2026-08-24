@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getAllPostSlugs, getCollection, getPost } from "../../../lib/content";
 import { PostContent } from "../../../components/PostContent";
+import { LikeButton } from "../../../components/LikeButton";
 
 type Props = { params: Promise<{ slug: string; post: string }> };
 
@@ -66,6 +67,7 @@ export default async function PostPage({ params }: Props) {
         </header>
 
         <PostContent html={post.htmlContent} />
+        <LikeButton collectionSlug={slug} postSlug={postSlug} />
       </article>
     </main>
   );
