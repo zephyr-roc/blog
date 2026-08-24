@@ -2101,6 +2101,16 @@ a {
   margin: 0 0 1.25em;
 }
 
+.post-content img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  margin: 1.75rem auto;
+  border-radius: 18px;
+  object-fit: contain;
+}
+
 .post-content ul,
 .post-content ol {
   margin: 0 0 1.25em;
