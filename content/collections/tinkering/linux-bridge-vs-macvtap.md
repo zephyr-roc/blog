@@ -2,7 +2,7 @@
 title: Linux Bridge 和 MacVTap 到底有什么区别
 date: 2026-08-24
 excerpt: 都能让虚拟机接入物理网络，但一个像宿主机里的交换机，另一个更像直接挂在物理网卡上的虚拟端口。
-cover: /covers/linux-bridge-macvtap.svg
+cover: /covers/linux-bridge-macvtap-v2.svg
 ---
 
 ## 先说结论
