@@ -1,15 +1,23 @@
 "use client";
 
-import { Glass, type GlassOptics } from "@samasante/liquid-glass";
+import type { GlassOptics } from "@samasante/liquid-glass";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  lazy,
+  Suspense,
   type CSSProperties,
   type MouseEvent,
   type PointerEvent,
   useLayoutEffect,
   useRef,
+  useState,
 } from "react";
+
+const LazyGlass = lazy(async () => {
+  const { Glass } = await import("@samasante/liquid-glass");
+  return { default: Glass };
+});
 
 const navigationItems = [
   { href: "/", label: "主页", icon: "home" },
@@ -52,6 +60,7 @@ export function LiquidGlassNavigation() {
   const pathname = usePathname();
   const router = useRouter();
   const surfaceRef = useRef<HTMLDivElement>(null);
+  const [lensEnabled, setLensEnabled] = useState(false);
   const dragStart = useRef<GestureStart | null>(null);
   const dragOffset = useRef(0);
   const pointerTravel = useRef(0);
@@ -157,7 +166,10 @@ export function LiquidGlassNavigation() {
           style={navigationStyle}
           data-dragging="false"
           data-active-index={activeIndex}
+          onPointerEnter={() => setLensEnabled(true)}
+          onFocusCapture={() => setLensEnabled(true)}
           onPointerDown={(event) => {
+            setLensEnabled(true);
             if (event.button !== 0) return;
             const bounds = event.currentTarget.getBoundingClientRect();
             const fraction = (event.clientX - bounds.left) / bounds.width;
@@ -220,14 +232,30 @@ export function LiquidGlassNavigation() {
             }
           }}
         >
-          <Glass
-            className="liquid-navigation__refraction"
-            radius={999}
-            optics={navigationGlassOptics}
-            aria-hidden="true"
-          >
-            <span className="liquid-navigation__refraction-content" />
-          </Glass>
+          {lensEnabled ? (
+            <Suspense
+              fallback={
+                <span
+                  className="liquid-navigation__refraction"
+                  aria-hidden="true"
+                />
+              }
+            >
+              <LazyGlass
+                className="liquid-navigation__refraction"
+                radius={999}
+                optics={navigationGlassOptics}
+                aria-hidden="true"
+              >
+                <span className="liquid-navigation__refraction-content" />
+              </LazyGlass>
+            </Suspense>
+          ) : (
+            <span
+              className="liquid-navigation__refraction"
+              aria-hidden="true"
+            />
+          )}
           <span className="liquid-navigation__indicator" aria-hidden="true" />
           <span className="sr-only">可拖动活动玻璃块切换页面</span>
           {navigationItems.map((item, index) => {
