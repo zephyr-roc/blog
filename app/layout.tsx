@@ -99,7 +99,7 @@ export default function RootLayout({
                 Posts - shulaoda&apos;s blog
               </a>
               <a href="https://dreamlike-ocean.github.io/blog/" target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>
-                概述 · GitBook
+                dreamlike-ocean&apos;s Blog
               </a>
               <a href="https://kawhicurry.github.io/" target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>
                 KawhiCurry&apos;s Blog
