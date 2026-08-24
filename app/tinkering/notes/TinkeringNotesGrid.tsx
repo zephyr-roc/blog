@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import type { PostMeta } from "../../lib/content";
 
 type TinkeringNotesGridProps = {
@@ -53,7 +53,7 @@ export function TinkeringNotesGrid({ posts }: TinkeringNotesGridProps) {
             <article
               className="note-tile"
               key={post.slug}
-              style={{ "--note-accent": String((index % 4) + 1) } as React.CSSProperties}
+              style={{ "--note-accent": String((index % 4) + 1) } as CSSProperties}
             >
               <a href={`/tinkering/${post.slug}`}>
                 <span className="note-tile__index">
