@@ -31,8 +31,8 @@ export default async function TinkeringNotesPage() {
 
       <section className="tinkering-notes-page" aria-labelledby="notes-title">
         <div className="tinkering-notes-page__heading">
-          <a href="/tinkering" className="tinkering-notes-page__back">← 返回折腾</a>
-          <p>BUILD / BREAK / LEARN</p>
+          <a href="/tinkering" className="tinkering-notes-page__back" data-nosnippet>← 返回折腾</a>
+          <p data-nosnippet>BUILD / BREAK / LEARN</p>
           <h1 id="notes-title">折腾日志</h1>
           <span>一些工具、配置、踩坑记录，以及偶然发现的解法。</span>
         </div>
