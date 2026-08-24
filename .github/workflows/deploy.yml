@@ -58,6 +58,7 @@ jobs:
                 --name blog \
                 --restart unless-stopped \
                 -p 127.0.0.1:3100:3000 \
+                -v blog-data:/data \
                 "$1"
             }
 
