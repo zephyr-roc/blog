@@ -6,7 +6,7 @@
 <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse"><path d="M64 0H0V64" fill="none" stroke="#fff" stroke-opacity=".055"/></pattern>
 <filter id="shadow"><feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#05030c" flood-opacity=".65"/></filter>
 </defs>
-<rect width="1200" height="900" rx="72" fill="url(#bg)"/><rect width="1200" height="900" rx="72" fill="url(#grid)"/>
+<rect width="1200" height="900" fill="url(#bg)"/><rect width="1200" height="900" fill="url(#grid)"/>
 <circle cx="1020" cy="760" r="310" fill="url(#glow)" opacity=".5"/>
 <g filter="url(#shadow)">
 <rect x="120" y="180" width="560" height="420" rx="32" fill="#0c0b14" fill-opacity=".82" stroke="#fff" stroke-opacity=".16" stroke-width="3"/>
