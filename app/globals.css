@@ -2218,6 +2218,10 @@ a {
 
 /* ── Tinkering notes archive ─────────────────────────────────── */
 
+.tinkering-card__header {
+  justify-content: flex-end;
+}
+
 .tinkering-card-link {
   display: block;
   width: min(100%, 690px);
