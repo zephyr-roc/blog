@@ -3,6 +3,10 @@ import { getAllCollections } from "./lib/content";
 import { CollectionCard } from "./components/CollectionCard";
 import { SITE_DESCRIPTION, SITE_NAME } from "./lib/seo";
 
+// Markdown content changes only when a new build is deployed, so render this
+// route once instead of repeating the complete RSC render for every visitor.
+export const dynamic = "force-static";
+
 export const metadata: Metadata = {
   title: { absolute: SITE_NAME },
   description: SITE_DESCRIPTION,
