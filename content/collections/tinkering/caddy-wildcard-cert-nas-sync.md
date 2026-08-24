@@ -284,9 +284,15 @@ if [[ "$cert_pub" != "$key_pub" ]]; then
   exit 1
 fi
 
-new_sum="$(sha256sum "$STAGING/fullchain.pem" "$STAGING/privkey.pem")"
+digest() {
+  sha256sum "$1" | cut -d' ' -f1
+}
+
+new_sum="$(digest "$STAGING/fullchain.pem"):$(digest "$STAGING/privkey.pem")"
 old_sum="$(
-  sha256sum "$TARGET/fullchain.pem" "$TARGET/privkey.pem" 2>/dev/null || true
+  if [[ -f "$TARGET/fullchain.pem" && -f "$TARGET/privkey.pem" ]]; then
+    printf '%s:%s'       "$(digest "$TARGET/fullchain.pem")"       "$(digest "$TARGET/privkey.pem")"
+  fi
 )"
 
 if [[ "$new_sum" == "$old_sum" ]]; then
@@ -306,23 +312,6 @@ mv -f "$TARGET/privkey.pem.new" "$TARGET/privkey.pem"
 
 echo "证书已更新"
 ```
-
-注意：直接比较包含文件路径的 `sha256sum` 输出会因为目录不同而始终不相等。实际使用时可以只比较哈希字段，或者将新旧文件分别计算后再拼接。更稳妥的比较写法是：
-
-```bash
-digest() {
-  sha256sum "$1" | cut -d' ' -f1
-}
-
-new_sum="$(digest "$STAGING/fullchain.pem"):$(digest "$STAGING/privkey.pem")"
-old_sum="$(
-  if [[ -f "$TARGET/fullchain.pem" && -f "$TARGET/privkey.pem" ]]; then
-    printf '%s:%s'       "$(digest "$TARGET/fullchain.pem")"       "$(digest "$TARGET/privkey.pem")"
-  fi
-)"
-```
-
-用这段替换脚本中的 `new_sum` 和 `old_sum`。
 
 ## NAS 定时任务
 
