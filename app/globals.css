@@ -2677,3 +2677,23 @@ a {
     transition: none;
   }
 }
+
+
+/* Keep the server-rendered one-column fallback from flashing before measurement. */
+.notes-waterfall[data-ready="false"] {
+  min-height: min(62vh, 640px);
+  visibility: hidden;
+  opacity: 0;
+}
+
+.notes-waterfall[data-ready="true"] {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 160ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notes-waterfall[data-ready="true"] {
+    transition: none;
+  }
+}
