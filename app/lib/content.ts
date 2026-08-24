@@ -34,6 +34,7 @@ export type PostMeta = {
   title: string;
   date: string;
   excerpt: string;
+  cover: string;
   chapter: string;
   chapterOrder: number;
 };
@@ -123,6 +124,7 @@ export async function getPostsInCollection(collectionSlug: string): Promise<Post
       title: data.title ?? slug,
       date: data.date ? String(data.date).slice(0, 10) : "",
       excerpt: data.excerpt ?? "",
+      cover: data.cover ?? "",
       chapter: data.chapter ?? "文章",
       chapterOrder: Number(data.chapterOrder ?? 999),
     };
@@ -146,6 +148,7 @@ export async function getPost(collectionSlug: string, postSlug: string): Promise
     title: data.title ?? postSlug,
     date: data.date ? String(data.date).slice(0, 10) : "",
     excerpt: data.excerpt ?? "",
+    cover: data.cover ?? "",
     chapter: data.chapter ?? "文章",
     chapterOrder: Number(data.chapterOrder ?? 999),
     htmlContent,
