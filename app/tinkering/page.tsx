@@ -2,10 +2,23 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { GlassCard } from "../components/GlassCard";
 import { getCollection, getPostsInCollection } from "../lib/content";
+import { SITE_NAME } from "../lib/seo";
+
+const TINKERING_DESCRIPTION =
+  "积雨云的技术折腾记录，涵盖 Linux、KVM/QEMU、网络配置、NAS、Caddy、Android ADB 与自动化部署。";
 
 export const metadata: Metadata = {
   title: "折腾",
-  description: "工具、配置、踩坑与意外发现。",
+  description: TINKERING_DESCRIPTION,
+  alternates: { canonical: "/tinkering" },
+  openGraph: {
+    type: "website",
+    locale: "zh_CN",
+    url: "/tinkering",
+    siteName: SITE_NAME,
+    title: `折腾 — ${SITE_NAME}`,
+    description: TINKERING_DESCRIPTION,
+  },
 };
 
 export default async function TinkeringPage() {
