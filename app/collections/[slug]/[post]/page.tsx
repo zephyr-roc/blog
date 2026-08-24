@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, post: postSlug } = await params;
   const post = await getPost(slug, postSlug);
   if (!post) return {};
-  return { title: `${post.title} — 積雨雲的空間站` };
+  return { title: post.title };
 }
 
 export default async function PostPage({ params }: Props) {
