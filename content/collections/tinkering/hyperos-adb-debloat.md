@@ -2,7 +2,7 @@
 title: 使用 ADB 精简澎湃 OS 系统应用
 date: 2026-08-24
 excerpt: 无需 ROOT，通过 ADB 移除澎湃 OS 中的快应用、云控、分析、质量服务、广告服务和系统浏览器。
-cover: /covers/hyperos-adb.svg
+cover: /covers/hyperos-adb-v2.svg
 ---
 
 ## 前言
