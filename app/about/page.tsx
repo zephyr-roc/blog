@@ -1,13 +1,35 @@
 import type { Metadata } from "next";
 import { AboutProfileCard } from "../components/AboutProfileCard";
+import {
+  personJsonLd,
+  serializeJsonLd,
+  SITE_NAME,
+} from "../lib/seo";
+
+const ABOUT_DESCRIPTION =
+  "积雨云（zephyr-roc）的个人介绍：关注编程语言、系统设计、Linux 虚拟化、网络与数字产品体验。";
 
 export const metadata: Metadata = {
   title: "关于我",
+  description: ABOUT_DESCRIPTION,
+  alternates: { canonical: "/about" },
+  openGraph: {
+    type: "profile",
+    locale: "zh_CN",
+    url: "/about",
+    siteName: SITE_NAME,
+    title: `关于我 — ${SITE_NAME}`,
+    description: ABOUT_DESCRIPTION,
+  },
 };
 
 export default function About() {
   return (
     <main className="experience-shell about-shell">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(personJsonLd) }}
+      />
       <div className="ambient ambient--violet" aria-hidden="true" />
       <div className="ambient ambient--orange" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
