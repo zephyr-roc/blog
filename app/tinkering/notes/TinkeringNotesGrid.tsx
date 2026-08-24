@@ -128,7 +128,6 @@ export function TinkeringNotesGrid({ posts }: TinkeringNotesGridProps) {
                     {post.excerpt && <p>{post.excerpt}</p>}
                     <footer>
                       <time dateTime={post.date}>{post.date}</time>
-                      <span aria-hidden="true">↗</span>
                     </footer>
                   </a>
                 </article>
