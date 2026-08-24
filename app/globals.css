@@ -2272,7 +2272,7 @@ a {
 .tinkering-notes-page {
   position: relative;
   z-index: 2;
-  width: min(1600px, 100%);
+  width: min(1440px, calc(100% - clamp(16px, 6vw, 120px)));
   margin: 0 auto;
   padding: clamp(64px, 8vw, 112px) 0 96px;
 }
