@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
 <title id="title">USB 设备直通</title><desc id="desc">USB 插头从宿主机穿过光圈连接虚拟机</desc>
 <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#0b0a12"/><stop offset=".55" stop-color="#231a38"/><stop offset="1" stop-color="#4a265b"/></linearGradient><linearGradient id="cable"><stop stop-color="#71ceff"/><stop offset=".5" stop-color="#a88cff"/><stop offset="1" stop-color="#ff9950"/></linearGradient><radialGradient id="ring"><stop offset=".55" stop-color="#a88cff" stop-opacity="0"/><stop offset=".75" stop-color="#a88cff" stop-opacity=".75"/><stop offset="1" stop-color="#a88cff" stop-opacity="0"/></radialGradient><filter id="glow"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-<rect width="1200" height="900" rx="72" fill="url(#bg)"/><circle cx="600" cy="450" r="270" fill="url(#ring)"/>
+<rect width="1200" height="900" fill="url(#bg)"/><circle cx="600" cy="450" r="270" fill="url(#ring)"/>
 <path d="M100 450h310c80 0 90-130 180-130h170" fill="none" stroke="url(#cable)" stroke-width="28" stroke-linecap="round" filter="url(#glow)"/>
 <g transform="translate(710 215)">
 <rect x="0" y="0" width="260" height="210" rx="34" fill="#171520" stroke="#fff" stroke-opacity=".25" stroke-width="5"/>
