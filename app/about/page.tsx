@@ -34,7 +34,7 @@ export default function About() {
       <div className="ambient ambient--orange" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
 
-      <header className="site-header">
+      <header className="site-header" data-nosnippet>
         <a className="wordmark" href="/" aria-label="返回主页">
           <span className="wordmark__mark" aria-hidden="true" />
           <span>积雨云的空间站</span>
@@ -44,7 +44,7 @@ export default function About() {
 
       <section className="about" aria-labelledby="about-title">
         <div className="about__intro">
-          <p className="hero__kicker">ABOUT / THE CREATOR</p>
+          <p className="hero__kicker" data-nosnippet>ABOUT / THE CREATOR</p>
           <h1 id="about-title">
             你好，
             <br />
@@ -60,7 +60,7 @@ export default function About() {
         <AboutProfileCard />
       </section>
 
-      <footer className="site-footer">
+      <footer className="site-footer" data-nosnippet>
         <span>DESIGNED WITH CURIOSITY</span>
         <span>DIGITAL CRAFT · 2026</span>
       </footer>
