@@ -25,9 +25,9 @@ const noteAccents = [
 ];
 
 function getColumnCount(width: number) {
-  if (width >= 1440) return 4;
-  if (width >= 1040) return 3;
-  if (width >= 680) return 2;
+  if (width >= 1260) return 4;
+  if (width >= 940) return 3;
+  if (width >= 620) return 2;
   return 1;
 }
 
