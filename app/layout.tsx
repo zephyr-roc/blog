@@ -111,7 +111,7 @@ export default function RootLayout({
               沪ICP备2026040143号
             </a>
             <a href="https://github.com/zephyr-roc" target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>
-              Copyright © 2026 zephyr-roc
+              Copyright © 2026 Zephyr
             </a>
           </div>
         </footer>
