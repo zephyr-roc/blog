@@ -2,8 +2,10 @@ import type { PostMeta } from "../lib/content";
 
 export function PostListItem({
   post,
+  href,
 }: {
   post: PostMeta;
+  href?: string;
 }) {
   const dateLabel = post.date
     ? new Date(post.date).toLocaleDateString("zh-CN", {
@@ -16,7 +18,7 @@ export function PostListItem({
   return (
     <li className="post-list__item">
       <a
-        href={`/collections/${post.collectionSlug}/${post.slug}`}
+        href={href ?? `/collections/${post.collectionSlug}/${post.slug}`}
         className="post-list__link"
       >
         <div className="post-list__meta">

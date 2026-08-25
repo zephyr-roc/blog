@@ -69,6 +69,35 @@ test("renders tinkering as a top-level page", async () => {
   assert.equal(postResponse.status, 200);
 });
 
+test("renders the deep radar as a top-level daily archive", async () => {
+  const response = await render("/radar");
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(html, /深潜雷达/);
+  assert.match(html, /DEEP SIGNAL \/ SOURCE \/ PROOF/);
+  assert.match(html, /href="\/radar\/2026-08-25"/);
+  assert.match(html, /href="\/radar\/feed\.xml"/);
+  assert.doesNotMatch(html, /COLLECTION · 合集/);
+
+  const postResponse = await render("/radar/2026-08-25");
+  assert.equal(postResponse.status, 200);
+
+  const postHtml = await postResponse.text();
+  assert.match(postHtml, /Simplifying Weak Reference Processing in ZGC/);
+  assert.match(postHtml, /How to speed up the Rust compiler in July 2026/);
+});
+
+test("publishes an RSS feed for deep radar subscribers", async () => {
+  const response = await render("/radar/feed.xml");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^application\/rss\+xml\b/i);
+
+  const xml = await response.text();
+  assert.match(xml, /<title>深潜雷达 — 積雨雲的空間站<\/title>/);
+  assert.match(xml, /<link>https:\/\/www\.ready-jump\.top\/radar\/2026-08-25<\/link>/);
+});
+
 test("server-renders the about content before client hydration", async () => {
   const response = await render("/about");
   assert.equal(response.status, 200);

@@ -62,6 +62,7 @@ export default async function PostPage({ params }: Props) {
   const { slug, post: postSlug } = await params;
 
   if (slug === "tinkering") redirect(`/tinkering/${postSlug}`);
+  if (slug === "deep-radar") redirect(`/radar/${postSlug}`);
 
   const [post, collection] = await Promise.all([
     getPost(slug, postSlug),

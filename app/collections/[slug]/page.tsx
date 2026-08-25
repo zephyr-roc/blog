@@ -43,6 +43,7 @@ export default async function CollectionPage({ params }: Props) {
   const { slug } = await params;
 
   if (slug === "tinkering") redirect("/tinkering");
+  if (slug === "deep-radar") redirect("/radar");
 
   const [collection, posts] = await Promise.all([
     getCollection(slug),

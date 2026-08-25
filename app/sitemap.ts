@@ -17,6 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .sort()
     .at(-1);
   const tinkering = collections.find((collection) => collection.slug === "tinkering");
+  const radar = collections.find((collection) => collection.slug === "deep-radar");
 
   const staticPages: MetadataRoute.Sitemap = [
     {
@@ -42,10 +43,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.8,
     },
+    {
+      url: `${SITE_URL}/radar`,
+      lastModified: radar?.latestDate || undefined,
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
   ];
 
   const collectionPages: MetadataRoute.Sitemap = collections
-    .filter((collection) => collection.slug !== "tinkering")
+    .filter(
+      (collection) =>
+        collection.slug !== "tinkering" && collection.slug !== "deep-radar",
+    )
     .map((collection) => ({
       url: `${SITE_URL}/collections/${collection.slug}`,
       lastModified: collection.latestDate || undefined,
@@ -59,7 +69,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url:
           collection.slug === "tinkering"
             ? `${SITE_URL}/tinkering/${post.slug}`
-            : `${SITE_URL}/collections/${collection.slug}/${post.slug}`,
+            : collection.slug === "deep-radar"
+              ? `${SITE_URL}/radar/${post.slug}`
+              : `${SITE_URL}/collections/${collection.slug}/${post.slug}`,
         lastModified: post.date || undefined,
         changeFrequency: "monthly" as const,
         priority: 0.6,

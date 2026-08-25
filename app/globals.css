@@ -862,6 +862,12 @@ a {
   );
 }
 
+.liquid-navigation__surface[data-active-index="3"] .liquid-navigation__refraction {
+  left: calc(
+    var(--surface-padding) + (var(--segment-width) + 4px) * 3 + var(--drag-offset)
+  );
+}
+
 .liquid-navigation__refraction-content {
   display: block;
   width: 100%;
@@ -1063,6 +1069,32 @@ a {
   border: 1.5px solid currentColor;
   border-radius: 2px;
   transform: rotate(15deg);
+}
+
+.liquid-navigation__icon--radar {
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+}
+
+.liquid-navigation__icon--radar::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+}
+
+.liquid-navigation__icon--radar::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  width: 7px;
+  height: 1.5px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: rotate(-38deg);
+  transform-origin: left center;
 }
 
 .about-shell {
@@ -1408,7 +1440,7 @@ a {
   }
 
   .liquid-navigation__surface {
-    --segment-width: clamp(104px, calc((100vw - 46px) / 3), 116px);
+    --segment-width: clamp(82px, calc((100vw - 52px) / 4), 116px);
     --surface-padding: 6px;
     padding: 6px;
   }
@@ -1426,7 +1458,9 @@ a {
   .liquid-navigation__item {
     min-width: var(--segment-width);
     height: 50px;
-    padding-inline: 18px;
+    gap: 6px;
+    padding-inline: 10px;
+    font-size: 11px;
   }
 
   .about {
@@ -2187,6 +2221,213 @@ a {
   border-top: 1px solid rgba(255,255,255,.08);
 }
 
+/* ── Deep Radar ─────────────────────────────────────────────── */
+
+.radar-shell {
+  min-height: 100svh;
+}
+
+.radar-page {
+  position: relative;
+  z-index: 2;
+  width: min(920px, 100%);
+  margin: 0 auto;
+  padding: clamp(48px, 7vw, 96px) 0 88px;
+}
+
+.radar-page__back {
+  display: inline-block;
+  margin-bottom: clamp(42px, 6vw, 68px);
+  color: rgba(240, 237, 248, .48);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: .12em;
+  text-decoration: none;
+  transition: color 180ms ease;
+}
+
+.radar-page__back:hover,
+.radar-page__back:focus-visible {
+  color: rgba(255, 255, 255, .9);
+}
+
+.radar-page__header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(24px, 4vw, 42px);
+}
+
+.radar-page__signal {
+  position: relative;
+  width: clamp(88px, 12vw, 124px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(128, 220, 255, .38);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(72, 212, 255, .84) 0 3px, transparent 4px),
+    repeating-radial-gradient(circle, rgba(72, 212, 255, .24) 0 1px, transparent 1px 23%);
+  box-shadow:
+    inset 0 0 34px rgba(72, 212, 255, .08),
+    0 0 36px rgba(72, 212, 255, .08);
+}
+
+.radar-page__signal::before,
+.radar-page__signal::after {
+  content: "";
+  position: absolute;
+  inset: 50% 8% auto;
+  height: 1px;
+  background: rgba(167, 232, 255, .22);
+}
+
+.radar-page__signal::after {
+  transform: rotate(90deg);
+}
+
+.radar-page__signal > span {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  width: 42%;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(72, 212, 255, .92), transparent);
+  box-shadow: 0 0 12px rgba(72, 212, 255, .5);
+  transform: rotate(-38deg);
+  transform-origin: left center;
+}
+
+.radar-page__header p,
+.radar-archive__header p {
+  margin: 0 0 14px;
+  color: #7fddff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .26em;
+}
+
+.radar-page__header h1 {
+  margin: 0;
+  font-size: clamp(48px, 7vw, 84px);
+  font-weight: 520;
+  line-height: 1;
+  letter-spacing: -.065em;
+}
+
+.radar-page__header > div:last-child > span {
+  display: block;
+  max-width: 720px;
+  margin-top: 22px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.radar-page__criteria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 36px 0 clamp(58px, 8vw, 88px);
+  padding-left: calc(clamp(88px, 12vw, 124px) + clamp(24px, 4vw, 42px));
+}
+
+.radar-page__criteria span,
+.radar-page__criteria a {
+  padding: 8px 12px;
+  border: 1px solid rgba(128, 220, 255, .14);
+  border-radius: 999px;
+  background: rgba(72, 212, 255, .035);
+  color: rgba(222, 242, 250, .56);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: .08em;
+}
+
+.radar-page__criteria a {
+  border-color: rgba(127, 221, 255, .28);
+  color: rgba(218, 246, 255, .82);
+  text-decoration: none;
+  transition: border-color 180ms ease, background 180ms ease, color 180ms ease;
+}
+
+.radar-page__criteria a:hover,
+.radar-page__criteria a:focus-visible {
+  border-color: rgba(127, 221, 255, .52);
+  background: rgba(72, 212, 255, .09);
+  color: #fff;
+}
+
+.radar-archive__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+  padding: 0 4px 16px;
+  border-bottom: 1px solid rgba(128, 220, 255, .1);
+}
+
+.radar-archive__header h2 {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 540;
+  letter-spacing: -.03em;
+}
+
+.radar-archive__header > span {
+  padding-bottom: 3px;
+  color: rgba(240, 237, 248, .38);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+}
+
+.radar-post-list .post-list__link {
+  border-color: rgba(128, 220, 255, .1);
+  background:
+    radial-gradient(circle at 96% 120%, rgba(72, 212, 255, .11), transparent 38%),
+    rgba(255, 255, 255, .025);
+}
+
+.radar-post-list .post-list__link:hover {
+  border-color: rgba(128, 220, 255, .22);
+  background:
+    radial-gradient(circle at 96% 120%, rgba(72, 212, 255, .17), transparent 42%),
+    rgba(255, 255, 255, .045);
+}
+
+.radar-post-page {
+  width: min(780px, 100%);
+}
+
+@media (max-width: 640px) {
+  .radar-page {
+    padding-top: 54px;
+  }
+
+  .radar-page__header {
+    grid-template-columns: 1fr;
+  }
+
+  .radar-page__signal {
+    width: 86px;
+  }
+
+  .radar-page__criteria {
+    margin-top: 28px;
+    padding-left: 0;
+  }
+
+  .radar-post-list .post-list__link {
+    padding: 20px;
+  }
+
+  .radar-post-list .post-list__arrow {
+    display: none;
+  }
+}
+
 .global-footer {
   content-visibility: auto;
   contain-intrinsic-block-size: 240px;
@@ -2696,7 +2937,7 @@ a {
 
 
 /* Collapse only when the smallest complete navigation can no longer fit. */
-@media (max-width: 347px) {
+@media (max-width: 359px) {
   .liquid-navigation__surface {
     --segment-width: 58px;
   }

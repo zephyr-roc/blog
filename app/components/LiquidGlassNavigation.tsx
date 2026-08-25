@@ -13,9 +13,12 @@ import {
 
 const navigationItems = [
   { href: "/", label: "主页", icon: "home" },
+  { href: "/radar", label: "雷达", icon: "radar" },
   { href: "/tinkering", label: "折腾", icon: "tinkering" },
   { href: "/about", label: "关于我", icon: "profile" },
 ] as const;
+
+type NavigationIndex = 0 | 1 | 2 | 3;
 
 const navigationGlassOptics: Partial<GlassOptics> = {
   strength: .18,
@@ -43,7 +46,7 @@ const TOUCH_TAP_DISTANCE = 28;
 type GestureStart = {
   x: number;
   y: number;
-  targetIndex: 0 | 1 | 2;
+  targetIndex: NavigationIndex;
 };
 
 type NavigationStyle = CSSProperties & Record<`--${string}`, string>;
@@ -56,7 +59,13 @@ export function LiquidGlassNavigation() {
   const dragOffset = useRef(0);
   const pointerTravel = useRef(0);
   const suppressClickUntil = useRef(0);
-  const activeIndex = pathname === "/about" ? 2 : pathname.startsWith("/tinkering") ? 1 : 0;
+  const activeIndex: NavigationIndex = pathname === "/about"
+    ? 3
+    : pathname.startsWith("/tinkering")
+      ? 2
+      : pathname.startsWith("/radar")
+        ? 1
+        : 0;
   const navigationStyle: NavigationStyle = {
     "--active-index": String(activeIndex),
     "--drag-offset": "0px",
@@ -125,7 +134,7 @@ export function LiquidGlassNavigation() {
       const targetIndex = Math.max(
         0,
         Math.min(navigationItems.length - 1, activeIndex + tabDelta),
-      ) as 0 | 1 | 2;
+      ) as NavigationIndex;
       const targetTravel = (targetIndex - activeIndex) * travel;
       setDragOffset(targetTravel);
       router.push(navigationItems[targetIndex].href);
@@ -164,7 +173,7 @@ export function LiquidGlassNavigation() {
             const targetIndex = Math.min(
               navigationItems.length - 1,
               Math.floor(fraction * navigationItems.length),
-            ) as 0 | 1 | 2;
+            ) as NavigationIndex;
             dragStart.current = {
               x: event.clientX,
               y: event.clientY,
@@ -214,7 +223,7 @@ export function LiquidGlassNavigation() {
             const targetIndex = Math.min(
               navigationItems.length - 1,
               Math.floor(fraction * navigationItems.length),
-            ) as 0 | 1 | 2;
+            ) as NavigationIndex;
             if (targetIndex !== activeIndex) {
               router.push(navigationItems[targetIndex].href);
             }

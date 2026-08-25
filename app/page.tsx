@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const collections = (await getAllCollections()).filter(
-    (c) => c.slug !== "tinkering"
+    (c) => c.slug !== "tinkering" && c.slug !== "deep-radar"
   );
 
   return (
