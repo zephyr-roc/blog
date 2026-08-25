@@ -86,14 +86,13 @@ export function TinkeringNotesGrid({ posts }: TinkeringNotesGridProps) {
         const x = shortestColumn * (columnWidth + gap);
         const y = columnHeights[shortestColumn];
 
-        card.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        card.style.left = `${x}px`;
+        card.style.top = `${y}px`;
         columnHeights[shortestColumn] += card.getBoundingClientRect().height + gap;
       }
 
       const tallestColumn = Math.max(...columnHeights, 0);
       waterfall.style.height = `${Math.max(0, tallestColumn - gap)}px`;
-      waterfall.dataset.ready = "true";
-      waterfall.setAttribute("aria-busy", "false");
       setLayoutReady(true);
     };
 
@@ -102,7 +101,6 @@ export function TinkeringNotesGrid({ posts }: TinkeringNotesGridProps) {
       animationFrame = window.requestAnimationFrame(layout);
     };
 
-    setLayoutReady(false);
     layout();
     previousWidth = waterfall.clientWidth;
 

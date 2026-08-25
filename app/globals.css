@@ -2687,23 +2687,16 @@ a {
 }
 
 
-/* Keep the server-rendered one-column fallback from flashing before measurement. */
+/* Hide the SSR fallback until the synchronous masonry measurement completes.
+   No opacity transition: the navigation's backdrop must see the final layer tree
+   on its first composited frame. */
 .notes-waterfall[data-ready="false"] {
   min-height: min(62vh, 640px);
   visibility: hidden;
-  opacity: 0;
 }
 
 .notes-waterfall[data-ready="true"] {
   visibility: visible;
-  opacity: 1;
-  transition: opacity 160ms ease-out;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .notes-waterfall[data-ready="true"] {
-    transition: none;
-  }
 }
 
 
@@ -2742,16 +2735,4 @@ a {
   top: 0;
   left: 0;
   margin: 0;
-  will-change: transform;
-  transition: transform 260ms cubic-bezier(.2, .8, .2, 1);
-}
-
-.notes-waterfall[data-ready="false"] > .note-tile {
-  transition: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .notes-waterfall > .note-tile {
-    transition: none;
-  }
 }
