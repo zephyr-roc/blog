@@ -61,7 +61,10 @@ import { GlassValue, isGlassMotionValue, readGlassValue } from "./signal";
  */
 const useSupportsBackdropUrl = () => {
   const [ok, setOk] = useState(false);
-  useEffect(() => {
+  // Resolve engine support during layout so the first painted frame already has
+  // the URL filter. Waiting for a passive effect leaves Blink showing only frost
+  // until another compositor update (often the first pointer movement).
+  useLayoutEffect(() => {
     if (typeof navigator === "undefined") return;
     const ua = navigator.userAgent;
     // Chromium exposes `navigator.userAgentData`; Safari and Firefox do not.
@@ -515,10 +518,20 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
   // scaleX / scaleY / specular). Blink caches backdrop-filter output by filter id,
   // so without the bump those optic changes would mutate the SVG attrs but the
   // page would keep showing the old refraction — same rule the copy engine follows.
-  useEffect(() => {
-    if (sized) applyBackdropFilter();
+  useLayoutEffect(() => {
+    if (!sized) return;
+    applyBackdropFilter();
+
+    // The displacement map is a freshly generated data URL. Blink can retain the
+    // first backdrop snapshot until some unrelated interaction invalidates its
+    // compositor layer, so bind a fresh filter id once more on the next frame.
+    // This makes first-load refraction deterministic without pointer movement.
+    if (!supportsUrl || typeof requestAnimationFrame === "undefined") return;
+    const frame = requestAnimationFrame(applyBackdropFilter);
+    return () => cancelAnimationFrame(frame);
   }, [
     sized,
+    supportsUrl,
     applyBackdropFilter,
     merged.dispersion,
     merged.strength,
