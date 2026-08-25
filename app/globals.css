@@ -2272,11 +2272,6 @@ a {
   letter-spacing: .12em;
 }
 
-.notes-shell {
-  min-height: 100svh;
-  overflow: clip;
-}
-
 .tinkering-notes-page {
   position: relative;
   z-index: 2;

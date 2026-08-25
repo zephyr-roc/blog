@@ -275,8 +275,6 @@ export interface GlassMaterialProps extends Omit<
   /** Explicit box size in px (usually you size it with CSS/className instead). */
   width?: GlassValue;
   height?: GlassValue;
-  /** Monotonic version of dynamic content painted behind this fixed glass. */
-  backdropRevision?: number;
 }
 
 const num = (v: GlassValue | undefined): number | undefined =>
@@ -308,7 +306,6 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
   radius,
   width,
   height,
-  backdropRevision = 0,
   className,
   style,
   ...rest
@@ -532,9 +529,7 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
         .filter(Boolean)
         .join(" ");
       let value = fns || "none";
-      const backdropReady =
-        backdropRevision === undefined || backdropRevision > 0;
-      if (supportsUrl && filterEl && mapReady && backdropReady) {
+      if (supportsUrl && filterEl && mapReady) {
         versionRef.current += 1;
         filterEl.id = `lg-mat-${baseId}-v${versionRef.current}`;
         value = `${fns ? fns + " " : ""}url(#${filterEl.id})`;
@@ -542,14 +537,7 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
       el.style.backdropFilter = value;
       el.style.setProperty("-webkit-backdrop-filter", value);
     },
-    [
-      merged.frost,
-      merged.saturate,
-      supportsUrl,
-      baseId,
-      mapReady,
-      backdropRevision,
-    ],
+    [merged.frost, merged.saturate, supportsUrl, baseId, mapReady],
   );
 
   // Re-apply (which BUMPS the filter id) when anything that shapes the filter
@@ -569,7 +557,6 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
     merged.scaleX,
     merged.scaleY,
     merged.specular,
-    backdropRevision,
   ]);
 
   useEffect(
