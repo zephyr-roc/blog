@@ -1,18 +1,19 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { GlassCard } from "../components/GlassCard";
+import { SiteHeader } from "../components/SiteHeader";
 import { getCollection, getPostsInCollection } from "../lib/content";
 import { SITE_NAME } from "../lib/seo";
+import { TinkeringNotesGrid } from "./notes/TinkeringNotesGrid";
 
 // Markdown content changes only when a new build is deployed, so render this
 // route once instead of repeating the complete RSC render for every visitor.
 export const dynamic = "force-static";
 
 const TINKERING_DESCRIPTION =
-  "积雨云的技术折腾记录，涵盖 Linux、KVM/QEMU、网络配置、NAS、Caddy、Android ADB 与自动化部署。";
+  "浏览积雨云的技术笔记：Linux、KVM/QEMU、网络、NAS、Caddy、Android ADB 与自动化部署实践。";
 
 export const metadata: Metadata = {
-  title: "折腾",
+  title: "折腾日志",
   description: TINKERING_DESCRIPTION,
   alternates: { canonical: "/tinkering" },
   openGraph: {
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
     locale: "zh_CN",
     url: "/tinkering",
     siteName: SITE_NAME,
-    title: `折腾 — ${SITE_NAME}`,
+    title: `折腾日志 — ${SITE_NAME}`,
     description: TINKERING_DESCRIPTION,
   },
 };
@@ -39,69 +40,16 @@ export default async function TinkeringPage() {
       <div className="ambient ambient--orange" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
 
-      <header className="site-header" data-nosnippet>
-        <a className="wordmark" href="/" aria-label="返回主页">
-          <span className="wordmark__mark" aria-hidden="true" />
-          <span>积雨云的空间站</span>
-        </a>
-        <span className="edition">TINKERING · LAB</span>
-      </header>
+      <SiteHeader edition="TINKERING · LAB" />
 
-      <section className="hero tinkering-hero" aria-labelledby="tinkering-title">
-        <div className="hero__intro">
-          <p className="hero__kicker" data-nosnippet>BUILD / BREAK / LEARN</p>
-          <h1 id="tinkering-title">
-            保持好奇，
-            <br />
-            随手折腾。
-          </h1>
-          <p className="hero__lede">
-            {collection.description}
-            <br />
-            把每一次尝试，都变成下一次出发的线索。
-          </p>
+      <section className="tinkering-notes-page" aria-labelledby="tinkering-title">
+        <div className="tinkering-notes-page__heading">
+          <p data-nosnippet>BUILD / BREAK / LEARN</p>
+          <h1 id="tinkering-title">折腾日志</h1>
+          <span>{collection.description}</span>
         </div>
-
-        <div className="hero__stage tinkering-hero__stage">
-          <a
-            className="tinkering-card-link"
-            href="/tinkering/notes"
-            aria-label={`打开折腾日志，共 ${posts.length} 篇记录`}
-          >
-            <GlassCard
-              className="tinkering-card"
-              ariaLabel={`折腾日志，共 ${posts.length} 篇记录`}
-            >
-              <div className="tinkering-card__header" aria-hidden="true">
-                <span>{String(posts.length).padStart(2, "0")} ENTRIES</span>
-              </div>
-
-              <div className="tinkering-card__mark" aria-hidden="true">
-                <span>⚙</span>
-              </div>
-
-              <div className="tinkering-card__content">
-                <p>RECENT EXPERIMENTS</p>
-                <h2>折腾日志</h2>
-                <span className="tinkering-card__summary">
-                  工具、配置、踩坑，以及那些值得记下来的意外发现。
-                </span>
-                <span className="tinkering-card__cta">浏览全部记录 →</span>
-              </div>
-            </GlassCard>
-          </a>
-
-          <div className="interaction-hint" aria-hidden="true" data-nosnippet>
-            <span className="interaction-hint__line" />
-            CLICK TO READ
-          </div>
-        </div>
+        <TinkeringNotesGrid posts={posts} />
       </section>
-
-      <footer className="site-footer" data-nosnippet>
-        <span>TOOLS · CONFIGS · HAPPY ACCIDENTS</span>
-        <span>积雨云的实验场</span>
-      </footer>
     </main>
   );
 }

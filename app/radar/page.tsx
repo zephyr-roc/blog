@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PostListItem } from "../components/PostListItem";
+import { SiteHeader } from "../components/SiteHeader";
 import { getCollection, getPostsInCollection } from "../lib/content";
 import { SITE_NAME } from "../lib/seo";
 
@@ -40,11 +41,9 @@ export default async function RadarPage() {
       <div className="ambient ambient--orange" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
 
-      <section className="radar-page" aria-labelledby="radar-title">
-        <a className="radar-page__back" href="/">
-          ← 返回主页
-        </a>
+      <SiteHeader edition="RADAR · DAILY" />
 
+      <section className="radar-page" aria-labelledby="radar-title">
         <header className="radar-page__header">
           <div className="radar-page__signal" aria-hidden="true">
             <span />

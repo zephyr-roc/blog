@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AboutProfileCard } from "../components/AboutProfileCard";
+import { SiteHeader } from "../components/SiteHeader";
 import {
   personJsonLd,
   serializeJsonLd,
@@ -38,13 +39,7 @@ export default function About() {
       <div className="ambient ambient--orange" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
 
-      <header className="site-header" data-nosnippet>
-        <a className="wordmark" href="/" aria-label="返回主页">
-          <span className="wordmark__mark" aria-hidden="true" />
-          <span>积雨云的空间站</span>
-        </a>
-        <span className="edition">ABOUT · ME</span>
-      </header>
+      <SiteHeader edition="ABOUT · ME" />
 
       <section className="about" aria-labelledby="about-title">
         <div className="about__intro">

@@ -60,10 +60,17 @@ test("renders tinkering as a top-level page", async () => {
   assert.equal(response.status, 200);
 
   const html = await response.text();
-  assert.match(html, /保持好奇/);
+  assert.match(html, /折腾日志/);
   assert.match(html, /TINKERING · LAB/);
+  assert.match(html, /class="site-header"/);
+  assert.match(html, /id="tinkering-search"/);
   assert.match(html, /href="\/tinkering\/github-actions-deploy"/);
+  assert.doesNotMatch(html, /浏览全部记录/);
   assert.doesNotMatch(html, /COLLECTION · 合集/);
+
+  const legacyResponse = await render("/tinkering/notes");
+  assert.equal(legacyResponse.status, 308);
+  assert.match(legacyResponse.headers.get("location") ?? "", /\/tinkering$/);
 
   const postResponse = await render("/tinkering/github-actions-deploy");
   assert.equal(postResponse.status, 200);
@@ -76,6 +83,9 @@ test("renders the deep radar as a top-level daily archive", async () => {
   const html = await response.text();
   assert.match(html, /深潜雷达/);
   assert.match(html, /DEEP SIGNAL \/ SOURCE \/ PROOF/);
+  assert.match(html, /RADAR · DAILY/);
+  assert.match(html, /class="site-header"/);
+  assert.doesNotMatch(html, /返回主页/);
   assert.match(html, /href="\/radar\/2026-08-25"/);
   assert.match(html, /href="\/radar\/feed\.xml"/);
   assert.doesNotMatch(html, /COLLECTION · 合集/);
@@ -84,8 +94,7 @@ test("renders the deep radar as a top-level daily archive", async () => {
   assert.equal(postResponse.status, 200);
 
   const postHtml = await postResponse.text();
-  assert.match(postHtml, /Simplifying Weak Reference Processing in ZGC/);
-  assert.match(postHtml, /How to speed up the Rust compiler in July 2026/);
+  assert.match(postHtml, /Enabling the next-generation trait solver on nightly/);
 });
 
 test("publishes an RSS feed for deep radar subscribers", async () => {

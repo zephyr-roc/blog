@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getAllCollections } from "./lib/content";
 import { CollectionCard } from "./components/CollectionCard";
+import { SiteHeader } from "./components/SiteHeader";
 import { SITE_DESCRIPTION, SITE_NAME } from "./lib/seo";
 
 // Markdown content changes only when a new build is deployed, so render this
@@ -32,13 +33,7 @@ export default async function Home() {
       <div className="ambient ambient--orange" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
 
-      <header className="site-header" data-nosnippet>
-        <a className="wordmark" href="#collections" aria-label="积雨云的空间站首页">
-          <span className="wordmark__mark" aria-hidden="true" />
-          <span>积雨云的空间站</span>
-        </a>
-        <span className="edition">BLOG · 合集</span>
-      </header>
+      <SiteHeader edition="BLOG · 合集" home />
 
       <section className="hero" aria-labelledby="page-title">
         <div className="hero__intro">
