@@ -532,7 +532,9 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
         .filter(Boolean)
         .join(" ");
       let value = fns || "none";
-      if (supportsUrl && filterEl && mapReady) {
+      const backdropReady =
+        backdropRevision === undefined || backdropRevision > 0;
+      if (supportsUrl && filterEl && mapReady && backdropReady) {
         versionRef.current += 1;
         filterEl.id = `lg-mat-${baseId}-v${versionRef.current}`;
         value = `${fns ? fns + " " : ""}url(#${filterEl.id})`;
@@ -540,7 +542,14 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
       el.style.backdropFilter = value;
       el.style.setProperty("-webkit-backdrop-filter", value);
     },
-    [merged.frost, merged.saturate, supportsUrl, baseId, mapReady],
+    [
+      merged.frost,
+      merged.saturate,
+      supportsUrl,
+      baseId,
+      mapReady,
+      backdropRevision,
+    ],
   );
 
   // Re-apply (which BUMPS the filter id) when anything that shapes the filter

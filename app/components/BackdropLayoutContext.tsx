@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -32,6 +33,13 @@ export function BackdropLayoutProvider({ children }: { children: ReactNode }) {
     () => ({ revision, commitLayout }),
     [revision, commitLayout],
   );
+
+  // The first revision is intentionally committed from a passive effect: it
+  // guarantees that fixed glass activates only after the initial backdrop has
+  // reached the screen at least once.
+  useEffect(() => {
+    commitLayout();
+  }, [commitLayout]);
 
   return (
     <BackdropLayoutContext.Provider value={value}>
