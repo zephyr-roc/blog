@@ -16,7 +16,6 @@
     "db:migrate:likes": "node scripts/migrate-likes.mjs"
   },
   "dependencies": {
-    "@samasante/liquid-glass": "0.1.1",
     "drizzle-orm": "0.45.2",
     "marked": "^18.0.10",
     "react": "19.2.6",
