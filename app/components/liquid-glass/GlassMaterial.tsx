@@ -5,7 +5,6 @@
  */
 
 import React, {
-  useCallback,
   useEffect,
   useId,
   useLayoutEffect,
@@ -132,7 +131,6 @@ const MaterialFilterContents: React.FC<{
   height: number;
   mapUrl: string;
   feImageRef: React.Ref<SVGFEImageElement>;
-  onMapLoad: React.ReactEventHandler<SVGFEImageElement>;
 }> = ({
   dispScale,
   dispersion,
@@ -143,7 +141,6 @@ const MaterialFilterContents: React.FC<{
   height,
   mapUrl,
   feImageRef,
-  onMapLoad,
 }) => {
   const mapInput = mapMatrix ? "scaledMap" : "map";
   return (
@@ -156,7 +153,6 @@ const MaterialFilterContents: React.FC<{
       <feImage
         ref={feImageRef}
         href={mapUrl || undefined}
-        onLoad={onMapLoad}
         x={0}
         y={0}
         width={width}
@@ -284,6 +280,26 @@ export interface GlassMaterialProps extends Omit<
 const num = (v: GlassValue | undefined): number | undefined =>
   v == null ? undefined : isGlassMotionValue(v) ? readGlassValue(v) : v;
 
+/**
+ * Decode a generated displacement map before exposing it to the SVG filter.
+ * This gives the material one explicit readiness boundary instead of relying on
+ * browser-specific feImage load events or compositor invalidation tricks.
+ */
+const decodeDisplacementMap = (url: string): Promise<void> =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      if (typeof image.decode === "function") {
+        image.decode().then(resolve, reject);
+      } else {
+        resolve();
+      }
+    };
+    image.onerror = () =>
+      reject(new Error("Failed to decode the liquid-glass displacement map"));
+    image.src = url;
+  });
+
 export const GlassMaterial: React.FC<GlassMaterialProps> = ({
   children,
   optics,
@@ -309,16 +325,7 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
   );
   const versionRef = useRef(0);
   const [mapUrl, setMapUrl] = useState("");
-  const [readyMapUrl, setReadyMapUrl] = useState("");
-  const mapReady = mapUrl !== "" && readyMapUrl === mapUrl;
-
-  const handleMapLoad = useCallback(
-    (event: React.SyntheticEvent<SVGFEImageElement>) => {
-      const loadedUrl = event.currentTarget.getAttribute("href") || "";
-      if (loadedUrl === mapUrl) setReadyMapUrl(loadedUrl);
-    },
-    [mapUrl],
-  );
+  const mapReady = mapUrl !== "";
 
   // Measured box + the radius to round the lens map / edge to. Precedence:
   // explicit `radius` prop → the wrapper's own border-radius (className/style) →
@@ -492,10 +499,17 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
       bend: merged.bend,
       bendWidth: merged.bendWidth,
     });
-    // Readiness is declarative: render the new URL first, and let feImage's
-    // load event promote it to the active displacement map.
-    setReadyMapUrl("");
-    setMapUrl(url);
+    // Decode before committing the map to SVG. Chrome does not reliably emit a
+    // load event for SVG feImage data URLs, while HTMLImageElement.decode()
+    // provides an explicit readiness boundary for the same decoded resource.
+    let cancelled = false;
+    setMapUrl("");
+    void decodeDisplacementMap(url).then(() => {
+      if (!cancelled) setMapUrl(url);
+    });
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sized, shapeKey]);
 
@@ -714,7 +728,6 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
                 height={box.h}
                 mapUrl={mapUrl}
                 feImageRef={feImageRef}
-                onMapLoad={handleMapLoad}
               />
             )}
           </filter>
