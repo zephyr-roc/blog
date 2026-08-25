@@ -5,6 +5,7 @@
  */
 
 import React, {
+  useCallback,
   useEffect,
   useId,
   useLayoutEffect,
@@ -131,6 +132,7 @@ const MaterialFilterContents: React.FC<{
   height: number;
   mapUrl: string;
   feImageRef: React.Ref<SVGFEImageElement>;
+  onMapLoad: React.ReactEventHandler<SVGFEImageElement>;
 }> = ({
   dispScale,
   dispersion,
@@ -141,6 +143,7 @@ const MaterialFilterContents: React.FC<{
   height,
   mapUrl,
   feImageRef,
+  onMapLoad,
 }) => {
   const mapInput = mapMatrix ? "scaledMap" : "map";
   return (
@@ -153,6 +156,7 @@ const MaterialFilterContents: React.FC<{
       <feImage
         ref={feImageRef}
         href={mapUrl || undefined}
+        onLoad={onMapLoad}
         x={0}
         y={0}
         width={width}
@@ -303,8 +307,18 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
   const generatorRef = useRef<{ gen: LensMapGenerator; size: number } | null>(
     null,
   );
-  const mapUrlRef = useRef<string>("");
   const versionRef = useRef(0);
+  const [mapUrl, setMapUrl] = useState("");
+  const [readyMapUrl, setReadyMapUrl] = useState("");
+  const mapReady = mapUrl !== "" && readyMapUrl === mapUrl;
+
+  const handleMapLoad = useCallback(
+    (event: React.SyntheticEvent<SVGFEImageElement>) => {
+      const loadedUrl = event.currentTarget.getAttribute("href") || "";
+      if (loadedUrl === mapUrl) setReadyMapUrl(loadedUrl);
+    },
+    [mapUrl],
+  );
 
   // Measured box + the radius to round the lens map / edge to. Precedence:
   // explicit `radius` prop → the wrapper's own border-radius (className/style) →
@@ -478,28 +492,10 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
       bend: merged.bend,
       bendWidth: merged.bendWidth,
     });
-    mapUrlRef.current = url;
-
-    // Blink can snapshot the backdrop before the SVG displacement image has
-    // decoded, then keep that neutral result until hover/drag invalidates the
-    // compositor. Rebind only after the actual feImage load event as well as
-    // immediately, so first-paint refraction never depends on pointer movement.
-    const image = feImageRef.current;
-    let refreshFrame: number | null = null;
-    const refreshAfterMapLoad = () => {
-      applyBackdropFilter();
-      if (typeof requestAnimationFrame !== "undefined") {
-        refreshFrame = requestAnimationFrame(applyBackdropFilter);
-      }
-    };
-    image?.addEventListener("load", refreshAfterMapLoad, { once: true });
-    image?.setAttribute("href", url);
-    applyBackdropFilter();
-
-    return () => {
-      image?.removeEventListener("load", refreshAfterMapLoad);
-      if (refreshFrame !== null) cancelAnimationFrame(refreshFrame);
-    };
+    // Readiness is declarative: render the new URL first, and let feImage's
+    // load event promote it to the active displacement map.
+    setReadyMapUrl("");
+    setMapUrl(url);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sized, shapeKey]);
 
@@ -519,7 +515,7 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
         .filter(Boolean)
         .join(" ");
       let value = fns || "none";
-      if (supportsUrl && filterEl && mapUrlRef.current) {
+      if (supportsUrl && filterEl && mapReady) {
         versionRef.current += 1;
         filterEl.id = `lg-mat-${baseId}-v${versionRef.current}`;
         value = `${fns ? fns + " " : ""}url(#${filterEl.id})`;
@@ -527,7 +523,7 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
       el.style.backdropFilter = value;
       el.style.setProperty("-webkit-backdrop-filter", value);
     },
-    [merged.frost, merged.saturate, supportsUrl, baseId],
+    [merged.frost, merged.saturate, supportsUrl, baseId, mapReady],
   );
 
   // Re-apply (which BUMPS the filter id) when anything that shapes the filter
@@ -538,19 +534,9 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
   // so without the bump those optic changes would mutate the SVG attrs but the
   // page would keep showing the old refraction — same rule the copy engine follows.
   useLayoutEffect(() => {
-    if (!sized) return;
-    applyBackdropFilter();
-
-    // The displacement map is a freshly generated data URL. Blink can retain the
-    // first backdrop snapshot until some unrelated interaction invalidates its
-    // compositor layer, so bind a fresh filter id once more on the next frame.
-    // This makes first-load refraction deterministic without pointer movement.
-    if (!supportsUrl || typeof requestAnimationFrame === "undefined") return;
-    const frame = requestAnimationFrame(applyBackdropFilter);
-    return () => cancelAnimationFrame(frame);
+    if (sized) applyBackdropFilter();
   }, [
     sized,
-    supportsUrl,
     applyBackdropFilter,
     merged.dispersion,
     merged.strength,
@@ -726,8 +712,9 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
                 mapMatrix={mapMatrix}
                 width={box.w}
                 height={box.h}
-                mapUrl={mapUrlRef.current || ""}
+                mapUrl={mapUrl}
                 feImageRef={feImageRef}
+                onMapLoad={handleMapLoad}
               />
             )}
           </filter>
