@@ -17,3 +17,17 @@ test("shares one responsive radius across the language card collection", async (
   );
   assert.doesNotMatch(css, /\.mini-card\s*\{[^}]*border-radius:/);
 });
+
+test("scales shared collection-card content from one proportional canvas", async () => {
+  const css = await readFile(new URL("app/globals.css", root), "utf8");
+  const component = await readFile(
+    new URL("app/components/CollectionCard.tsx", root),
+    "utf8",
+  );
+
+  assert.match(css, /\.collection-card__date\s*\{[^}]*font-size:\s*1\.16cqw;/);
+  assert.match(css, /\.collection-card__description\s*\{[^}]*font-size:\s*2\.03cqw;/);
+  assert.match(css, /\.collection-card__count\s*\{[^}]*font-size:\s*1\.01cqw;/);
+  assert.doesNotMatch(component, /fontSize:\s*"clamp\(/);
+  assert.doesNotMatch(component, /className="collection-card__count"\s+style=/);
+});

@@ -68,7 +68,7 @@ export function CollectionCard({
       aria-label={`进入 ${collection.title} 合集`}
     >
       <GlassCard
-        className="collection-card"
+        className={`collection-card collection-card--${featured ? "featured" : "companion"}`}
         ariaLabel={`${collection.title} 合集，共 ${collection.postCount} 篇文章`}
         style={style}
       >
@@ -83,19 +83,9 @@ export function CollectionCard({
 
         {!featured && collection.latestDate && (
           <time
+            className="collection-card__date"
             dateTime={collection.latestDate}
             aria-label={`最近更新于 ${collection.latestDate}`}
-            style={{
-              position: "absolute",
-              zIndex: 4,
-              top: "5cqw",
-              right: "5.22cqw",
-              color: "rgba(247, 244, 255, .48)",
-              fontSize: "clamp(8px, 2.25cqw, 10px)",
-              fontWeight: 700,
-              letterSpacing: ".14em",
-              transform: "translate3d(var(--detail-x), var(--detail-y), 4cqw)",
-            }}
           >
             {collection.latestDate}
           </time>
@@ -105,10 +95,7 @@ export function CollectionCard({
           <CollectionIcon icon={collection.icon} color={collection.color} />
         </div>
 
-        <div
-          className="collection-card__content"
-          style={featured ? undefined : { bottom: "5.5cqw" }}
-        >
+        <div className="collection-card__content">
           {featured && <p className="collection-card__eyebrow">BLOG · 合集</p>}
           <h2>{collection.title}</h2>
           {featured ? (
@@ -120,28 +107,10 @@ export function CollectionCard({
             </>
           ) : (
             <>
-              <p
-                className="collection-card__description"
-                style={{
-                  display: "-webkit-box",
-                  marginTop: "1.5cqw",
-                  overflow: "hidden",
-                  fontSize: "clamp(9px, 2.65cqw, 11px)",
-                  lineHeight: 1.45,
-                  WebkitBoxOrient: "vertical",
-                  WebkitLineClamp: 2,
-                }}
-              >
+              <p className="collection-card__description">
                 {collection.description}
               </p>
-              <span
-                className="collection-card__count"
-                style={{
-                  marginTop: "1.5cqw",
-                  padding: ".75cqw 1.15cqw",
-                  fontSize: "clamp(8px, 2.25cqw, 10px)",
-                }}
-              >
+              <span className="collection-card__count">
                 {collection.postCount} 篇文章
               </span>
             </>

@@ -1722,6 +1722,18 @@ a {
   transform: translate3d(var(--detail-x), var(--detail-y), 3.77cqw);
 }
 
+.collection-card__date {
+  position: absolute;
+  z-index: 4;
+  top: 5cqw;
+  right: 5.22cqw;
+  color: rgba(247, 244, 255, .48);
+  font-size: 1.16cqw;
+  font-weight: 700;
+  letter-spacing: .14em;
+  transform: translate3d(var(--detail-x), var(--detail-y), 4cqw);
+}
+
 .collection-card__bloom {
   position: absolute;
   z-index: 1;
@@ -1865,6 +1877,13 @@ a {
   line-height: 1.65;
   letter-spacing: 0.02em;
   color: rgba(244, 241, 250, 0.64);
+}
+
+.collection-card--companion .collection-card__description {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .collection-card__count {
