@@ -94,7 +94,7 @@ test("publishes an RSS feed for deep radar subscribers", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^application\/rss\+xml\b/i);
 
   const xml = await response.text();
-  assert.match(xml, /<title>深潜雷达 — 積雨雲的空間站<\/title>/);
+  assert.match(xml, /<title>深潜雷达 — 积雨云的空间站<\/title>/);
   assert.match(xml, /<link>https:\/\/www\.ready-jump\.top\/radar\/2026-08-25<\/link>/);
 });
 
