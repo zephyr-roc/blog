@@ -479,8 +479,27 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
       bendWidth: merged.bendWidth,
     });
     mapUrlRef.current = url;
-    feImageRef.current?.setAttribute("href", url);
+
+    // Blink can snapshot the backdrop before the SVG displacement image has
+    // decoded, then keep that neutral result until hover/drag invalidates the
+    // compositor. Rebind only after the actual feImage load event as well as
+    // immediately, so first-paint refraction never depends on pointer movement.
+    const image = feImageRef.current;
+    let refreshFrame: number | null = null;
+    const refreshAfterMapLoad = () => {
+      applyBackdropFilter();
+      if (typeof requestAnimationFrame !== "undefined") {
+        refreshFrame = requestAnimationFrame(applyBackdropFilter);
+      }
+    };
+    image?.addEventListener("load", refreshAfterMapLoad, { once: true });
+    image?.setAttribute("href", url);
     applyBackdropFilter();
+
+    return () => {
+      image?.removeEventListener("load", refreshAfterMapLoad);
+      if (refreshFrame !== null) cancelAnimationFrame(refreshFrame);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sized, shapeKey]);
 
