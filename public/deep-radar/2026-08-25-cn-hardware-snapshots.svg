@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1040" role="img" aria-labelledby="title desc">
+  <title id="title">中国大陆六类 PC 硬件近 30 天可验证价格快照</title>
+  <desc id="desc">六个小型折线图分别展示 CPU、GPU、主板、DRAM、HDD、SSD 在 2026 年 7 月下旬至 8 月 25 日可公开复核的人民币报价点。只连接已观察到的日期，不插值缺失数据。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#171321"/><stop offset="1" stop-color="#08080e"/></linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffffff" stop-opacity=".075"/><stop offset="1" stop-color="#896cff" stop-opacity=".035"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <style>
+      .t{font-family:system-ui,-apple-system,"PingFang SC",sans-serif}.h{fill:#f7f3ff;font-weight:700}.m{fill:#aaa3b7}.g{stroke:#fff;stroke-opacity:.08}.p{fill:url(#card);stroke:#fff;stroke-opacity:.12}.line{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:5;filter:url(#glow)}.dot{stroke:#0b0910;stroke-width:4}
+    </style>
+  </defs>
+  <rect width="1200" height="1040" rx="40" fill="url(#bg)"/>
+  <text class="t h" x="60" y="70" font-size="34">中国大陆 ToC 硬件价格快照</text>
+  <text class="t m" x="60" y="105" font-size="16">人民币 · 2026-07 下旬—2026-08-25 · 仅连接公开可复核报价点</text>
+
+  <g transform="translate(50 140)">
+    <rect class="p" width="530" height="250" rx="26"/><text class="t h" x="28" y="42" font-size="22">CPU · Ryzen 7 9800X3D</text><text class="t m" x="28" y="68" font-size="14">散片/盒装促销样本，券口径有差异</text>
+    <line class="g" x1="35" y1="198" x2="495" y2="198"/><path class="line" stroke="#8b7bff" d="M45 130 L150 143 L275 173 L390 194 L490 82"/>
+    <g fill="#8b7bff"><circle class="dot" cx="45" cy="130" r="7"/><circle class="dot" cx="150" cy="143" r="7"/><circle class="dot" cx="275" cy="173" r="7"/><circle class="dot" cx="390" cy="194" r="7"/><circle class="dot" cx="490" cy="82" r="7"/></g>
+    <g class="t m" font-size="12"><text x="32" y="224">7/31</text><text x="136" y="224">8/1</text><text x="258" y="224">8/10</text><text x="372" y="224">8/21</text><text x="466" y="224">8/25</text></g><text class="t h" x="405" y="106" font-size="15">¥3,179</text><text class="t m" x="365" y="186" font-size="13">¥2,597</text>
+  </g>
+  <g transform="translate(620 140)">
+    <rect class="p" width="530" height="250" rx="26"/><text class="t h" x="28" y="42" font-size="22">GPU · GeForce RTX 5070 样本</text><text class="t m" x="28" y="68" font-size="14">万丽 OC 12GB；左端为窗口边界附近低价</text>
+    <line class="g" x1="35" y1="198" x2="495" y2="198"/><path class="line" stroke="#ff7b59" d="M45 186 L490 86"/><g fill="#ff7b59"><circle class="dot" cx="45" cy="186" r="7"/><circle class="dot" cx="490" cy="86" r="7"/></g>
+    <g class="t m" font-size="12"><text x="32" y="224">7/22</text><text x="466" y="224">8/25</text></g><text class="t m" x="58" y="181" font-size="13">¥5,249</text><text class="t h" x="405" y="110" font-size="15">¥6,899</text>
+  </g>
+  <g transform="translate(50 420)">
+    <rect class="p" width="530" height="250" rx="26"/><text class="t h" x="28" y="42" font-size="22">主板 · B850M 零售样本</text><text class="t m" x="28" y="68" font-size="14">华硕 TUF / TX 同档型号，不是单 SKU 连续价</text>
+    <line class="g" x1="35" y1="198" x2="495" y2="198"/><path class="line" stroke="#61d7b4" d="M45 112 L490 156"/><g fill="#61d7b4"><circle class="dot" cx="45" cy="112" r="7"/><circle class="dot" cx="490" cy="156" r="7"/></g>
+    <g class="t m" font-size="12"><text x="32" y="224">7/21</text><text x="466" y="224">8/25</text></g><text class="t m" x="58" y="107" font-size="13">¥1,332</text><text class="t h" x="405" y="180" font-size="15">¥1,298</text>
+  </g>
+  <g transform="translate(620 420)">
+    <rect class="p" width="530" height="250" rx="26"/><text class="t h" x="28" y="42" font-size="22">DRAM · Kingston Fury 32GB DDR5-6000</text><text class="t m" x="28" y="68" font-size="14">同一商品页：30 天低价与当前展示价</text>
+    <line class="g" x1="35" y1="198" x2="495" y2="198"/><path class="line" stroke="#e9bb55" d="M45 164 L490 132"/><g fill="#e9bb55"><circle class="dot" cx="45" cy="164" r="7"/><circle class="dot" cx="490" cy="132" r="7"/></g>
+    <g class="t m" font-size="12"><text x="32" y="224">8/7</text><text x="466" y="224">8/25</text></g><text class="t m" x="58" y="159" font-size="13">¥3,870</text><text class="t h" x="405" y="156" font-size="15">¥3,900</text>
+  </g>
+  <g transform="translate(50 700)">
+    <rect class="p" width="530" height="250" rx="26"/><text class="t h" x="28" y="42" font-size="22">HDD · Seagate IronWolf Pro 8TB</text><text class="t m" x="28" y="68" font-size="14">公开页最近快照无新增变价，折线保持水平</text>
+    <line class="g" x1="35" y1="198" x2="495" y2="198"/><path class="line" stroke="#60a7ff" d="M45 142 L490 142"/><g fill="#60a7ff"><circle class="dot" cx="45" cy="142" r="7"/><circle class="dot" cx="490" cy="142" r="7"/></g>
+    <g class="t m" font-size="12"><text x="32" y="224">8/11</text><text x="466" y="224">8/25</text></g><text class="t h" x="402" y="130" font-size="15">¥1,540.7</text>
+  </g>
+  <g transform="translate(620 700)">
+    <rect class="p" width="530" height="250" rx="26"/><text class="t h" x="28" y="42" font-size="22">SSD · ZHITAI Ti600 2TB</text><text class="t m" x="28" y="68" font-size="14">同一商品页：30 天低价与当前展示价</text>
+    <line class="g" x1="35" y1="198" x2="495" y2="198"/><path class="line" stroke="#d684ff" d="M45 142 L490 142"/><g fill="#d684ff"><circle class="dot" cx="45" cy="142" r="7"/><circle class="dot" cx="490" cy="142" r="7"/></g>
+    <g class="t m" font-size="12"><text x="32" y="224">7/26</text><text x="466" y="224">8/25</text></g><text class="t h" x="425" y="130" font-size="15">¥749</text>
+  </g>
+  <text class="t m" x="60" y="1002" font-size="14">来源：什么值得买商品百科、慢慢买、中关村在线；促销/券后价受账号、地区、包装形式影响。稀疏快照不等于市场成交均价。</text>
+</svg>
