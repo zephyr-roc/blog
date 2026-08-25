@@ -7,6 +7,7 @@ import {
   useState,
   type CSSProperties,
 } from "react";
+import { useBackdropLayout } from "../../components/BackdropLayoutContext";
 import type { PostMeta } from "../../lib/content";
 
 type TinkeringNotesGridProps = {
@@ -35,6 +36,7 @@ export function TinkeringNotesGrid({ posts }: TinkeringNotesGridProps) {
   const [query, setQuery] = useState("");
   const [layoutReady, setLayoutReady] = useState(false);
   const waterfallRef = useRef<HTMLDivElement>(null);
+  const { commitLayout } = useBackdropLayout();
 
   const filteredPosts = useMemo(() => {
     const keyword = query.trim().toLocaleLowerCase("zh-CN");
@@ -93,6 +95,7 @@ export function TinkeringNotesGrid({ posts }: TinkeringNotesGridProps) {
 
       const tallestColumn = Math.max(...columnHeights, 0);
       waterfall.style.height = `${Math.max(0, tallestColumn - gap)}px`;
+      commitLayout();
       setLayoutReady(true);
     };
 
@@ -130,7 +133,7 @@ export function TinkeringNotesGrid({ posts }: TinkeringNotesGridProps) {
       window.cancelAnimationFrame(animationFrame);
       observer.disconnect();
     };
-  }, [filteredPosts]);
+  }, [filteredPosts, commitLayout]);
 
   return (
     <>

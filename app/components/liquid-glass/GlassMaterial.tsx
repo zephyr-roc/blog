@@ -275,6 +275,8 @@ export interface GlassMaterialProps extends Omit<
   /** Explicit box size in px (usually you size it with CSS/className instead). */
   width?: GlassValue;
   height?: GlassValue;
+  /** Monotonic version of dynamic content painted behind this fixed glass. */
+  backdropRevision?: number;
 }
 
 const num = (v: GlassValue | undefined): number | undefined =>
@@ -306,6 +308,7 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
   radius,
   width,
   height,
+  backdropRevision = 0,
   className,
   style,
   ...rest
@@ -557,6 +560,7 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
     merged.scaleX,
     merged.scaleY,
     merged.specular,
+    backdropRevision,
   ]);
 
   useEffect(

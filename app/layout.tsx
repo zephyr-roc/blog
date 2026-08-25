@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BackdropLayoutProvider } from "./components/BackdropLayoutContext";
 import { GlassMotionController } from "./components/GlassMotionController";
 import { LiquidGlassNavigation } from "./components/LiquidGlassNavigation";
 import { MotionTiltControl } from "./components/MotionTiltControl";
@@ -81,10 +82,12 @@ export default function RootLayout({
         />
       </head>
       <body>
-        {children}
-        <GlassMotionController />
-        <MotionTiltControl />
-        <LiquidGlassNavigation />
+        <BackdropLayoutProvider>
+          {children}
+          <GlassMotionController />
+          <MotionTiltControl />
+          <LiquidGlassNavigation />
+        </BackdropLayoutProvider>
         <footer className="global-footer" data-nosnippet style={{ textAlign: "center", padding: "4rem 1rem 8rem", fontSize: "0.75rem", color: "rgba(255,255,255,0.4)" }}>
           <div style={{ marginBottom: "1.5rem" }}>
             <p style={{ margin: "0 0 0.75rem", opacity: 0.5, letterSpacing: "0.05em" }}>友情链接</p>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useBackdropLayout } from "./BackdropLayoutContext";
 import { Glass, type GlassOptics } from "./liquid-glass";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -51,6 +52,7 @@ type NavigationStyle = CSSProperties & Record<`--${string}`, string>;
 export function LiquidGlassNavigation() {
   const pathname = usePathname();
   const router = useRouter();
+  const { revision: backdropRevision } = useBackdropLayout();
   const surfaceRef = useRef<HTMLDivElement>(null);
   const dragStart = useRef<GestureStart | null>(null);
   const dragOffset = useRef(0);
@@ -224,6 +226,7 @@ export function LiquidGlassNavigation() {
             className="liquid-navigation__refraction"
             radius={999}
             optics={navigationGlassOptics}
+            backdropRevision={backdropRevision}
             aria-hidden="true"
           >
             <span className="liquid-navigation__refraction-content" />
