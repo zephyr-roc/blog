@@ -18,8 +18,6 @@ function applyTilt(card: HTMLElement, x: number, y: number, active = true) {
   card.dataset.active = active ? "true" : "false";
   card.style.setProperty("--rotate-x", `${-boundedY * 8.5}deg`);
   card.style.setProperty("--rotate-y", `${boundedX * 11.5}deg`);
-  card.style.setProperty("--pointer-x", `${(boundedX + 1) * 50}%`);
-  card.style.setProperty("--pointer-y", `${(boundedY + 1) * 50}%`);
   card.style.setProperty("--shadow-x", `${-boundedX * 30}px`);
   card.style.setProperty("--shadow-y", `${34 + boundedY * 15}px`);
   card.style.setProperty("--content-shadow-x", `${-boundedX * 7}px`);
