@@ -2,6 +2,7 @@ import { getPostsInCollection } from "../../lib/content";
 import { SITE_NAME, SITE_URL } from "../../lib/seo";
 
 export const dynamic = "force-static";
+export const revalidate = 60;
 
 const FEED_TITLE = `深潜雷达 — ${SITE_NAME}`;
 const FEED_DESCRIPTION =
@@ -53,7 +54,8 @@ export async function GET() {
   return new Response(xml, {
     headers: {
       "content-type": "application/rss+xml; charset=utf-8",
-      "cache-control": "public, max-age=3600, stale-while-revalidate=86400",
+      "cache-control": "public, max-age=0, s-maxage=60, stale-while-revalidate=60, must-revalidate",
     },
   });
 }
+

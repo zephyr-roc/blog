@@ -135,3 +135,36 @@ test("keeps the card markup on the server and hydrates one motion controller", a
   assert.match(controller, /cardsRef\.current\.forEach/);
   assert.match(layout, /<GlassMotionController \/>/);
 });
+
+
+test("bounds CDN freshness for content-derived routes", async () => {
+  const routeFiles = [
+    "app/page.tsx",
+    "app/tinkering/page.tsx",
+    "app/tinkering/[post]/page.tsx",
+    "app/radar/page.tsx",
+    "app/radar/[post]/page.tsx",
+    "app/collections/[slug]/page.tsx",
+    "app/collections/[slug]/[post]/page.tsx",
+    "app/sitemap.ts",
+    "app/radar/feed.xml/route.ts",
+  ];
+
+  const sources = await Promise.all(
+    routeFiles.map((path) => readFile(new URL(path, root), "utf8")),
+  );
+
+  for (const [index, source] of sources.entries()) {
+    assert.match(
+      source,
+      /export const revalidate = 60;/,
+      `${routeFiles[index]} must not regress to an unbounded CDN lifetime`,
+    );
+  }
+
+  assert.match(
+    sources.at(-1),
+    /max-age=0, s-maxage=60, stale-while-revalidate=60, must-revalidate/,
+  );
+});
+

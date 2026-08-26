@@ -10,6 +10,7 @@ import {
 } from "../../lib/seo";
 
 export const dynamic = "force-static";
+export const revalidate = 60;
 
 type Props = { params: Promise<{ post: string }> };
 
@@ -97,3 +98,4 @@ export default async function RadarPostPage({ params }: Props) {
     </main>
   );
 }
+

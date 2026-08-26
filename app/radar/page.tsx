@@ -6,6 +6,7 @@ import { getCollection, getPostsInCollection } from "../lib/content";
 import { SITE_NAME } from "../lib/seo";
 
 export const dynamic = "force-static";
+export const revalidate = 60;
 
 const RADAR_DESCRIPTION =
   "每日筛选有实测、源码、原理与工程价值的 JVM、Kotlin、Rust、Zig 和 Linux 深度技术文章。";
@@ -88,3 +89,4 @@ export default async function RadarPage() {
     </main>
   );
 }
+

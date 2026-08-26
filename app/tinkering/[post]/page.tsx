@@ -12,6 +12,7 @@ import {
 // Markdown content changes only when a new build is deployed, so render this
 // route once instead of repeating the complete RSC render for every visitor.
 export const dynamic = "force-static";
+export const revalidate = 60;
 
 type Props = { params: Promise<{ post: string }> };
 
@@ -104,3 +105,4 @@ export default async function TinkeringPostPage({ params }: Props) {
     </main>
   );
 }
+

@@ -2,6 +2,8 @@ import type { MetadataRoute } from "next";
 import { getAllCollections, getPostsInCollection } from "./lib/content";
 import { SITE_URL } from "./lib/seo";
 
+export const revalidate = 60;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const collections = await getAllCollections();
   const postsByCollection = await Promise.all(
@@ -74,3 +76,4 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [...staticPages, ...collectionPages, ...postPages];
 }
+
