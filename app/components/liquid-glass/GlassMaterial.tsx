@@ -270,6 +270,8 @@ export interface GlassMaterialProps extends Omit<
 > {
   children?: React.ReactNode;
   optics?: Partial<GlassOptics>;
+  /** Blur radius used only when live SVG backdrop refraction is supported. */
+  supportedFrost?: GlassValue;
   /** Corner radius in px. Omit → inherit the wrapper's computed border-radius. */
   radius?: GlassValue;
   /** Explicit box size in px (usually you size it with CSS/className instead). */
@@ -303,6 +305,7 @@ const decodeDisplacementMap = (url: string): Promise<void> =>
 export const GlassMaterial: React.FC<GlassMaterialProps> = ({
   children,
   optics,
+  supportedFrost,
   radius,
   width,
   height,
@@ -350,6 +353,7 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
   const [needsRelative, setNeedsRelative] = useState(false);
   const sized = box.w > 0 && box.h > 0;
   const explicitR = num(radius);
+  const explicitSupportedFrost = num(supportedFrost);
   const explicitW = num(width);
   const explicitH = num(height);
   const styleHasRadius = style?.borderRadius != null;
@@ -520,7 +524,12 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
       const el = wrapRef.current;
       const filterEl = filterRef.current;
       if (!el) return;
-      const frost = Math.max(0, merged.frost);
+      const frost = Math.max(
+        0,
+        supportsUrl && explicitSupportedFrost != null
+          ? explicitSupportedFrost
+          : merged.frost,
+      );
       const sat = merged.saturate ?? 1;
       const fns = [
         frost > 0 ? `blur(${frost}px)` : "",
@@ -537,7 +546,14 @@ export const GlassMaterial: React.FC<GlassMaterialProps> = ({
       el.style.backdropFilter = value;
       el.style.setProperty("-webkit-backdrop-filter", value);
     },
-    [merged.frost, merged.saturate, supportsUrl, baseId, mapReady],
+    [
+      merged.frost,
+      merged.saturate,
+      supportsUrl,
+      explicitSupportedFrost,
+      baseId,
+      mapReady,
+    ],
   );
 
   // Re-apply (which BUMPS the filter id) when anything that shapes the filter
