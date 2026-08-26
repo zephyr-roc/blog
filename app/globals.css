@@ -847,21 +847,13 @@ a {
   pointer-events: none;
 }
 
-.liquid-navigation__surface::after {
-  content: "";
+.liquid-navigation__backdrop {
   position: absolute;
   z-index: 0;
   inset: 0;
   border-radius: inherit;
   background: rgba(255, 255, 255, .026);
-  backdrop-filter: blur(1.4px) saturate(112%);
-  -webkit-backdrop-filter: blur(1.4px) saturate(112%);
   pointer-events: none;
-}
-
-.liquid-navigation__surface[data-liquid-glass-supported="true"]::after {
-  backdrop-filter: blur(3px) saturate(112%);
-  -webkit-backdrop-filter: blur(3px) saturate(112%);
 }
 
 .liquid-navigation__refraction {
