@@ -859,6 +859,11 @@ a {
   pointer-events: none;
 }
 
+.liquid-navigation__surface[data-liquid-glass-supported="true"]::after {
+  backdrop-filter: blur(3px) saturate(112%);
+  -webkit-backdrop-filter: blur(3px) saturate(112%);
+}
+
 .liquid-navigation__refraction {
   position: absolute;
   z-index: 1;
