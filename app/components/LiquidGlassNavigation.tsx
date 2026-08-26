@@ -76,6 +76,11 @@ export function LiquidGlassNavigation() {
     "--drag-offset": "0px",
     "--drag-strength": "0",
   };
+  const backdropFilter = `blur(${supportsLiquidGlass ? 3 : 1.4}px) saturate(112%)`;
+  const navigationBackdropStyle: CSSProperties = {
+    backdropFilter,
+    WebkitBackdropFilter: backdropFilter,
+  };
 
   const getSegmentTravel = () => {
     const surface = surfaceRef.current;
@@ -235,6 +240,11 @@ export function LiquidGlassNavigation() {
             }
           }}
         >
+          <span
+            className="liquid-navigation__backdrop"
+            style={navigationBackdropStyle}
+            aria-hidden="true"
+          />
           <Glass
             className="liquid-navigation__refraction"
             radius={999}
