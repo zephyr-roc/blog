@@ -42,12 +42,13 @@ test("uses a live backdrop lens without mirrored background copies", async () =>
   assert.match(navigation, /bend:\s*\.9/);
   assert.match(navigation, /dispersion:\s*\.8/);
   assert.match(navigation, /frost:\s*0/);
-  assert.match(navigation, /supportedFrost=\{8\}/);
-  assert.match(material, /supportsUrl && explicitSupportedFrost != null/);
+  assert.doesNotMatch(navigation, /supportedFrost/);
+  assert.match(navigation, /useLiquidGlassSupport/);
   assert.match(
-    material,
-    /supportsUrl && explicitSupportedFrost != null[\s\S]*?explicitSupportedFrost[\s\S]*?: merged\.frost/,
+    navigation,
+    /data-liquid-glass-supported=\{supportsLiquidGlass \? "true" : "false"\}/,
   );
+  assert.match(material, /export const useLiquidGlassSupport/);
   assert.match(navigation, /className="liquid-navigation__refraction"/);
   assert.match(navigation, /className="liquid-navigation__refraction-content"/);
   assert.match(
@@ -58,6 +59,10 @@ test("uses a live backdrop lens without mirrored background copies", async () =>
   assert.match(
     css,
     /\.liquid-navigation__surface::after\s*\{[\s\S]*?backdrop-filter:\s*blur\(1\.4px\) saturate\(112%\);/,
+  );
+  assert.match(
+    css,
+    /\[data-liquid-glass-supported="true"\]::after\s*\{[\s\S]*?backdrop-filter:\s*blur\(3px\) saturate\(112%\);/,
   );
   assert.doesNotMatch(
     navigation,
