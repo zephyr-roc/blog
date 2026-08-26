@@ -1,6 +1,10 @@
 "use client";
 
-import { Glass, type GlassOptics } from "./liquid-glass";
+import {
+  Glass,
+  type GlassOptics,
+  useLiquidGlassSupport,
+} from "./liquid-glass";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -54,6 +58,7 @@ type NavigationStyle = CSSProperties & Record<`--${string}`, string>;
 export function LiquidGlassNavigation() {
   const pathname = usePathname();
   const router = useRouter();
+  const supportsLiquidGlass = useLiquidGlassSupport();
   const surfaceRef = useRef<HTMLDivElement>(null);
   const dragStart = useRef<GestureStart | null>(null);
   const dragOffset = useRef(0);
@@ -166,6 +171,7 @@ export function LiquidGlassNavigation() {
           style={navigationStyle}
           data-dragging="false"
           data-active-index={activeIndex}
+          data-liquid-glass-supported={supportsLiquidGlass ? "true" : "false"}
           onPointerDown={(event) => {
             if (event.button !== 0) return;
             const bounds = event.currentTarget.getBoundingClientRect();
@@ -232,7 +238,6 @@ export function LiquidGlassNavigation() {
           <Glass
             className="liquid-navigation__refraction"
             radius={999}
-            supportedFrost={8}
             optics={navigationGlassOptics}
             aria-hidden="true"
           >
