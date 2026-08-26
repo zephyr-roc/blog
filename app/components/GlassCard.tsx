@@ -30,8 +30,6 @@ const planarBloomStyle: CSSProperties = {
 const initialStyle: CardStyle = {
   "--rotate-x": "0deg",
   "--rotate-y": "0deg",
-  "--pointer-x": "50%",
-  "--pointer-y": "50%",
   "--shadow-x": "0px",
   "--shadow-y": "34px",
   "--content-shadow-x": "0px",
@@ -59,7 +57,6 @@ export function GlassCard({ children, className = "", ariaLabel, style }: GlassC
         <div className="glass-card__base" style={clippedBaseStyle} aria-hidden="true">
           <div className="glass-card__surface" />
           <div className="glass-card__edge" />
-          <div className="glass-card__shine" />
           <div className="glass-card__bloom" style={planarBloomStyle} />
         </div>
         {children}
