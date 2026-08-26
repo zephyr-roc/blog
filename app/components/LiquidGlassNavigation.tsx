@@ -232,6 +232,7 @@ export function LiquidGlassNavigation() {
           <Glass
             className="liquid-navigation__refraction"
             radius={999}
+            supportedFrost={8}
             optics={navigationGlassOptics}
             aria-hidden="true"
           >
