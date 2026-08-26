@@ -277,7 +277,6 @@ a {
 .glass-card__base,
 .glass-card__surface,
 .glass-card__edge,
-.glass-card__shine,
 .glass-card__bloom {
   position: absolute;
   inset: 0;
@@ -306,30 +305,15 @@ a {
   border-radius: inherit;
   padding: 1.5px;
   background:
-    radial-gradient(
-      40.58cqw circle at var(--pointer-x) var(--pointer-y),
-      rgba(255,255,255,.98) 0%,
-      rgba(202,174,255,.68) 18%,
-      rgba(255,255,255,.17) 43%,
-      rgba(255,255,255,.045) 75%
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,.42),
+      rgba(202,174,255,.16) 38%,
+      rgba(255,255,255,.05) 72%
     );
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-}
-
-.glass-card__shine {
-  z-index: 1;
-  border-radius: inherit;
-  background:
-    radial-gradient(
-      76.81cqw circle at var(--pointer-x) var(--pointer-y),
-      rgba(255,255,255,.125),
-      rgba(139,99,255,.04) 30%,
-      transparent 65%
-    );
-  mix-blend-mode: screen;
-  opacity: 0.8;
 }
 
 .glass-card__bloom {
