@@ -316,6 +316,17 @@ a {
   mask-composite: exclude;
 }
 
+.glass-card[data-active="true"] .glass-card__edge {
+  background:
+    radial-gradient(
+      40.58cqw circle at var(--pointer-x) var(--pointer-y),
+      rgba(255,255,255,.98) 0%,
+      rgba(202,174,255,.68) 18%,
+      rgba(255,255,255,.17) 43%,
+      rgba(255,255,255,.045) 75%
+    );
+}
+
 .glass-card__bloom {
   z-index: 1;
   inset: auto -11% -38% auto;
