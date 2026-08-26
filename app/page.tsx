@@ -46,8 +46,6 @@ export default async function Home() {
           </h1>
           <p className="hero__lede">
             关于编程语言、系统设计与代码之美的随笔。
-            <br />
-            移动指针，感受卡片的层次与光线。
           </p>
         </div>
 
@@ -87,4 +85,3 @@ export default async function Home() {
     </main>
   );
 }
-
