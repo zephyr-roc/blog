@@ -26,8 +26,9 @@ test("supports mouse dragging while keeping touch taps distinct", async () => {
 });
 
 test("uses a live backdrop lens without mirrored background copies", async () => {
-  const [navigation, css] = await Promise.all([
+  const [navigation, material, css] = await Promise.all([
     readFile(new URL("app/components/LiquidGlassNavigation.tsx", root), "utf8"),
+    readFile(new URL("app/components/liquid-glass/GlassMaterial.tsx", root), "utf8"),
     readFile(new URL("app/globals.css", root), "utf8"),
   ]);
 
@@ -41,6 +42,12 @@ test("uses a live backdrop lens without mirrored background copies", async () =>
   assert.match(navigation, /bend:\s*\.9/);
   assert.match(navigation, /dispersion:\s*\.8/);
   assert.match(navigation, /frost:\s*0/);
+  assert.match(navigation, /supportedFrost=\{8\}/);
+  assert.match(material, /supportsUrl && explicitSupportedFrost != null/);
+  assert.match(
+    material,
+    /supportsUrl && explicitSupportedFrost != null[\s\S]*?explicitSupportedFrost[\s\S]*?: merged\.frost/,
+  );
   assert.match(navigation, /className="liquid-navigation__refraction"/);
   assert.match(navigation, /className="liquid-navigation__refraction-content"/);
   assert.match(
