@@ -9,6 +9,7 @@ export function PostListItem({
 }) {
   const dateLabel = post.date
     ? new Date(post.date).toLocaleDateString("zh-CN", {
+        timeZone: "UTC",
         year: "numeric",
         month: "long",
         day: "numeric",
