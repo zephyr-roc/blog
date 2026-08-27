@@ -11,6 +11,7 @@ import {
   type CSSProperties,
   type MouseEvent,
   type PointerEvent,
+  useId,
   useLayoutEffect,
   useRef,
 } from "react";
@@ -59,7 +60,9 @@ export function LiquidGlassNavigation() {
   const pathname = usePathname();
   const router = useRouter();
   const supportsLiquidGlass = useLiquidGlassSupport();
+  const backdropClipId = `navigation-backdrop-${useId().replace(/:/g, "")}`;
   const surfaceRef = useRef<HTMLDivElement>(null);
+  const backdropClipPathRef = useRef<SVGPathElement>(null);
   const dragStart = useRef<GestureStart | null>(null);
   const dragOffset = useRef(0);
   const pointerTravel = useRef(0);
@@ -80,6 +83,7 @@ export function LiquidGlassNavigation() {
   const navigationBackdropStyle: CSSProperties = {
     backdropFilter,
     WebkitBackdropFilter: backdropFilter,
+    ...(supportsLiquidGlass ? { clipPath: `url(#${backdropClipId})` } : null),
   };
 
   const getSegmentTravel = () => {
@@ -89,6 +93,41 @@ export function LiquidGlassNavigation() {
     const items = surface.querySelectorAll<HTMLElement>(".liquid-navigation__item");
     if (items.length < 2) return 112;
     return items[1].offsetLeft - items[0].offsetLeft;
+  };
+
+  const updateBackdropClipPath = (offset = dragOffset.current) => {
+    const surface = surfaceRef.current;
+    const path = backdropClipPathRef.current;
+    if (!surface || !path || !supportsLiquidGlass) return;
+
+    const items = surface.querySelectorAll<HTMLElement>(".liquid-navigation__item");
+    const activeItem = items[activeIndex];
+    if (!activeItem) return;
+
+    const surfaceWidth = surface.clientWidth;
+    const surfaceHeight = surface.clientHeight;
+    const x = activeItem.offsetLeft + offset;
+    const y = activeItem.offsetTop;
+    const width = activeItem.offsetWidth;
+    const height = activeItem.offsetHeight;
+    const radius = height / 2;
+    const right = x + width;
+    const bottom = y + height;
+
+    path.setAttribute(
+      "d",
+      [
+        `M 0 0 H ${surfaceWidth} V ${surfaceHeight} H 0 Z`,
+        `M ${x + radius} ${y}`,
+        `H ${right - radius}`,
+        `A ${radius} ${radius} 0 0 1 ${right} ${y + radius}`,
+        `A ${radius} ${radius} 0 0 1 ${right - radius} ${bottom}`,
+        `H ${x + radius}`,
+        `A ${radius} ${radius} 0 0 1 ${x} ${y + radius}`,
+        `A ${radius} ${radius} 0 0 1 ${x + radius} ${y}`,
+        "Z",
+      ].join(" "),
+    );
   };
 
   const setDragOffset = (offset: number) => {
@@ -101,6 +140,7 @@ export function LiquidGlassNavigation() {
       "--drag-strength",
       String(Math.min(1, Math.abs(offset) / getSegmentTravel())),
     );
+    updateBackdropClipPath(offset);
   };
 
   const suppressGeneratedClick = () => {
@@ -166,7 +206,13 @@ export function LiquidGlassNavigation() {
     surface.dataset.dragging = "false";
     surface.style.setProperty("--drag-offset", "0px");
     surface.style.setProperty("--drag-strength", "0");
-  }, [pathname]);
+    updateBackdropClipPath(0);
+
+    if (!supportsLiquidGlass) return;
+    const resizeObserver = new ResizeObserver(() => updateBackdropClipPath());
+    resizeObserver.observe(surface);
+    return () => resizeObserver.disconnect();
+  }, [pathname, supportsLiquidGlass]);
 
   return (
       <nav className="liquid-navigation" aria-label="页面导航">
@@ -240,6 +286,22 @@ export function LiquidGlassNavigation() {
             }
           }}
         >
+          <svg
+            aria-hidden="true"
+            width="0"
+            height="0"
+            style={{ position: "absolute", width: 0, height: 0 }}
+          >
+            <defs>
+              <clipPath id={backdropClipId} clipPathUnits="userSpaceOnUse">
+                <path
+                  ref={backdropClipPathRef}
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                />
+              </clipPath>
+            </defs>
+          </svg>
           <span
             className="liquid-navigation__backdrop"
             style={navigationBackdropStyle}
