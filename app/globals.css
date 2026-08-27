@@ -804,12 +804,6 @@ a {
 .liquid-navigation__surface {
   --segment-width: 124px;
   --surface-padding: 8px;
-  --indicator-height: 52px;
-  --indicator-x: calc(
-    var(--surface-padding) +
-    var(--active-index) * (var(--segment-width) + 4px) +
-    var(--drag-offset)
-  );
   position: relative;
   display: flex;
   align-items: center;
@@ -862,32 +856,6 @@ a {
     linear-gradient(rgba(255, 255, 255, .026), rgba(255, 255, 255, .026)),
     rgba(17, 15, 24, .16);
   pointer-events: none;
-}
-
-/* Blink's liquid lens otherwise samples the already blurred Navigation plate.
-   Cut a live window under the active segment so refraction reads the page itself. */
-.liquid-navigation__surface[data-liquid-glass-supported="true"]
-  .liquid-navigation__backdrop {
-  mask-image:
-    linear-gradient(#fff 0 0),
-    radial-gradient(circle, #fff 98%, transparent 100%),
-    radial-gradient(circle, #fff 98%, transparent 100%),
-    linear-gradient(#fff 0 0);
-  mask-position:
-    0 0,
-    var(--indicator-x) var(--surface-padding),
-    calc(var(--indicator-x) + var(--segment-width) - var(--indicator-height))
-      var(--surface-padding),
-    calc(var(--indicator-x) + var(--indicator-height) / 2)
-      var(--surface-padding);
-  mask-size:
-    100% 100%,
-    var(--indicator-height) var(--indicator-height),
-    var(--indicator-height) var(--indicator-height),
-    calc(var(--segment-width) - var(--indicator-height)) var(--indicator-height);
-  mask-repeat: no-repeat;
-  mask-composite: exclude, add, add, add;
-  will-change: mask-position;
 }
 
 .liquid-navigation__refraction {
@@ -1498,7 +1466,6 @@ a {
   .liquid-navigation__surface {
     --segment-width: clamp(82px, calc((100vw - 52px) / 4), 116px);
     --surface-padding: 6px;
-    --indicator-height: 50px;
     padding: 6px;
   }
 
