@@ -76,7 +76,7 @@ export function LiquidGlassNavigation() {
     "--drag-offset": "0px",
     "--drag-strength": "0",
   };
-  const backdropFilter = `blur(${supportsLiquidGlass ? 3 : 1.4}px) saturate(112%)`;
+  const backdropFilter = `blur(${supportsLiquidGlass ? 1 : 1.4}px) saturate(112%)`;
   const navigationBackdropStyle: CSSProperties = {
     backdropFilter,
     WebkitBackdropFilter: backdropFilter,
