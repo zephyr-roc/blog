@@ -67,6 +67,12 @@ test("uses a live backdrop lens without mirrored background copies", async () =>
     /\.liquid-navigation__refraction\s*\{[^}]*backdrop-filter:/,
   );
   assert.match(css, /\.liquid-navigation__backdrop\s*\{/);
+  assert.match(
+    css,
+    /\[data-liquid-glass-supported="true"\][\s\S]*?\.liquid-navigation__backdrop\s*\{[\s\S]*?mask-composite:\s*exclude;/,
+  );
+  assert.match(css, /--indicator-x:\s*calc\(/);
+  assert.match(css, /var\(--indicator-x\) var\(--surface-padding\)/);
   assert.doesNotMatch(
     navigation,
     /cloneNode|MutationObserver|addEventListener\("scroll"|clipPath|feImage|feDisplacementMap/,
