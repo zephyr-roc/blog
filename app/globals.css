@@ -804,6 +804,7 @@ a {
 .liquid-navigation__surface {
   --segment-width: 124px;
   --surface-padding: 8px;
+  --indicator-height: 52px;
   --indicator-x: calc(
     var(--surface-padding) +
     var(--active-index) * (var(--segment-width) + 4px) +
@@ -867,29 +868,26 @@ a {
    Cut a live window under the active segment so refraction reads the page itself. */
 .liquid-navigation__surface[data-liquid-glass-supported="true"]
   .liquid-navigation__backdrop {
-  -webkit-mask-image:
-    linear-gradient(#fff 0 0),
-    linear-gradient(#fff 0 0);
-  -webkit-mask-position:
-    0 0,
-    var(--indicator-x) var(--surface-padding);
-  -webkit-mask-size:
-    100% 100%,
-    var(--segment-width) 52px;
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-composite: xor;
   mask-image:
     linear-gradient(#fff 0 0),
+    radial-gradient(circle, #fff 98%, transparent 100%),
+    radial-gradient(circle, #fff 98%, transparent 100%),
     linear-gradient(#fff 0 0);
   mask-position:
     0 0,
-    var(--indicator-x) var(--surface-padding);
+    var(--indicator-x) var(--surface-padding),
+    calc(var(--indicator-x) + var(--segment-width) - var(--indicator-height))
+      var(--surface-padding),
+    calc(var(--indicator-x) + var(--indicator-height) / 2)
+      var(--surface-padding);
   mask-size:
     100% 100%,
-    var(--segment-width) 52px;
+    var(--indicator-height) var(--indicator-height),
+    var(--indicator-height) var(--indicator-height),
+    calc(var(--segment-width) - var(--indicator-height)) var(--indicator-height);
   mask-repeat: no-repeat;
-  mask-composite: exclude;
-  will-change: mask-position, -webkit-mask-position;
+  mask-composite: exclude, add, add, add;
+  will-change: mask-position;
 }
 
 .liquid-navigation__refraction {
@@ -1500,17 +1498,8 @@ a {
   .liquid-navigation__surface {
     --segment-width: clamp(82px, calc((100vw - 52px) / 4), 116px);
     --surface-padding: 6px;
+    --indicator-height: 50px;
     padding: 6px;
-  }
-
-  .liquid-navigation__surface[data-liquid-glass-supported="true"]
-    .liquid-navigation__backdrop {
-    -webkit-mask-size:
-      100% 100%,
-      var(--segment-width) 50px;
-    mask-size:
-      100% 100%,
-      var(--segment-width) 50px;
   }
 
   .liquid-navigation__indicator {
