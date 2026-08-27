@@ -67,18 +67,15 @@ test("uses a live backdrop lens without mirrored background copies", async () =>
     /\.liquid-navigation__refraction\s*\{[^}]*backdrop-filter:/,
   );
   assert.match(css, /\.liquid-navigation__backdrop\s*\{/);
-  assert.match(
-    css,
-    /\[data-liquid-glass-supported="true"\][\s\S]*?\.liquid-navigation__backdrop\s*\{[\s\S]*?mask-composite:\s*exclude, add, add, add;/,
-  );
-  assert.match(css, /--indicator-height:\s*52px/);
-  assert.match(css, /radial-gradient\(circle, #fff 98%, transparent 100%\)/);
-  assert.match(css, /calc\(var\(--segment-width\) - var\(--indicator-height\)\)/);
-  assert.match(css, /--indicator-x:\s*calc\(/);
-  assert.match(css, /var\(--indicator-x\) var\(--surface-padding\)/);
+  assert.match(navigation, /clipPathUnits="userSpaceOnUse"/);
+  assert.match(navigation, /fillRule="evenodd"/);
+  assert.match(navigation, /clipRule="evenodd"/);
+  assert.match(navigation, /updateBackdropClipPath\(offset\)/);
+  assert.match(navigation, /clipPath: `url\(#\$\{backdropClipId\}\)`/);
+  assert.doesNotMatch(css, /mask-composite:\s*exclude, add, add, add/);
   assert.doesNotMatch(
     navigation,
-    /cloneNode|MutationObserver|addEventListener\("scroll"|clipPath|feImage|feDisplacementMap/,
+    /cloneNode|MutationObserver|addEventListener\("scroll"|feImage|feDisplacementMap/,
   );
   assert.doesNotMatch(navigation, /filterResolution=\{2\}/);
   assert.match(
