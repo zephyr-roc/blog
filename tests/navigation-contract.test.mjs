@@ -69,8 +69,11 @@ test("uses a live backdrop lens without mirrored background copies", async () =>
   assert.match(css, /\.liquid-navigation__backdrop\s*\{/);
   assert.match(
     css,
-    /\[data-liquid-glass-supported="true"\][\s\S]*?\.liquid-navigation__backdrop\s*\{[\s\S]*?mask-composite:\s*exclude;/,
+    /\[data-liquid-glass-supported="true"\][\s\S]*?\.liquid-navigation__backdrop\s*\{[\s\S]*?mask-composite:\s*exclude, add, add, add;/,
   );
+  assert.match(css, /--indicator-height:\s*52px/);
+  assert.match(css, /radial-gradient\(circle, #fff 98%, transparent 100%\)/);
+  assert.match(css, /calc\(var\(--segment-width\) - var\(--indicator-height\)\)/);
   assert.match(css, /--indicator-x:\s*calc\(/);
   assert.match(css, /var\(--indicator-x\) var\(--surface-padding\)/);
   assert.doesNotMatch(
