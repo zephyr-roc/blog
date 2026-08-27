@@ -58,7 +58,7 @@ test("uses a live backdrop lens without mirrored background copies", async () =>
   assert.doesNotMatch(css, /\.liquid-navigation__refraction\s*\{[^}]*contain:/);
   assert.match(
     navigation,
-    /blur\(\$\{supportsLiquidGlass \? 3 : 1\.4\}px\) saturate\(112%\)/,
+    /blur\(\$\{supportsLiquidGlass \? 1 : 1\.4\}px\) saturate\(112%\)/,
   );
   assert.match(navigation, /className="liquid-navigation__backdrop"/);
   assert.match(navigation, /style=\{navigationBackdropStyle\}/);
