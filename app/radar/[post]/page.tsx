@@ -57,6 +57,7 @@ export default async function RadarPostPage({ params }: Props) {
   const canonical = `/radar/${postSlug}`;
   const dateLabel = post.date
     ? new Date(post.date).toLocaleDateString("zh-CN", {
+        timeZone: "UTC",
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -98,4 +99,3 @@ export default async function RadarPostPage({ params }: Props) {
     </main>
   );
 }
-
