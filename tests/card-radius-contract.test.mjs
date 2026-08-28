@@ -38,6 +38,10 @@ test("curates six homepage language collections with React and without Nim", asy
   assert.match(page, /HOME_COLLECTION_ORDER\s*=\s*\["kotlin", "java", "rust", "react", "ocaml", "zig"\]/);
   assert.match(page, /HOME_COLLECTIONS_HIDDEN\s*=\s*new Set\(\["tinkering", "deep-radar"\]\)/);
   assert.match(page, /postCountDifference\s*=\s*b\.postCount\s*-\s*a\.postCount/);
+  assert.match(page, /weight:\s*1\s*\+\s*Math\.log2\(collection\.postCount\s*\+\s*1\)/);
+  assert.match(page, /createWatchLayout\(weightedCollections\)/);
+  assert.match(page, /const centerRow\s*=\s*\[items\[1\],\s*items\[0\],\s*items\[2\]\]/);
+  assert.match(page, /minmax\(180px,\s*\$\{weight\.toFixed\(3\)\}fr\)/);
 
   for (const slug of ["java", "rust", "react", "ocaml"]) {
     const meta = await readFile(
