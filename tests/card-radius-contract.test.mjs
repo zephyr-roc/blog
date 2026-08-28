@@ -25,9 +25,10 @@ test("scales shared collection-card content from one proportional canvas", async
     "utf8",
   );
 
-  assert.match(css, /\.collection-card__date\s*\{[^}]*font-size:\s*1\.16cqw;/);
-  assert.match(css, /\.collection-card__description\s*\{[^}]*font-size:\s*2\.03cqw;/);
-  assert.match(css, /\.collection-card__count\s*\{[^}]*font-size:\s*1\.01cqw;/);
+  assert.match(css, /\.collection-card__date\s*\{[^}]*font-size:\s*clamp\(8px,\s*1\.2cqmin,\s*11px\);/);
+  assert.match(css, /\.collection-card__description\s*\{[^}]*font-size:\s*clamp\(10px,\s*2\.3cqmin,\s*15px\);/);
+  assert.match(css, /\.collection-card__count\s*\{[^}]*font-size:\s*clamp\(8px,\s*1\.15cqmin,\s*11px\);/);
+  assert.match(css, /\.card-collection__item\s*\{[^}]*height:\s*clamp\(186px,\s*calc\(154px\s*\+\s*var\(--collection-weight,\s*1\)\s*\*\s*32px\),\s*258px\);/);
   assert.doesNotMatch(component, /fontSize:\s*"clamp\(/);
   assert.doesNotMatch(component, /className="collection-card__count"\s+style=/);
 });
