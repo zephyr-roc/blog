@@ -31,3 +31,24 @@ test("scales shared collection-card content from one proportional canvas", async
   assert.doesNotMatch(component, /fontSize:\s*"clamp\(/);
   assert.doesNotMatch(component, /className="collection-card__count"\s+style=/);
 });
+
+test("curates six homepage language collections without removing Nim content", async () => {
+  const page = await readFile(new URL("app/page.tsx", root), "utf8");
+
+  assert.match(page, /HOME_COLLECTION_ORDER\s*=\s*\["kotlin", "java", "rust", "ts-js", "ocaml", "zig"\]/);
+  assert.match(page, /HOME_COLLECTIONS_HIDDEN\s*=\s*new Set\(\["tinkering", "deep-radar", "nim"\]\)/);
+
+  for (const slug of ["java", "rust", "ts-js", "ocaml"]) {
+    const meta = await readFile(
+      new URL(`content/collections/${slug}/_meta.md`, root),
+      "utf8",
+    );
+    assert.match(meta, /^---\n[\s\S]+\n---\n$/);
+  }
+
+  const nimMeta = await readFile(
+    new URL("content/collections/nim/_meta.md", root),
+    "utf8",
+  );
+  assert.match(nimMeta, /title:\s*Nim 漫游/);
+});

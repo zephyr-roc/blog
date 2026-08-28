@@ -34,6 +34,36 @@ function CollectionIcon({ icon, color }: { icon: string; color: string }) {
       </div>
     );
   }
+  if (icon === "java") {
+    return (
+      <div className="collection-card__icon collection-card__icon--java" aria-hidden="true">
+        <span className="java-steam">◜</span>
+        <span className="java-cup">J</span>
+      </div>
+    );
+  }
+  if (icon === "rust") {
+    return (
+      <div className="collection-card__icon collection-card__icon--rust" aria-hidden="true">
+        <span>R</span>
+      </div>
+    );
+  }
+  if (icon === "ts-js") {
+    return (
+      <div className="collection-card__icon collection-card__icon--ts-js" aria-hidden="true">
+        <span>TS</span>
+        <span>JS</span>
+      </div>
+    );
+  }
+  if (icon === "ocaml") {
+    return (
+      <div className="collection-card__icon collection-card__icon--ocaml" aria-hidden="true">
+        <span>λ</span>
+      </div>
+    );
+  }
   return (
     <div
       className="collection-card__icon collection-card__icon--generic"
