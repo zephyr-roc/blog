@@ -60,7 +60,6 @@ export function CollectionCard({
         <div className="collection-card__clip">
           {featured && index !== undefined && total !== undefined && (
             <div className="collection-card__index" aria-hidden="true">
-              <span>COLLECTION</span>
               <span>
                 {String(index).padStart(2, "0")} / {String(total).padStart(2, "0")}
               </span>

@@ -31,6 +31,8 @@ test("scales shared collection-card content from one proportional canvas", async
   assert.match(css, /\.card-collection__item\s*\{[^}]*aspect-ratio:\s*var\(--collection-ratio,\s*1\);/);
   assert.doesNotMatch(component, /fontSize:\s*"clamp\(/);
   assert.doesNotMatch(component, /className="collection-card__count"\s+style=/);
+  assert.doesNotMatch(component, />COLLECTION</);
+  assert.match(css, /\.collection-card--featured \.collection-card__icon\s*\{[^}]*width:\s*clamp\(58px,\s*24cqmin,\s*78px\);/);
 });
 
 test("curates six homepage language collections with React and without Nim", async () => {
