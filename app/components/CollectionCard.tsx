@@ -8,13 +8,6 @@ type CollectionCardStyle = CSSProperties & {
 };
 
 function CollectionIcon({ icon, color }: { icon: string; color: string }) {
-  if (icon === "kotlin") {
-    return (
-      <div className="collection-card__icon collection-card__icon--kotlin" aria-hidden="true">
-        <span className="kotlin-logo" />
-      </div>
-    );
-  }
   if (icon === "nim") {
     return (
       <div
@@ -27,40 +20,23 @@ function CollectionIcon({ icon, color }: { icon: string; color: string }) {
       </div>
     );
   }
-  if (icon === "zig") {
-    return (
-      <div className="collection-card__icon collection-card__icon--zig" aria-hidden="true">
-        <img src="/zig-logomark.svg" alt="" />
-      </div>
-    );
-  }
-  if (icon === "java") {
-    return (
-      <div className="collection-card__icon collection-card__icon--java" aria-hidden="true">
-        <span className="java-steam">◜</span>
-        <span className="java-cup">J</span>
-      </div>
-    );
-  }
-  if (icon === "rust") {
-    return (
-      <div className="collection-card__icon collection-card__icon--rust" aria-hidden="true">
-        <span>R</span>
-      </div>
-    );
-  }
   if (icon === "ts-js") {
     return (
       <div className="collection-card__icon collection-card__icon--ts-js" aria-hidden="true">
-        <span>TS</span>
-        <span>JS</span>
+        <img src="/language-logos/typescript.svg" alt="" />
+        <img src="/language-logos/javascript.svg" alt="" />
       </div>
     );
   }
-  if (icon === "ocaml") {
+
+  const officialLogo = ["kotlin", "java", "rust", "ocaml", "zig"].includes(icon)
+    ? `/language-logos/${icon}.svg`
+    : null;
+
+  if (officialLogo) {
     return (
-      <div className="collection-card__icon collection-card__icon--ocaml" aria-hidden="true">
-        <span>λ</span>
+      <div className={`collection-card__icon collection-card__icon--${icon}`} aria-hidden="true">
+        <img src={officialLogo} alt="" />
       </div>
     );
   }
