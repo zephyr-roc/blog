@@ -52,3 +52,23 @@ test("curates six homepage language collections without removing Nim content", a
   );
   assert.match(nimMeta, /title:\s*Nim 漫游/);
 });
+
+test("uses vendored standard SVG marks for homepage language collections", async () => {
+  const component = await readFile(
+    new URL("app/components/CollectionCard.tsx", root),
+    "utf8",
+  );
+
+  assert.match(component, /\/language-logos\/typescript\.svg/);
+  assert.match(component, /\/language-logos\/javascript\.svg/);
+  assert.match(component, /\["kotlin", "java", "rust", "ocaml", "zig"\]/);
+  assert.doesNotMatch(component, /java-steam|java-cup|>λ<|>R</);
+
+  for (const name of ["kotlin", "java", "rust", "typescript", "javascript", "ocaml", "zig"]) {
+    const svg = await readFile(
+      new URL(`public/language-logos/${name}.svg`, root),
+      "utf8",
+    );
+    assert.match(svg, /^<svg[^>]+viewBox=/);
+  }
+});
