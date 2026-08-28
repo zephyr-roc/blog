@@ -89,8 +89,14 @@ export default async function Home() {
     collection,
     index,
     weight: 1 + Math.log2(collection.postCount + 1),
+    ratio: index === 0
+      ? 1.2
+      : Math.min(16 / 9, 1 + Math.log2(collection.postCount + 1) * 0.5),
   }));
   const collectionRows = createWatchLayout(weightedCollections);
+  const centerRowIndex = collectionRows.findIndex((row) =>
+    row.some(({ index }) => index === 0),
+  );
 
   return (
     <main className="experience-shell">
@@ -118,14 +124,20 @@ export default async function Home() {
             {collectionRows.map((row, rowIndex) => (
               <div
                 key={`row-${rowIndex}`}
-                className={`card-collection__row card-collection__row--${row.length}`}
+                className={`card-collection__row card-collection__row--${row.length} ${
+                  rowIndex < centerRowIndex
+                    ? "card-collection__row--above"
+                    : rowIndex === centerRowIndex
+                      ? "card-collection__row--center"
+                      : "card-collection__row--below"
+                }`}
                 style={{
                   gridTemplateColumns: row
                     .map(({ weight }) => `minmax(180px, ${weight.toFixed(3)}fr)`)
                     .join(" "),
                 } as CSSProperties}
               >
-                {row.map(({ collection, index, weight }) => (
+                {row.map(({ collection, index, weight, ratio }) => (
                   <div
                     key={collection.slug}
                     className={
@@ -133,7 +145,10 @@ export default async function Home() {
                         ? "card-collection__item card-collection__primary"
                         : "card-collection__item card-collection__companion"
                     }
-                    style={{ "--collection-weight": weight.toFixed(3) } as CSSProperties}
+                    style={{
+                      "--collection-weight": weight.toFixed(3),
+                      "--collection-ratio": ratio.toFixed(4),
+                    } as CSSProperties}
                   >
                     <CollectionCard
                       collection={collection}
