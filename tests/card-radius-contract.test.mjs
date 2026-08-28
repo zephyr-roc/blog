@@ -41,7 +41,7 @@ test("curates six homepage language collections with React and without Nim", asy
   assert.match(page, /HOME_COLLECTIONS_HIDDEN\s*=\s*new Set\(\["tinkering", "deep-radar"\]\)/);
   assert.match(page, /postCountDifference\s*=\s*b\.postCount\s*-\s*a\.postCount/);
   assert.match(page, /weight:\s*1\s*\+\s*Math\.log2\(collection\.postCount\s*\+\s*1\)/);
-  assert.match(page, /ratio:\s*index\s*===\s*0\s*\?\s*1\.2/);
+  assert.match(page, /ratio:\s*index\s*===\s*0\s*\?\s*1\.5/);
   assert.match(page, /Math\.min\(16\s*\/\s*9,\s*1\s*\+\s*Math\.log2\(collection\.postCount\s*\+\s*1\)\s*\*\s*0\.5\)/);
   assert.match(page, /row\.map\(\(\{\s*collection,\s*index,\s*weight,\s*ratio\s*\}\)\s*=>/);
   assert.match(page, /"--collection-ratio":\s*ratio\.toFixed\(4\)/);
@@ -54,6 +54,9 @@ test("curates six homepage language collections with React and without Nim", asy
   assert.match(css, /\.card-collection__row--2\s*\{[^}]*width:\s*min\(100%,\s*468px\);/);
   assert.match(css, /\.card-collection__row--1\s*\{[^}]*width:\s*min\(100%,\s*180px\);/);
   assert.doesNotMatch(css, /\.card-collection\s*\{[^}]*gap:\s*10px;/);
+  assert.match(css, /\.collection-card__clip\s*\{[^}]*overflow:\s*hidden;[^}]*border-radius:\s*inherit;[^}]*clip-path:\s*inset\(0 round var\(--card-radius,\s*4\.93cqw\)\);/);
+  assert.match(css, /\.collection-card__content\s*\{[^}]*max-height:\s*calc\(100%\s*-\s*clamp\(20px,\s*10cqmin,\s*44px\)\);[^}]*overflow:\s*hidden;/);
+  assert.match(css, /@media \(max-width:\s*1180px\)[\s\S]*?\.card-collection__item\s*\{[^}]*aspect-ratio:\s*1\.5;/);
 
   for (const slug of ["java", "rust", "react", "ocaml"]) {
     const meta = await readFile(
