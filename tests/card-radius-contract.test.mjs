@@ -40,7 +40,8 @@ test("curates six homepage language collections with React and without Nim", asy
   assert.match(page, /postCountDifference\s*=\s*b\.postCount\s*-\s*a\.postCount/);
   assert.match(page, /weight:\s*1\s*\+\s*Math\.log2\(collection\.postCount\s*\+\s*1\)/);
   assert.match(page, /createWatchLayout\(weightedCollections\)/);
-  assert.match(page, /const centerRow\s*=\s*\[items\[1\],\s*items\[0\],\s*items\[2\]\]/);
+  assert.match(page, /smallestDifference\s*=\s*Math\.abs/);
+  assert.match(page, /const centerRow\s*=\s*\[centerCandidates\[sidePair\[0\]\],\s*items\[0\],\s*centerCandidates\[sidePair\[1\]\]\]/);
   assert.match(page, /minmax\(180px,\s*\$\{weight\.toFixed\(3\)\}fr\)/);
 
   for (const slug of ["java", "rust", "react", "ocaml"]) {

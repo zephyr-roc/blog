@@ -220,6 +220,10 @@ a {
   height: 100%;
 }
 
+.card-collection .collection-card-link {
+  height: 100%;
+}
+
 .card-collection .glass-card {
   height: 100%;
   aspect-ratio: auto;
