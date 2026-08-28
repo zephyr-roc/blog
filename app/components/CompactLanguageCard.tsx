@@ -1,6 +1,6 @@
 import { GlassCard } from "./GlassCard";
 
-type LanguageKind = "nim" | "zig";
+type LanguageKind = "zig";
 
 type CompactLanguageCardProps = {
   name: string;
@@ -18,14 +18,7 @@ function LanguageMark({ kind, name }: Pick<CompactLanguageCardProps, "kind" | "n
       role="img"
       aria-label={`${name} Logo`}
     >
-      {kind === "nim" ? (
-        <>
-          <span className="nim-crown" aria-hidden="true" />
-          <span className="language-mark__word">N</span>
-        </>
-      ) : (
-        <img className="zig-mark" src="/zig-logomark.svg" alt="" aria-hidden="true" />
-      )}
+      <img className="zig-mark" src="/zig-logomark.svg" alt="" aria-hidden="true" />
     </div>
   );
 }
