@@ -32,25 +32,20 @@ test("scales shared collection-card content from one proportional canvas", async
   assert.doesNotMatch(component, /className="collection-card__count"\s+style=/);
 });
 
-test("curates six homepage language collections without removing Nim content", async () => {
+test("curates six homepage language collections with React and without Nim", async () => {
   const page = await readFile(new URL("app/page.tsx", root), "utf8");
 
-  assert.match(page, /HOME_COLLECTION_ORDER\s*=\s*\["kotlin", "java", "rust", "ts-js", "ocaml", "zig"\]/);
-  assert.match(page, /HOME_COLLECTIONS_HIDDEN\s*=\s*new Set\(\["tinkering", "deep-radar", "nim"\]\)/);
+  assert.match(page, /HOME_COLLECTION_ORDER\s*=\s*\["kotlin", "java", "rust", "react", "ocaml", "zig"\]/);
+  assert.match(page, /HOME_COLLECTIONS_HIDDEN\s*=\s*new Set\(\["tinkering", "deep-radar"\]\)/);
+  assert.match(page, /postCountDifference\s*=\s*b\.postCount\s*-\s*a\.postCount/);
 
-  for (const slug of ["java", "rust", "ts-js", "ocaml"]) {
+  for (const slug of ["java", "rust", "react", "ocaml"]) {
     const meta = await readFile(
       new URL(`content/collections/${slug}/_meta.md`, root),
       "utf8",
     );
     assert.match(meta, /^---\n[\s\S]+\n---\n$/);
   }
-
-  const nimMeta = await readFile(
-    new URL("content/collections/nim/_meta.md", root),
-    "utf8",
-  );
-  assert.match(nimMeta, /title:\s*Nim 漫游/);
 });
 
 test("uses vendored standard SVG marks for homepage language collections", async () => {
@@ -59,12 +54,10 @@ test("uses vendored standard SVG marks for homepage language collections", async
     "utf8",
   );
 
-  assert.match(component, /\/language-logos\/typescript\.svg/);
-  assert.match(component, /\/language-logos\/javascript\.svg/);
-  assert.match(component, /\["kotlin", "java", "rust", "ocaml", "zig"\]/);
+  assert.match(component, /\["kotlin", "java", "rust", "react", "ocaml", "zig"\]/);
   assert.doesNotMatch(component, /java-steam|java-cup|>λ<|>R</);
 
-  for (const name of ["kotlin", "java", "rust", "typescript", "javascript", "ocaml", "zig"]) {
+  for (const name of ["kotlin", "java", "rust", "react", "ocaml", "zig"]) {
     const svg = await readFile(
       new URL(`public/language-logos/${name}.svg`, root),
       "utf8",
