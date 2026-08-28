@@ -56,6 +56,7 @@ test("curates six homepage language collections with React and without Nim", asy
   assert.doesNotMatch(css, /\.card-collection\s*\{[^}]*gap:\s*10px;/);
   assert.match(css, /\.collection-card__clip\s*\{[^}]*overflow:\s*hidden;[^}]*border-radius:\s*inherit;[^}]*clip-path:\s*inset\(0 round var\(--card-radius,\s*4\.93cqw\)\);/);
   assert.match(css, /\.collection-card__content\s*\{[^}]*max-height:\s*calc\(100%\s*-\s*clamp\(20px,\s*10cqmin,\s*44px\)\);[^}]*overflow:\s*hidden;/);
+  assert.match(css, /\.collection-card--companion \.collection-card__content\s*\{[^}]*left:\s*clamp\(18px,\s*9cqmin,\s*30px\);[^}]*right:\s*clamp\(18px,\s*9cqmin,\s*30px\);[^}]*bottom:\s*clamp\(18px,\s*9cqmin,\s*30px\);/);
   assert.match(css, /@media \(max-width:\s*1180px\)[\s\S]*?\.card-collection__item\s*\{[^}]*aspect-ratio:\s*1\.5;/);
 
   for (const slug of ["java", "rust", "react", "ocaml"]) {
