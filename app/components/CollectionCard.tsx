@@ -8,28 +8,7 @@ type CollectionCardStyle = CSSProperties & {
 };
 
 function CollectionIcon({ icon, color }: { icon: string; color: string }) {
-  if (icon === "nim") {
-    return (
-      <div
-        className="collection-card__icon collection-card__icon--nim"
-        style={{ color, borderColor: color } as CSSProperties}
-        aria-hidden="true"
-      >
-        <span className="nim-crown" />
-        <span className="language-mark__word">N</span>
-      </div>
-    );
-  }
-  if (icon === "ts-js") {
-    return (
-      <div className="collection-card__icon collection-card__icon--ts-js" aria-hidden="true">
-        <img src="/language-logos/typescript.svg" alt="" />
-        <img src="/language-logos/javascript.svg" alt="" />
-      </div>
-    );
-  }
-
-  const officialLogo = ["kotlin", "java", "rust", "ocaml", "zig"].includes(icon)
+  const officialLogo = ["kotlin", "java", "rust", "react", "ocaml", "zig"].includes(icon)
     ? `/language-logos/${icon}.svg`
     : null;
 

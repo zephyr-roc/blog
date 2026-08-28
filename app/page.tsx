@@ -23,13 +23,16 @@ export const metadata: Metadata = {
   },
 };
 
-const HOME_COLLECTION_ORDER = ["kotlin", "java", "rust", "ts-js", "ocaml", "zig"];
-const HOME_COLLECTIONS_HIDDEN = new Set(["tinkering", "deep-radar", "nim"]);
+const HOME_COLLECTION_ORDER = ["kotlin", "java", "rust", "react", "ocaml", "zig"];
+const HOME_COLLECTIONS_HIDDEN = new Set(["tinkering", "deep-radar"]);
 
 export default async function Home() {
   const collections = (await getAllCollections()).filter(
     (collection) => !HOME_COLLECTIONS_HIDDEN.has(collection.slug),
   ).sort((a, b) => {
+    const postCountDifference = b.postCount - a.postCount;
+    if (postCountDifference !== 0) return postCountDifference;
+
     const aIndex = HOME_COLLECTION_ORDER.indexOf(a.slug);
     const bIndex = HOME_COLLECTION_ORDER.indexOf(b.slug);
     return (aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex)
