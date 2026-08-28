@@ -57,49 +57,38 @@ export function CollectionCard({
         ariaLabel={`${collection.title} 合集，共 ${collection.postCount} 篇文章`}
         style={style}
       >
-        {featured && index !== undefined && total !== undefined && (
-          <div className="collection-card__index" aria-hidden="true">
-            <span>COLLECTION</span>
-            <span>
-              {String(index).padStart(2, "0")} / {String(total).padStart(2, "0")}
+        <div className="collection-card__clip">
+          {featured && index !== undefined && total !== undefined && (
+            <div className="collection-card__index" aria-hidden="true">
+              <span>COLLECTION</span>
+              <span>
+                {String(index).padStart(2, "0")} / {String(total).padStart(2, "0")}
+              </span>
+            </div>
+          )}
+
+          {!featured && collection.latestDate && (
+            <time
+              className="collection-card__date"
+              dateTime={collection.latestDate}
+              aria-label={`最近更新于 ${collection.latestDate}`}
+            >
+              {collection.latestDate}
+            </time>
+          )}
+
+          <div className="collection-card__icon-wrap" aria-hidden="true">
+            <CollectionIcon icon={collection.icon} color={collection.color} />
+          </div>
+
+          <div className="collection-card__content">
+            {featured && <p className="collection-card__eyebrow">BLOG · 合集</p>}
+            <h2>{collection.title}</h2>
+            <p className="collection-card__description">{collection.description}</p>
+            <span className="collection-card__count">
+              {collection.postCount} 篇文章
             </span>
           </div>
-        )}
-
-        {!featured && collection.latestDate && (
-          <time
-            className="collection-card__date"
-            dateTime={collection.latestDate}
-            aria-label={`最近更新于 ${collection.latestDate}`}
-          >
-            {collection.latestDate}
-          </time>
-        )}
-
-        <div className="collection-card__icon-wrap" aria-hidden="true">
-          <CollectionIcon icon={collection.icon} color={collection.color} />
-        </div>
-
-        <div className="collection-card__content">
-          {featured && <p className="collection-card__eyebrow">BLOG · 合集</p>}
-          <h2>{collection.title}</h2>
-          {featured ? (
-            <>
-              <p className="collection-card__description">{collection.description}</p>
-              <span className="collection-card__count">
-                {collection.postCount} 篇文章
-              </span>
-            </>
-          ) : (
-            <>
-              <p className="collection-card__description">
-                {collection.description}
-              </p>
-              <span className="collection-card__count">
-                {collection.postCount} 篇文章
-              </span>
-            </>
-          )}
         </div>
       </GlassCard>
     </a>

@@ -1393,6 +1393,7 @@ a {
 
   .card-collection__item {
     min-height: 0;
+    aspect-ratio: 1.5;
   }
 
   .card-collection--odd .card-collection__row:last-child .card-collection__item:last-child {
@@ -1535,6 +1536,17 @@ a {
 }
 
 /* ── Collection Card ─────────────────────────────────────────── */
+
+.collection-card__clip {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  clip-path: inset(0 round var(--card-radius, 4.93cqw));
+  contain: paint;
+  pointer-events: none;
+}
 
 .collection-card__index,
 .collection-card__content {
@@ -1679,9 +1691,11 @@ a {
 }
 
 .collection-card__content {
-  left: 5.22cqw;
-  right: 5.22cqw;
-  bottom: 5.51cqw;
+  left: clamp(10px, 5.22cqmin, 23px);
+  right: clamp(10px, 5.22cqmin, 23px);
+  bottom: clamp(10px, 5.51cqmin, 24px);
+  max-height: calc(100% - clamp(20px, 10cqmin, 44px));
+  overflow: hidden;
   transform: translate3d(var(--content-x), var(--content-y), 7.25cqw);
 }
 
