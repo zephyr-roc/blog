@@ -23,10 +23,18 @@ export const metadata: Metadata = {
   },
 };
 
+const HOME_COLLECTION_ORDER = ["kotlin", "java", "rust", "ts-js", "ocaml", "zig"];
+const HOME_COLLECTIONS_HIDDEN = new Set(["tinkering", "deep-radar", "nim"]);
+
 export default async function Home() {
   const collections = (await getAllCollections()).filter(
-    (c) => c.slug !== "tinkering" && c.slug !== "deep-radar"
-  );
+    (collection) => !HOME_COLLECTIONS_HIDDEN.has(collection.slug),
+  ).sort((a, b) => {
+    const aIndex = HOME_COLLECTION_ORDER.indexOf(a.slug);
+    const bIndex = HOME_COLLECTION_ORDER.indexOf(b.slug);
+    return (aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex)
+      - (bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex);
+  });
 
   return (
     <main className="experience-shell">
