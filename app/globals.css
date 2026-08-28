@@ -193,23 +193,35 @@ a {
 
 .card-collection__row {
   display: grid;
-  align-items: center;
+  align-items: start;
   gap: 18px;
   width: 100%;
   margin-inline: auto;
 }
 
 .card-collection__row--2 {
-  width: calc((200% - 18px) / 3);
+  width: min(100%, 468px);
 }
 
 .card-collection__row--1 {
-  width: calc((100% - 36px) / 3);
+  width: min(100%, 180px);
+}
+
+.card-collection__row--above {
+  align-items: end;
+}
+
+.card-collection__row--center {
+  align-items: center;
+}
+
+.card-collection__row--below {
+  align-items: start;
 }
 
 .card-collection__item {
   min-width: 0;
-  height: clamp(186px, calc(154px + var(--collection-weight, 1) * 32px), 258px);
+  aspect-ratio: var(--collection-ratio, 1);
 }
 
 .card-collection__companion {
@@ -1436,7 +1448,7 @@ a {
 
   .card-collection {
     grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
+    gap: 18px;
   }
 
   .card-collection__item,
