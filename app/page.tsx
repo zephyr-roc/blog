@@ -90,7 +90,7 @@ export default async function Home() {
     index,
     weight: 1 + Math.log2(collection.postCount + 1),
     ratio: index === 0
-      ? 1.2
+      ? 1.5
       : Math.min(16 / 9, 1 + Math.log2(collection.postCount + 1) * 0.5),
   }));
   const collectionRows = createWatchLayout(weightedCollections);
