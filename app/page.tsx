@@ -125,7 +125,7 @@ export default async function Home() {
                     .join(" "),
                 } as CSSProperties}
               >
-                {row.map(({ collection, index }) => (
+                {row.map(({ collection, index, weight }) => (
                   <div
                     key={collection.slug}
                     className={
