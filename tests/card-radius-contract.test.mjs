@@ -40,6 +40,7 @@ test("curates six homepage language collections with React and without Nim", asy
   assert.match(page, /HOME_COLLECTIONS_HIDDEN\s*=\s*new Set\(\["tinkering", "deep-radar"\]\)/);
   assert.match(page, /postCountDifference\s*=\s*b\.postCount\s*-\s*a\.postCount/);
   assert.match(page, /weight:\s*1\s*\+\s*Math\.log2\(collection\.postCount\s*\+\s*1\)/);
+  assert.match(page, /row\.map\(\(\{\s*collection,\s*index,\s*weight\s*\}\)\s*=>/);
   assert.match(page, /createWatchLayout\(weightedCollections\)/);
   assert.match(page, /smallestDifference\s*=\s*Math\.abs/);
   assert.match(page, /const centerRow\s*=\s*\[centerCandidates\[sidePair\[0\]\],\s*items\[0\],\s*centerCandidates\[sidePair\[1\]\]\]/);
