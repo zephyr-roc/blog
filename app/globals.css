@@ -1737,6 +1737,12 @@ a {
   -webkit-line-clamp: 2;
 }
 
+.collection-card--companion .collection-card__content {
+  left: clamp(18px, 9cqmin, 30px);
+  right: clamp(18px, 9cqmin, 30px);
+  bottom: clamp(18px, 9cqmin, 30px);
+}
+
 .collection-card__count {
   display: inline-block;
   margin-top: 2.32cqw;
