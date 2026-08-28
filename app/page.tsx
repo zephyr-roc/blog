@@ -38,12 +38,25 @@ function getBalancedRowSizes(collectionCount: number) {
   return [...Array(completeRows - 1).fill(3), 2, 2];
 }
 
-function createWatchLayout<T>(items: T[]) {
+function createWatchLayout<T extends { weight: number }>(items: T[]) {
   if (items.length === 0) return [];
   if (items.length < 3) return [items];
 
-  const centerRow = [items[1], items[0], items[2]];
-  const surroundingItems = items.slice(3);
+  const centerCandidates = items.slice(1);
+  let sidePair: [number, number] = [0, 1];
+  let smallestDifference = Math.abs(centerCandidates[0].weight - centerCandidates[1].weight);
+  for (let left = 0; left < centerCandidates.length - 1; left += 1) {
+    for (let right = left + 1; right < centerCandidates.length; right += 1) {
+      const difference = Math.abs(centerCandidates[left].weight - centerCandidates[right].weight);
+      if (difference < smallestDifference) {
+        sidePair = [left, right];
+        smallestDifference = difference;
+      }
+    }
+  }
+
+  const centerRow = [centerCandidates[sidePair[0]], items[0], centerCandidates[sidePair[1]]];
+  const surroundingItems = centerCandidates.filter((_, index) => !sidePair.includes(index));
   const topItemCount = Math.ceil(surroundingItems.length / 2);
   const topItems = surroundingItems.slice(0, topItemCount);
   const bottomItems = surroundingItems.slice(topItemCount);
