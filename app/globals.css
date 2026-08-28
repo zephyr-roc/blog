@@ -188,15 +188,26 @@ a {
   position: relative;
   width: min(100%, 1000px);
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: repeat(3, auto);
-  align-items: center;
   gap: 18px;
 }
 
-.card-collection__primary {
-  grid-column: 1 / span 2;
-  grid-row: 1 / span 2;
+.card-collection__row {
+  display: grid;
+  grid-auto-rows: clamp(190px, 16vw, 232px);
+  gap: 18px;
+  width: 100%;
+  margin-inline: auto;
+}
+
+.card-collection__row--2 {
+  width: calc((200% - 18px) / 3);
+}
+
+.card-collection__row--1 {
+  width: calc((100% - 36px) / 3);
+}
+
+.card-collection__item {
   min-width: 0;
 }
 
@@ -206,6 +217,12 @@ a {
 
 .card-collection .card-perspective {
   width: 100%;
+  height: 100%;
+}
+
+.card-collection .glass-card {
+  height: 100%;
+  aspect-ratio: auto;
 }
 
 .card-collection__companion .card-perspective {
@@ -1348,25 +1365,20 @@ a {
 
   .card-collection {
     width: min(690px, 100%);
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    grid-template-rows: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .card-collection__primary {
+  .card-collection__row {
+    display: contents;
+    width: auto;
+  }
+
+  .card-collection__item {
+    min-height: clamp(190px, 32vw, 232px);
+  }
+
+  .card-collection--odd .card-collection__row:last-child .card-collection__item:last-child {
     grid-column: 1 / -1;
-    grid-row: auto;
-  }
-
-  .card-collection__companion {
-    grid-column: span 2;
-  }
-
-  .card-collection > :nth-child(5) {
-    grid-column: 2 / span 2;
-  }
-
-  .card-collection > :nth-child(6) {
-    grid-column: 4 / span 2;
   }
 
   .hero__stage {
@@ -1417,23 +1429,14 @@ a {
   }
 
   .card-collection {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
   }
 
-  .card-collection__primary {
-    grid-column: 1 / -1;
-  }
-
-  .card-collection__companion,
-  .card-collection > :nth-child(5) {
+  .card-collection__item,
+  .card-collection--odd .card-collection__row:last-child .card-collection__item:last-child {
     grid-column: auto;
-  }
-
-  .card-collection > :nth-child(6) {
-    grid-column: 1 / -1;
-    width: calc(50% - 5px);
-    justify-self: center;
+    min-height: clamp(210px, 58vw, 250px);
   }
 
   .card-perspective {
