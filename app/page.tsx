@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import { getAllCollections } from "./lib/content";
 import { CollectionCard } from "./components/CollectionCard";
 import { SiteHeader } from "./components/SiteHeader";
@@ -26,6 +27,39 @@ export const metadata: Metadata = {
 const HOME_COLLECTION_ORDER = ["kotlin", "java", "rust", "react", "ocaml", "zig"];
 const HOME_COLLECTIONS_HIDDEN = new Set(["tinkering", "deep-radar"]);
 
+function getBalancedRowSizes(collectionCount: number) {
+  if (collectionCount <= 3) return collectionCount > 0 ? [collectionCount] : [];
+
+  const completeRows = Math.floor(collectionCount / 3);
+  const remainder = collectionCount % 3;
+  if (remainder === 0) return Array(completeRows).fill(3);
+  if (remainder === 2) return [...Array(completeRows).fill(3), 2];
+
+  return [...Array(completeRows - 1).fill(3), 2, 2];
+}
+
+function createWatchLayout<T>(items: T[]) {
+  if (items.length === 0) return [];
+  if (items.length < 3) return [items];
+
+  const centerRow = [items[1], items[0], items[2]];
+  const surroundingItems = items.slice(3);
+  const topItemCount = Math.ceil(surroundingItems.length / 2);
+  const topItems = surroundingItems.slice(0, topItemCount);
+  const bottomItems = surroundingItems.slice(topItemCount);
+
+  const splitRows = (rowItems: T[]) => {
+    let offset = 0;
+    return getBalancedRowSizes(rowItems.length).map((rowSize) => {
+      const row = rowItems.slice(offset, offset + rowSize);
+      offset += rowSize;
+      return row;
+    });
+  };
+
+  return [...splitRows(topItems), centerRow, ...splitRows(bottomItems)];
+}
+
 export default async function Home() {
   const collections = (await getAllCollections()).filter(
     (collection) => !HOME_COLLECTIONS_HIDDEN.has(collection.slug),
@@ -38,6 +72,12 @@ export default async function Home() {
     return (aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex)
       - (bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex);
   });
+  const weightedCollections = collections.map((collection, index) => ({
+    collection,
+    index,
+    weight: 1 + Math.log2(collection.postCount + 1),
+  }));
+  const collectionRows = createWatchLayout(weightedCollections);
 
   return (
     <main className="experience-shell">
@@ -61,22 +101,34 @@ export default async function Home() {
         </div>
 
         <div className="hero__stage" id="collections">
-          <div className="card-collection">
-            {collections.map((collection, i) => (
+          <div className={`card-collection${collections.length % 2 ? " card-collection--odd" : ""}`}>
+            {collectionRows.map((row, rowIndex) => (
               <div
-                key={collection.slug}
-                className={
-                  i === 0
-                    ? "card-collection__primary"
-                    : "card-collection__companion"
-                }
+                key={`row-${rowIndex}`}
+                className={`card-collection__row card-collection__row--${row.length}`}
+                style={{
+                  gridTemplateColumns: row
+                    .map(({ weight }) => `minmax(180px, ${weight.toFixed(3)}fr)`)
+                    .join(" "),
+                } as CSSProperties}
               >
-                <CollectionCard
-                  collection={collection}
-                  featured={i === 0}
-                  index={i + 1}
-                  total={collections.length}
-                />
+                {row.map(({ collection, index }) => (
+                  <div
+                    key={collection.slug}
+                    className={
+                      index === 0
+                        ? "card-collection__item card-collection__primary"
+                        : "card-collection__item card-collection__companion"
+                    }
+                  >
+                    <CollectionCard
+                      collection={collection}
+                      featured={index === 0}
+                      index={index + 1}
+                      total={collections.length}
+                    />
+                  </div>
+                ))}
               </div>
             ))}
           </div>
