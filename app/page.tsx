@@ -133,6 +133,7 @@ export default async function Home() {
                         ? "card-collection__item card-collection__primary"
                         : "card-collection__item card-collection__companion"
                     }
+                    style={{ "--collection-weight": weight.toFixed(3) } as CSSProperties}
                   >
                     <CollectionCard
                       collection={collection}
