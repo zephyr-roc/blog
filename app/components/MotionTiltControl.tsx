@@ -14,6 +14,7 @@ type OrientationEventConstructor = typeof DeviceOrientationEvent & {
 };
 
 const clamp = (value: number) => Math.max(-1, Math.min(1, value));
+const MOTION_FRAME_INTERVAL = 1000 / 30;
 
 export function MotionTiltControl() {
   const [available, setAvailable] = useState(false);
@@ -22,6 +23,7 @@ export function MotionTiltControl() {
   const filteredTilt = useRef({ x: 0, y: 0 });
   const targetTilt = useRef({ x: 0, y: 0 });
   const animationFrame = useRef<number | null>(null);
+  const lastEmission = useRef(0);
   const listening = useRef(false);
 
   const emitReset = useCallback(() => {
@@ -66,19 +68,31 @@ export function MotionTiltControl() {
     };
 
     if (animationFrame.current !== null) return;
-    animationFrame.current = window.requestAnimationFrame(() => {
+    const flushTilt = (time: number) => {
+      if (time - lastEmission.current < MOTION_FRAME_INTERVAL) {
+        animationFrame.current = window.requestAnimationFrame(flushTilt);
+        return;
+      }
+
       animationFrame.current = null;
-      const smoothing = 0.16;
-      filteredTilt.current = {
-        x: filteredTilt.current.x + (targetTilt.current.x - filteredTilt.current.x) * smoothing,
-        y: filteredTilt.current.y + (targetTilt.current.y - filteredTilt.current.y) * smoothing,
+      lastEmission.current = time;
+      const previous = filteredTilt.current;
+      const smoothing = 0.22;
+      const next = {
+        x: previous.x + (targetTilt.current.x - previous.x) * smoothing,
+        y: previous.y + (targetTilt.current.y - previous.y) * smoothing,
       };
+      filteredTilt.current = next;
+      if (Math.abs(next.x - previous.x) < 0.002 && Math.abs(next.y - previous.y) < 0.002) {
+        return;
+      }
       window.dispatchEvent(
         new CustomEvent<MotionTiltDetail>(GLASS_MOTION_TILT_EVENT, {
-          detail: filteredTilt.current,
+          detail: next,
         }),
       );
-    });
+    };
+    animationFrame.current = window.requestAnimationFrame(flushTilt);
   }, []);
 
   const stopListening = useCallback(() => {
@@ -92,6 +106,7 @@ export function MotionTiltControl() {
       animationFrame.current = null;
     }
     recalibrate();
+    lastEmission.current = 0;
     emitReset();
   }, [emitReset, handleOrientation, recalibrate]);
 
@@ -104,8 +119,13 @@ export function MotionTiltControl() {
   }, [handleOrientation, recalibrate]);
 
   useEffect(() => {
-    setAvailable(window.isSecureContext && "DeviceOrientationEvent" in window);
-    return stopListening;
+    const availabilityFrame = window.requestAnimationFrame(() => {
+      setAvailable(window.isSecureContext && "DeviceOrientationEvent" in window);
+    });
+    return () => {
+      window.cancelAnimationFrame(availabilityFrame);
+      stopListening();
+    };
   }, [stopListening]);
 
   const toggleMotion = async () => {

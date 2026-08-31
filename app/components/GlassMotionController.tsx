@@ -32,6 +32,20 @@ function applyTilt(card: HTMLElement, x: number, y: number, active = true) {
   card.style.setProperty("--detail-y", `${boundedY * 2.5}px`);
 }
 
+function applyGroupTilt(group: HTMLElement, x: number, y: number) {
+  const boundedX = clamp(x);
+  const boundedY = clamp(y);
+  group.dataset.motionActive = "true";
+  group.style.setProperty("--motion-group-rotate-x", `${-boundedY * 4.5}deg`);
+  group.style.setProperty("--motion-group-rotate-y", `${boundedX * 6}deg`);
+}
+
+function resetGroup(group: HTMLElement) {
+  group.dataset.motionActive = "false";
+  group.style.removeProperty("--motion-group-rotate-x");
+  group.style.removeProperty("--motion-group-rotate-y");
+}
+
 function applyPointerPressure(
   card: HTMLElement,
   bounds: DOMRect,
@@ -61,6 +75,8 @@ function applyPointerPressure(
 export function GlassMotionController() {
   const pathname = usePathname();
   const cardsRef = useRef<HTMLElement[]>([]);
+  const groupsRef = useRef<HTMLElement[]>([]);
+  const groupedCardsRef = useRef(new WeakSet<HTMLElement>());
   const keyboardTilt = useRef(new WeakMap<HTMLElement, Tilt>());
   const pointerFrame = useRef<number | null>(null);
   const latestPointer = useRef<{ x: number; y: number } | null>(null);
@@ -71,7 +87,14 @@ export function GlassMotionController() {
     cardsRef.current = Array.from(
       document.querySelectorAll<HTMLElement>("[data-motion-card='true']"),
     );
+    groupsRef.current = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-motion-group='true']"),
+    );
+    groupedCardsRef.current = new WeakSet();
     cardsRef.current.forEach((card) => {
+      if (card.closest("[data-motion-group='true']")) {
+        groupedCardsRef.current.add(card);
+      }
       const perspective = card.closest<HTMLElement>(".card-perspective");
       const transitionSize = perspective
         ? Number.parseFloat(
@@ -87,6 +110,7 @@ export function GlassMotionController() {
     };
     const resetAll = () => {
       pointerActiveCards.current.clear();
+      groupsRef.current.forEach(resetGroup);
       cardsRef.current.forEach(resetCard);
     };
 
@@ -137,7 +161,10 @@ export function GlassMotionController() {
     };
     const handleMotionTilt = (event: Event) => {
       const { x, y } = (event as CustomEvent<MotionTiltDetail>).detail;
-      cardsRef.current.forEach((card) => applyTilt(card, x, y));
+      groupsRef.current.forEach((group) => applyGroupTilt(group, x, y));
+      cardsRef.current.forEach((card) => {
+        if (!groupedCardsRef.current.has(card)) applyTilt(card, x, y);
+      });
     };
     const handleKeyDown = (event: globalThis.KeyboardEvent) => {
       const card = (event.target as Element | null)?.closest<HTMLElement>(
@@ -202,6 +229,8 @@ export function GlassMotionController() {
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("focusout", handleFocusOut);
       cardsRef.current = [];
+      groupsRef.current = [];
+      groupedCardsRef.current = new WeakSet();
     };
   }, [pathname]);
 

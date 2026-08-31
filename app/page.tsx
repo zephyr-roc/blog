@@ -27,50 +27,16 @@ export const metadata: Metadata = {
 const HOME_COLLECTION_ORDER = ["kotlin", "java", "rust", "react", "ocaml", "zig"];
 const HOME_COLLECTIONS_HIDDEN = new Set(["tinkering", "deep-radar"]);
 
-function getBalancedRowSizes(collectionCount: number) {
-  if (collectionCount <= 3) return collectionCount > 0 ? [collectionCount] : [];
-
-  const completeRows = Math.floor(collectionCount / 3);
-  const remainder = collectionCount % 3;
-  if (remainder === 0) return Array(completeRows).fill(3);
-  if (remainder === 2) return [...Array(completeRows).fill(3), 2];
-
-  return [...Array(completeRows - 1).fill(3), 2, 2];
-}
-
-function createWatchLayout<T extends { weight: number }>(items: T[]) {
+function createWatchLayout<T>(items: T[]) {
   if (items.length === 0) return [];
-  if (items.length < 3) return [items];
-
-  const centerCandidates = items.slice(1);
-  let sidePair: [number, number] = [0, 1];
-  let smallestDifference = Math.abs(centerCandidates[0].weight - centerCandidates[1].weight);
-  for (let left = 0; left < centerCandidates.length - 1; left += 1) {
-    for (let right = left + 1; right < centerCandidates.length; right += 1) {
-      const difference = Math.abs(centerCandidates[left].weight - centerCandidates[right].weight);
-      if (difference < smallestDifference) {
-        sidePair = [left, right];
-        smallestDifference = difference;
-      }
-    }
+  const centerRow = items.slice(0, 2);
+  const surroundingRows: T[][] = [];
+  for (let offset = 2; offset < items.length; offset += 2) {
+    surroundingRows.push(items.slice(offset, offset + 2));
   }
-
-  const centerRow = [centerCandidates[sidePair[0]], items[0], centerCandidates[sidePair[1]]];
-  const surroundingItems = centerCandidates.filter((_, index) => !sidePair.includes(index));
-  const topItemCount = Math.ceil(surroundingItems.length / 2);
-  const topItems = surroundingItems.slice(0, topItemCount);
-  const bottomItems = surroundingItems.slice(topItemCount);
-
-  const splitRows = (rowItems: T[]) => {
-    let offset = 0;
-    return getBalancedRowSizes(rowItems.length).map((rowSize) => {
-      const row = rowItems.slice(offset, offset + rowSize);
-      offset += rowSize;
-      return row;
-    });
-  };
-
-  return [...splitRows(topItems), centerRow, ...splitRows(bottomItems)];
+  const rowsAbove = surroundingRows.slice(0, Math.ceil(surroundingRows.length / 2)).reverse();
+  const rowsBelow = surroundingRows.slice(rowsAbove.length);
+  return [...rowsAbove, centerRow, ...rowsBelow];
 }
 
 export default async function Home() {
@@ -85,18 +51,17 @@ export default async function Home() {
     return (aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex)
       - (bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex);
   });
+  const collectionScores = collections.map((collection) => Math.log2(collection.postCount + 1));
+  const lowestScore = Math.min(...collectionScores);
+  const scoreRange = Math.max(...collectionScores) - lowestScore;
   const weightedCollections = collections.map((collection, index) => ({
     collection,
-    index,
-    weight: 1 + Math.log2(collection.postCount + 1),
-    ratio: index === 0
-      ? 1.5
-      : Math.min(16 / 9, 1 + Math.log2(collection.postCount + 1) * 0.5),
+    ratio: scoreRange === 0
+      ? 1.3
+      : 1 + ((collectionScores[index] - lowestScore) / scoreRange) * 0.6,
   }));
   const collectionRows = createWatchLayout(weightedCollections);
-  const centerRowIndex = collectionRows.findIndex((row) =>
-    row.some(({ index }) => index === 0),
-  );
+  const centerRowIndex = collectionRows.findIndex((row) => row.includes(weightedCollections[0]));
 
   return (
     <main className="experience-shell">
@@ -120,46 +85,41 @@ export default async function Home() {
         </div>
 
         <div className="hero__stage" id="collections">
-          <div className={`card-collection${collections.length % 2 ? " card-collection--odd" : ""}`}>
-            {collectionRows.map((row, rowIndex) => (
-              <div
-                key={`row-${rowIndex}`}
-                className={`card-collection__row card-collection__row--${row.length} ${
-                  rowIndex < centerRowIndex
-                    ? "card-collection__row--above"
-                    : rowIndex === centerRowIndex
-                      ? "card-collection__row--center"
-                      : "card-collection__row--below"
-                }`}
-                style={{
-                  gridTemplateColumns: row
-                    .map(({ weight }) => `minmax(180px, ${weight.toFixed(3)}fr)`)
-                    .join(" "),
-                } as CSSProperties}
-              >
-                {row.map(({ collection, index, weight, ratio }) => (
+          <div className="card-collection" data-motion-group="true">
+            {collectionRows.map((row, rowIndex) => {
+              const center = rowIndex === centerRowIndex;
+              const ratioSum = row.reduce((sum, item) => sum + item.ratio, 0);
+              const gaps = (row.length - 1) * 18;
+              const desktopHeight = center ? 250 : 176;
+              const compactHeight = center ? 210 : 142;
+              return (
+                <div
+                  key={`row-${rowIndex}`}
+                  className={`card-collection__row card-collection__row--${row.length}${
+                    center ? " card-collection__row--center" : ""
+                  }`}
+                  style={{
+                    "--collection-row-width": `${ratioSum * desktopHeight + gaps}px`,
+                    "--collection-row-compact-width": `${ratioSum * compactHeight + gaps}px`,
+                    gridTemplateColumns: row
+                      .map(({ ratio }) => `minmax(0, ${ratio.toFixed(4)}fr)`)
+                      .join(" "),
+                  } as CSSProperties}
+                >
+                  {row.map(({ collection, ratio }) => (
                   <div
                     key={collection.slug}
-                    className={
-                      index === 0
-                        ? "card-collection__item card-collection__primary"
-                        : "card-collection__item card-collection__companion"
-                    }
+                    className="card-collection__item"
                     style={{
-                      "--collection-weight": weight.toFixed(3),
                       "--collection-ratio": ratio.toFixed(4),
                     } as CSSProperties}
                   >
-                    <CollectionCard
-                      collection={collection}
-                      featured={index === 0}
-                      index={index + 1}
-                      total={collections.length}
-                    />
+                    <CollectionCard collection={collection} />
                   </div>
-                ))}
-              </div>
-            ))}
+                  ))}
+                </div>
+              );
+            })}
           </div>
           <div className="interaction-hint" aria-hidden="true" data-nosnippet>
             <span className="interaction-hint__line" />
