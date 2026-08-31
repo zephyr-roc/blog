@@ -446,7 +446,7 @@ Rust 类型系统把许多语言中的隐含规则转化为显式约束。类型
 
 ## 下一章
 
-下一章将沿着 `T`、`&T`、`&mut T` 三种能力继续深入，解释移动、复制、重借用以及非词法生命周期如何共同构成所有权系统。
+下一章[《Rust 所有权、移动与复制：值如何被转移和析构》](/collections/rust/ownership-move-copy)从 place expression、move path 与 drop glue 出发，分析值的转移、复制、部分移动和确定性析构。
 
 ## 延伸阅读
 
