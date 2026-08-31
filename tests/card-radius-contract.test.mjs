@@ -48,9 +48,10 @@ test("curates seven homepage language collections with C#, React and without Nim
   assert.match(page, /row\.map\(\(\{\s*collection,\s*ratio\s*\}\)\s*=>/);
   assert.match(page, /"--collection-ratio":\s*ratio\.toFixed\(4\)/);
   assert.match(page, /createWatchLayout\(weightedCollections\)/);
-  assert.match(page, /rowCount\s*=\s*Math\.ceil\(items\.length\s*\/\s*9\)/);
-  assert.match(page, /itemsPerRow\s*=\s*Math\.ceil\(items\.length\s*\/\s*rowCount\)/);
-  assert.match(page, /const \[centerRow,\s*\.\.\.surroundingRows\]\s*=\s*groupedRows/);
+  assert.match(page, /rowCount\s*=\s*Math\.ceil\(items\.length\s*\/\s*3\)/);
+  assert.match(page, /centerRowIndex\s*=\s*Math\.floor\(rowCount\s*\/\s*2\)/);
+  assert.match(page, /fillOrder\.slice\(0,\s*remainder\)\.forEach/);
+  assert.match(page, /rows\[rowIndex\]\s*=\s*items\.slice\(offset,\s*offset\s*\+\s*rowSizes\[rowIndex\]\)/);
   assert.match(page, /desktopHeight\s*=\s*center\s*\?\s*250\s*:\s*176/);
   assert.match(page, /compactHeight\s*=\s*center\s*\?\s*210\s*:\s*142/);
   assert.match(page, /"--collection-row-width":\s*`\$\{ratioSum\s*\*\s*desktopHeight\s*\+\s*gaps\}px`/);
