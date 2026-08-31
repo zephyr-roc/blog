@@ -133,6 +133,8 @@ test("keeps the card markup on the server and hydrates one motion controller", a
   assert.match(controller, /^"use client";/);
   assert.match(controller, /document\.querySelectorAll<HTMLElement>/);
   assert.match(controller, /cardsRef\.current\.forEach/);
+  assert.match(controller, /groupsRef\.current\.forEach\(\(group\)\s*=>\s*applyGroupTilt/);
+  assert.match(home, /data-motion-group="true"/);
   assert.match(layout, /<GlassMotionController \/>/);
 });
 
@@ -167,4 +169,3 @@ test("bounds CDN freshness for content-derived routes", async () => {
     /max-age=0, s-maxage=60, stale-while-revalidate=60, must-revalidate/,
   );
 });
-

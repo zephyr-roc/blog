@@ -32,7 +32,8 @@ test("scales shared collection-card content from one proportional canvas", async
   assert.doesNotMatch(component, /fontSize:\s*"clamp\(/);
   assert.doesNotMatch(component, /className="collection-card__count"\s+style=/);
   assert.doesNotMatch(component, />COLLECTION</);
-  assert.match(css, /\.collection-card--featured \.collection-card__icon\s*\{[^}]*width:\s*clamp\(58px,\s*24cqmin,\s*78px\);/);
+  assert.doesNotMatch(component, /featured|collection-card--featured|collection-card--companion/);
+  assert.doesNotMatch(css, /collection-card--featured|collection-card--companion/);
 });
 
 test("curates six homepage language collections with React and without Nim", async () => {
@@ -42,24 +43,23 @@ test("curates six homepage language collections with React and without Nim", asy
   assert.match(page, /HOME_COLLECTION_ORDER\s*=\s*\["kotlin", "java", "rust", "react", "ocaml", "zig"\]/);
   assert.match(page, /HOME_COLLECTIONS_HIDDEN\s*=\s*new Set\(\["tinkering", "deep-radar"\]\)/);
   assert.match(page, /postCountDifference\s*=\s*b\.postCount\s*-\s*a\.postCount/);
-  assert.match(page, /weight:\s*1\s*\+\s*Math\.log2\(collection\.postCount\s*\+\s*1\)/);
-  assert.match(page, /ratio:\s*index\s*===\s*0\s*\?\s*1\.5/);
-  assert.match(page, /Math\.min\(16\s*\/\s*9,\s*1\s*\+\s*Math\.log2\(collection\.postCount\s*\+\s*1\)\s*\*\s*0\.5\)/);
-  assert.match(page, /row\.map\(\(\{\s*collection,\s*index,\s*weight,\s*ratio\s*\}\)\s*=>/);
+  assert.match(page, /collectionScores\s*=\s*collections\.map\(\(collection\)\s*=>\s*Math\.log2\(collection\.postCount\s*\+\s*1\)\)/);
+  assert.match(page, /1\s*\+\s*\(\(collectionScores\[index\]\s*-\s*lowestScore\)\s*\/\s*scoreRange\)\s*\*\s*0\.6/);
+  assert.match(page, /row\.map\(\(\{\s*collection,\s*ratio\s*\}\)\s*=>/);
   assert.match(page, /"--collection-ratio":\s*ratio\.toFixed\(4\)/);
   assert.match(page, /createWatchLayout\(weightedCollections\)/);
-  assert.match(page, /smallestDifference\s*=\s*Math\.abs/);
-  assert.match(page, /const centerRow\s*=\s*\[centerCandidates\[sidePair\[0\]\],\s*items\[0\],\s*centerCandidates\[sidePair\[1\]\]\]/);
-  assert.match(page, /minmax\(180px,\s*\$\{weight\.toFixed\(3\)\}fr\)/);
+  assert.match(page, /const centerRow\s*=\s*items\.slice\(0,\s*2\)/);
+  assert.match(page, /desktopHeight\s*=\s*center\s*\?\s*250\s*:\s*176/);
+  assert.match(page, /compactHeight\s*=\s*center\s*\?\s*210\s*:\s*142/);
+  assert.match(page, /"--collection-row-width":\s*`\$\{ratioSum\s*\*\s*desktopHeight\s*\+\s*gaps\}px`/);
   assert.match(css, /\.card-collection\s*\{[^}]*gap:\s*18px;/);
   assert.match(css, /\.card-collection__row\s*\{[^}]*gap:\s*18px;/);
-  assert.match(css, /\.card-collection__row--2\s*\{[^}]*width:\s*min\(100%,\s*468px\);/);
-  assert.match(css, /\.card-collection__row--1\s*\{[^}]*width:\s*min\(100%,\s*180px\);/);
+  assert.match(css, /\.card-collection__row\s*\{[^}]*width:\s*min\(100%,\s*var\(--collection-row-width\)\);/);
   assert.doesNotMatch(css, /\.card-collection\s*\{[^}]*gap:\s*10px;/);
   assert.match(css, /\.collection-card__clip\s*\{[^}]*overflow:\s*hidden;[^}]*border-radius:\s*inherit;[^}]*clip-path:\s*inset\(0 round var\(--card-radius,\s*4\.93cqw\)\);/);
-  assert.match(css, /\.collection-card__content\s*\{[^}]*max-height:\s*calc\(100%\s*-\s*clamp\(20px,\s*10cqmin,\s*44px\)\);[^}]*overflow:\s*hidden;/);
-  assert.match(css, /\.collection-card--companion \.collection-card__content\s*\{[^}]*left:\s*clamp\(18px,\s*9cqmin,\s*30px\);[^}]*right:\s*clamp\(18px,\s*9cqmin,\s*30px\);[^}]*bottom:\s*clamp\(18px,\s*9cqmin,\s*30px\);/);
-  assert.match(css, /@media \(max-width:\s*1180px\)[\s\S]*?\.card-collection__item\s*\{[^}]*aspect-ratio:\s*1\.5;/);
+  assert.match(css, /\.collection-card__content\s*\{[^}]*max-height:\s*calc\(100%\s*-\s*clamp\(28px,\s*14cqmin,\s*56px\)\);[^}]*overflow:\s*hidden;/);
+  assert.match(css, /@media \(max-width:\s*1180px\)[\s\S]*?\.card-collection__row\s*\{[^}]*width:\s*min\(100%,\s*var\(--collection-row-compact-width\)\);/);
+  assert.match(css, /@media \(max-width:\s*640px\)[\s\S]*?\.card-collection__row\s*\{[^}]*display:\s*contents;/);
 
   for (const slug of ["java", "rust", "react", "ocaml"]) {
     const meta = await readFile(
