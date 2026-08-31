@@ -1437,6 +1437,7 @@ a {
   .card-collection__item {
     width: 100%;
     min-height: 0;
+    aspect-ratio: 1.5 / 1;
   }
 
   .card-perspective {

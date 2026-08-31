@@ -63,6 +63,7 @@ test("curates seven homepage language collections with C#, React and without Nim
   assert.match(css, /\.collection-card__content\s*\{[^}]*max-height:\s*calc\(100%\s*-\s*clamp\(28px,\s*14cqmin,\s*56px\)\);[^}]*overflow:\s*hidden;/);
   assert.match(css, /@media \(max-width:\s*1180px\)[\s\S]*?\.card-collection__row\s*\{[^}]*width:\s*min\(100%,\s*var\(--collection-row-compact-width\)\);/);
   assert.match(css, /@media \(max-width:\s*640px\)[\s\S]*?\.card-collection__row\s*\{[^}]*display:\s*contents;/);
+  assert.match(css, /@media \(max-width:\s*640px\)[\s\S]*?\.card-collection__item\s*\{[^}]*aspect-ratio:\s*1\.5\s*\/\s*1;/);
 
   for (const slug of ["java", "rust", "csharp", "react", "ocaml"]) {
     const meta = await readFile(
