@@ -36,11 +36,11 @@ test("scales shared collection-card content from one proportional canvas", async
   assert.doesNotMatch(css, /collection-card--featured|collection-card--companion/);
 });
 
-test("curates six homepage language collections with React and without Nim", async () => {
+test("curates seven homepage language collections with C#, React and without Nim", async () => {
   const page = await readFile(new URL("app/page.tsx", root), "utf8");
   const css = await readFile(new URL("app/globals.css", root), "utf8");
 
-  assert.match(page, /HOME_COLLECTION_ORDER\s*=\s*\["kotlin", "java", "rust", "react", "ocaml", "zig"\]/);
+  assert.match(page, /HOME_COLLECTION_ORDER\s*=\s*\["kotlin", "java", "rust", "csharp", "react", "ocaml", "zig"\]/);
   assert.match(page, /HOME_COLLECTIONS_HIDDEN\s*=\s*new Set\(\["tinkering", "deep-radar"\]\)/);
   assert.match(page, /postCountDifference\s*=\s*b\.postCount\s*-\s*a\.postCount/);
   assert.match(page, /collectionScores\s*=\s*collections\.map\(\(collection\)\s*=>\s*Math\.log2\(collection\.postCount\s*\+\s*1\)\)/);
@@ -61,7 +61,7 @@ test("curates six homepage language collections with React and without Nim", asy
   assert.match(css, /@media \(max-width:\s*1180px\)[\s\S]*?\.card-collection__row\s*\{[^}]*width:\s*min\(100%,\s*var\(--collection-row-compact-width\)\);/);
   assert.match(css, /@media \(max-width:\s*640px\)[\s\S]*?\.card-collection__row\s*\{[^}]*display:\s*contents;/);
 
-  for (const slug of ["java", "rust", "react", "ocaml"]) {
+  for (const slug of ["java", "rust", "csharp", "react", "ocaml"]) {
     const meta = await readFile(
       new URL(`content/collections/${slug}/_meta.md`, root),
       "utf8",
@@ -76,10 +76,10 @@ test("uses vendored standard SVG marks for homepage language collections", async
     "utf8",
   );
 
-  assert.match(component, /\["kotlin", "java", "rust", "react", "ocaml", "zig"\]/);
+  assert.match(component, /\["kotlin", "java", "rust", "csharp", "react", "ocaml", "zig"\]/);
   assert.doesNotMatch(component, /java-steam|java-cup|>λ<|>R</);
 
-  for (const name of ["kotlin", "java", "rust", "react", "ocaml", "zig"]) {
+  for (const name of ["kotlin", "java", "rust", "csharp", "react", "ocaml", "zig"]) {
     const svg = await readFile(
       new URL(`public/language-logos/${name}.svg`, root),
       "utf8",
