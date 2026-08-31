@@ -29,7 +29,7 @@ const HOME_COLLECTIONS_HIDDEN = new Set(["tinkering", "deep-radar"]);
 
 function createWatchLayout<T>(items: T[]) {
   if (items.length === 0) return [];
-  const rowCount = Math.ceil(items.length / 3);
+  const rowCount = Math.round(Math.sqrt(items.length));
   const centerRowIndex = Math.floor(rowCount / 2);
   const rowSizes = Array.from(
     { length: rowCount },
