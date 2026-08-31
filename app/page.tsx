@@ -29,11 +29,13 @@ const HOME_COLLECTIONS_HIDDEN = new Set(["tinkering", "deep-radar"]);
 
 function createWatchLayout<T>(items: T[]) {
   if (items.length === 0) return [];
-  const centerRow = items.slice(0, 2);
-  const surroundingRows: T[][] = [];
-  for (let offset = 2; offset < items.length; offset += 2) {
-    surroundingRows.push(items.slice(offset, offset + 2));
+  const rowCount = Math.ceil(items.length / 9);
+  const itemsPerRow = Math.ceil(items.length / rowCount);
+  const groupedRows: T[][] = [];
+  for (let offset = 0; offset < items.length; offset += itemsPerRow) {
+    groupedRows.push(items.slice(offset, offset + itemsPerRow));
   }
+  const [centerRow, ...surroundingRows] = groupedRows;
   const rowsAbove = surroundingRows.slice(0, Math.ceil(surroundingRows.length / 2)).reverse();
   const rowsBelow = surroundingRows.slice(rowsAbove.length);
   return [...rowsAbove, centerRow, ...rowsBelow];
