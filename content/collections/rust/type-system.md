@@ -43,6 +43,158 @@ Rust 类型系统不可能在一篇文章里讲完。本章只建立共同词汇
 
 读完第一章的目标不是记住所有规则，而是能判断一个问题属于哪一层，并知道接下来应该追问什么。
 
+## Rust 的类型全景
+
+学习所有权之前，先要分清语言内建类型、复合类型和标准库类型。Rust Book 通常把最基础的内建值类型分成 **标量类型**（scalar types）和 **复合类型**（compound types）。
+
+### 标量类型：一个值
+
+标量类型表示单个值，共四类：
+
+| 类别 | 类型 | 说明 |
+|---|---|---|
+| 有符号整数 | `i8`、`i16`、`i32`、`i64`、`i128`、`isize` | `isize` 宽度与目标平台指针宽度一致 |
+| 无符号整数 | `u8`、`u16`、`u32`、`u64`、`u128`、`usize` | `usize` 常用于索引和集合长度 |
+| 浮点数 | `f32`、`f64` | 遵循 IEEE 754；默认推导为 `f64` |
+| 布尔值 | `bool` | 只有 `true` 和 `false` |
+| 字符 | `char` | 一个 Unicode 标量值，占 4 字节，不等于 UTF-8 的一个字节 |
+
+```rust
+let retries: u8 = 3;
+let offset: isize = -1;
+let ratio = 0.75_f32;
+let enabled: bool = true;
+let crab: char = '🦀';
+```
+
+整数字面量默认推导为 `i32`，浮点字面量默认推导为 `f64`，但上下文可以改变结果。`usize` 不是“更快的无符号整数”，它主要用于表示内存中的大小与索引。
+
+### 复合类型：把多个值组合起来
+
+语言内建的基础复合类型是 **元组**和**数组**。
+
+```rust
+let response: (u16, &str) = (200, "OK");
+let (status, message) = response;
+
+let ports: [u16; 3] = [80, 443, 8080];
+let zeros: [u8; 1024] = [0; 1024];
+```
+
+元组可以组合不同类型，长度固定；数组的所有元素类型相同，长度也是类型的一部分，所以 `[u8; 16]` 和 `[u8; 32]` 是不同类型。两者通常直接存放其元素，不像某些动态语言的数组那样天然意味着堆分配。
+
+两个容易忽略的特殊类型是：
+
+- `()`：unit type，表示“没有有意义的返回值”；空语句块的结果就是 `()`；
+- `!`：never type，表示计算永远不会正常返回，例如 `panic!()` 或无限循环。
+
+### 切片和字符串切片：没有固定长度的视图
+
+`[T]` 表示一段连续元素，但它的长度不在类型中，因此是动态大小类型，通常通过引用使用：
+
+```rust
+fn sum(values: &[i32]) -> i32 {
+    values.iter().sum()
+}
+
+let numbers = [1, 2, 3, 4];
+assert_eq!(sum(&numbers[1..3]), 5);
+```
+
+`str` 同样是动态大小的 UTF-8 字符串切片，实际代码中最常见的是 `&str`。字符串字面量的类型就是 `&'static str`。
+
+### 用户定义类型与标准库类型
+
+`struct`、`enum` 和 `union` 用来定义新的名义类型。`String`、`Vec<T>`、`Option<T>`、`Result<T, E>` 并不是编译器里的“基本类型”：它们是标准库提供的结构体或枚举，只是与语言功能配合得非常紧密。
+
+| 类型 | 来自哪里 | 核心含义 |
+|---|---|---|
+| `str` | 语言内建 | 动态大小的 UTF-8 字符串切片 |
+| `&str` | 引用 + `str` | 借用的字符串视图 |
+| `String` | 标准库 | 拥有、可增长的 UTF-8 字符串 |
+| `[T; N]` | 语言内建 | 固定长度数组 |
+| `&[T]` | 引用 + `[T]` | 借用的连续元素视图 |
+| `Vec<T>` | 标准库 | 拥有、可增长的连续元素集合 |
+
+先分清“拥有数据的容器”和“借用数据的视图”，后面的所有权错误会容易理解很多。
+
+## 默认是移动：`Copy` 与 `Clone`
+
+Rust 没有名为 `Clonable` 的 trait。显式复制使用的是 [`Clone`](https://doc.rust-lang.org/std/clone/trait.Clone.html)，而 [`Copy`](https://doc.rust-lang.org/std/marker/trait.Copy.html) 是一个表示“可以隐式按位复制”的标记 trait。
+
+### 默认行为是移动所有权
+
+```rust
+let first = String::from("rust");
+let second = first;
+
+// println!("{first}"); // 编译错误：first 的值已经移动
+println!("{second}");
+```
+
+赋值把 `String` 的所有权从 `first` 移给 `second`。Rust 不会偷偷复制堆上的字符串，也不会让两个变量重复释放同一块内存。
+
+### `Copy`：隐式、便宜、不能自定义
+
+```rust
+let first: i32 = 42;
+let second = first;
+
+println!("{first} {second}"); // i32 实现了 Copy，两个变量都可用
+```
+
+实现 `Copy` 的类型在赋值和传参时会隐式复制。`Copy` 有几条重要约束：
+
+- `Copy` 是标记 trait，复制行为不能由类型自行编写；
+- 实现 `Copy` 的类型必须同时实现 `Clone`；
+- 所有字段都实现 `Copy`，结构体才可能实现 `Copy`；
+- 实现了 `Drop` 的类型不能实现 `Copy`，因为隐式复制会让资源释放语义变得含糊。
+
+常见的 `Copy` 类型包括整数、浮点数、`bool`、`char`、函数指针、共享引用 `&T`，以及元素全部为 `Copy` 的元组和数组。`String`、`Vec<T>`、`Box<T>`、文件句柄和 `&mut T` 都不是 `Copy`。
+
+```rust
+#[derive(Debug, Clone, Copy)]
+struct Point {
+    x: f64,
+    y: f64,
+}
+
+let a = Point { x: 1.0, y: 2.0 };
+let b = a;
+println!("{a:?} {b:?}");
+```
+
+### `Clone`：显式，成本由实现决定
+
+```rust
+let first = String::from("rust");
+let second = first.clone();
+
+println!("{first} {second}");
+```
+
+`.clone()` 是显式操作，可能只复制几个字节，也可能分配内存、复制整个容器或递归克隆成员。看到 `Clone` 不能自动推断它很便宜；是否克隆应当由调用点明确决定。
+
+```rust
+#[derive(Debug, Clone)]
+struct Profile {
+    name: String,
+    tags: Vec<String>,
+}
+```
+
+`Profile` 可以派生 `Clone`，因为它的字段都能显式克隆；但不能派生 `Copy`，因为 `String` 和 `Vec<String>` 管理堆资源。
+
+可以先记住这张对照表：
+
+| 行为 | 是否显式 | 可能执行自定义代码 | 典型成本 |
+|---|---:|---:|---|
+| 移动 | 否 | 否 | 通常只转移栈上的表示，不复制所拥有资源 |
+| `Copy` | 否 | 否 | 固定大小的按位复制 |
+| `Clone` | 是，调用 `.clone()` | 是 | 由实现决定，可能分配和深拷贝 |
+
+后续“所有权、移动与复制”一章会继续解释 `Copy` 与析构的互斥关系、部分移动、`clone_from`，以及为什么“栈上类型就是 `Copy`、堆上类型就不是”这个常见说法并不准确。
+
 ## 先从代数数据类型理解建模
 
 Rust 最重要的建模工具是 `struct` 和 `enum`。`struct` 把多个字段组合起来，是“积类型”；`enum` 表示多个互斥分支中的一个，是“和类型”。
