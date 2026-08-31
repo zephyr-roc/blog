@@ -8,7 +8,7 @@ type CollectionCardStyle = CSSProperties & {
 };
 
 function CollectionIcon({ icon, color }: { icon: string; color: string }) {
-  const officialLogo = ["kotlin", "java", "rust", "react", "ocaml", "zig"].includes(icon)
+  const officialLogo = ["kotlin", "java", "rust", "csharp", "react", "ocaml", "zig"].includes(icon)
     ? `/language-logos/${icon}.svg`
     : null;
 

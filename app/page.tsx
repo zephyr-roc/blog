@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   },
 };
 
-const HOME_COLLECTION_ORDER = ["kotlin", "java", "rust", "react", "ocaml", "zig"];
+const HOME_COLLECTION_ORDER = ["kotlin", "java", "rust", "csharp", "react", "ocaml", "zig"];
 const HOME_COLLECTIONS_HIDDEN = new Set(["tinkering", "deep-radar"]);
 
 function createWatchLayout<T>(items: T[]) {
