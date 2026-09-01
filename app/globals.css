@@ -190,19 +190,6 @@ a {
   display: grid;
   gap: 18px;
   isolation: isolate;
-  transform:
-    perspective(1450px)
-    rotateX(var(--motion-group-rotate-x, 0deg))
-    rotateY(var(--motion-group-rotate-y, 0deg));
-  transform-origin: center;
-  backface-visibility: hidden;
-  transition: transform 620ms cubic-bezier(.2,.8,.2,1);
-}
-
-.card-collection[data-motion-active="true"] {
-  will-change: transform;
-  transition-duration: 80ms;
-  transition-timing-function: linear;
 }
 
 .card-collection__row {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AboutProfileCard } from "../components/AboutProfileCard";
+import { MotionTiltControl } from "../components/MotionTiltControl";
 import { SiteHeader } from "../components/SiteHeader";
 import {
   personJsonLd,
@@ -57,6 +58,7 @@ export default function About() {
         </div>
 
         <AboutProfileCard />
+        <MotionTiltControl />
       </section>
 
       <footer className="site-footer" data-nosnippet>

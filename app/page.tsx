@@ -102,7 +102,7 @@ export default async function Home() {
         </div>
 
         <div className="hero__stage" id="collections">
-          <div className="card-collection" data-motion-group="true">
+          <div className="card-collection">
             {collectionRows.map((row, rowIndex) => {
               const center = rowIndex === centerRowIndex;
               const ratioSum = row.reduce((sum, item) => sum + item.ratio, 0);

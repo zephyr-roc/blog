@@ -118,7 +118,7 @@ test("server-renders the about content before client hydration", async () => {
   assert.match(html, /data-motion-card="true"/);
 });
 
-test("keeps the card markup on the server and hydrates one motion controller", async () => {
+test("keeps mobile device tilt exclusive to the about page", async () => {
   const [home, about, glassCard, controller, layout] = await Promise.all([
     readFile(new URL("app/page.tsx", root), "utf8"),
     readFile(new URL("app/about/page.tsx", root), "utf8"),
@@ -133,9 +133,12 @@ test("keeps the card markup on the server and hydrates one motion controller", a
   assert.match(controller, /^"use client";/);
   assert.match(controller, /document\.querySelectorAll<HTMLElement>/);
   assert.match(controller, /cardsRef\.current\.forEach/);
-  assert.match(controller, /groupsRef\.current\.forEach\(\(group\)\s*=>\s*applyGroupTilt/);
-  assert.match(home, /data-motion-group="true"/);
+  assert.match(controller, /pathname === "\/about"/);
+  assert.doesNotMatch(controller, /applyGroupTilt|groupsRef|data-motion-group/);
+  assert.doesNotMatch(home, /data-motion-group="true"/);
+  assert.match(about, /<MotionTiltControl \/>/);
   assert.match(layout, /<GlassMotionController \/>/);
+  assert.doesNotMatch(layout, /<MotionTiltControl \/>/);
 });
 
 
