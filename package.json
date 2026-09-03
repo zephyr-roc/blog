@@ -12,6 +12,7 @@
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
+    "hardware:chart": "node scripts/render-hardware-prices.mjs",
     "db:generate": "drizzle-kit generate",
     "db:migrate:likes": "node scripts/migrate-likes.mjs"
   },

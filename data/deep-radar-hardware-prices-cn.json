@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "market": "中国大陆 ToC 公开零售报价",
+  "currency": "CNY",
+  "method": "仅保存页面明确给出的带日期价格事件或采集时可见的最低报价；不插值，不把抓取日期改写成变价日期。",
+  "series": [
+    {
+      "category": "CPU",
+      "product": "AMD Ryzen 7 9800X3D",
+      "observations": [
+        {
+          "date": "2026-08-21",
+          "price": 2609,
+          "kind": "30 天低价",
+          "merchant": "公开比价汇总",
+          "source": "https://wiki.smzdm.com/p/0yrx3g4/"
+        },
+        {
+          "date": "2026-09-03",
+          "price": 2599,
+          "kind": "公开最低报价",
+          "merchant": "公开比价汇总",
+          "source": "https://wiki.smzdm.com/p/0yrx3g4/"
+        }
+      ]
+    },
+    {
+      "category": "GPU",
+      "product": "MSI RTX 5070 VENTUS 3X 12G",
+      "observations": [
+        {
+          "date": "2026-08-29",
+          "price": 4464.34,
+          "kind": "公开最低报价",
+          "merchant": "亚马逊中国",
+          "source": "https://wiki.smzdm.com/p/yd7jp4o/"
+        }
+      ]
+    },
+    {
+      "category": "主板",
+      "product": "ASUS TUF GAMING B850M-PLUS WIFI7",
+      "observations": [
+        {
+          "date": "2026-08-31",
+          "price": 1449,
+          "kind": "好价记录",
+          "merchant": "京东",
+          "source": "https://wiki.smzdm.com/p/yd4y5ow/"
+        },
+        {
+          "date": "2026-09-02",
+          "price": 1299,
+          "kind": "公开最低报价",
+          "merchant": "天猫精选",
+          "source": "https://wiki.smzdm.com/p/yd4y5ow/"
+        }
+      ]
+    },
+    {
+      "category": "DRAM",
+      "product": "Kingston FURY Beast DDR5-6000 32GB",
+      "observations": [
+        {
+          "date": "2026-08-07",
+          "price": 3870,
+          "kind": "30 天低价",
+          "merchant": "公开比价汇总",
+          "source": "https://wiki.smzdm.com/p/61pv64w/"
+        },
+        {
+          "date": "2026-09-02",
+          "price": 3900,
+          "kind": "公开最低报价",
+          "merchant": "京东",
+          "source": "https://wiki.smzdm.com/p/61pv64w/"
+        }
+      ]
+    },
+    {
+      "category": "HDD",
+      "product": "Seagate IronWolf Pro 8TB ST8000NE001",
+      "observations": [
+        {
+          "date": "2026-09-01",
+          "price": 1849,
+          "kind": "公开最低报价",
+          "merchant": "i百联",
+          "source": "https://wiki.smzdm.com/p/zm98npm/"
+        }
+      ]
+    },
+    {
+      "category": "SSD",
+      "product": "ZHITAI Ti600 2TB",
+      "observations": [
+        {
+          "date": "2026-09-02",
+          "price": 1919,
+          "kind": "公开最低报价",
+          "merchant": "公开比价汇总",
+          "source": "https://wiki.smzdm.com/p/zm5r4qm/"
+        }
+      ]
+    }
+  ]
+}
