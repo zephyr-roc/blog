@@ -73,6 +73,7 @@ export default async function Home() {
   const scoreRange = Math.max(...collectionScores) - lowestScore;
   const weightedCollections = collections.map((collection, index) => ({
     collection,
+    // Keep the data ranking after the desktop row layout reshuffles DOM order.
     mobileOrder: index,
     ratio: scoreRange === 0
       ? 1.3
