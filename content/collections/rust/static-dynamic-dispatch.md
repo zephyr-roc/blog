@@ -853,7 +853,7 @@ fn operation(name: &str) -> Box<dyn Operation> {
 9. trait upcasting沿 supertrait 关系弱化动态接口，`Any` 下转型则是可能失败的具体类型恢复；
 10. 分发方式同时决定扩展模型、存储布局、优化空间和公共 API 承诺。
 
-下一章将进入 GAT、HRTB、never type 与其他高级类型关系，分析“类型构造器随生命周期变化”“对所有生命周期成立”和“不可返回路径”如何进入泛型约束，而不是只停留在语法示例。
+下一章[《Rust GAT、HRTB 与 never type：类型关系如何跨越量化层级》](/collections/rust/gat-hrtb-never-type)将分析“类型构造器随生命周期变化”“对所有生命周期成立”和“不可返回路径”如何进入泛型约束。
 
 ## 延伸阅读
 
