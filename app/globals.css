@@ -1129,11 +1129,11 @@ a {
 
 .about__intro h1 {
   margin: 0;
-  font-size: clamp(48px, 5.6vw, 84px);
+  font-size: clamp(42px, 4.8vw, 72px);
   font-weight: 510;
   line-height: 1.08;
   letter-spacing: -.065em;
-  text-wrap: balance;
+  white-space: nowrap;
 }
 
 .about__lede {
@@ -1490,7 +1490,7 @@ a {
   }
 
   .about__intro h1 {
-    font-size: clamp(42px, 11.5vw, 58px);
+    font-size: clamp(36px, 10vw, 50px);
   }
 
   .about__lede br {

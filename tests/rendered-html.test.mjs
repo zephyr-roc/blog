@@ -118,6 +118,17 @@ test("server-renders the about content before client hydration", async () => {
   assert.match(html, /data-motion-card="true"/);
 });
 
+test("keeps the about title on exactly two smaller lines", async () => {
+  const [about, css] = await Promise.all([
+    readFile(new URL("app/about/page.tsx", root), "utf8"),
+    readFile(new URL("app/globals.css", root), "utf8"),
+  ]);
+
+  assert.match(about, /你好，\s*<br \/>\s*我是积雨云。/);
+  assert.match(css, /\.about__intro h1\s*\{[^}]*font-size:\s*clamp\(42px,\s*4\.8vw,\s*72px\);[^}]*white-space:\s*nowrap;/);
+  assert.match(css, /@media \(max-width:\s*640px\)[\s\S]*?\.about__intro h1\s*\{[^}]*font-size:\s*clamp\(36px,\s*10vw,\s*50px\);/);
+});
+
 test("keeps mobile device tilt exclusive to the about page", async () => {
   const [home, about, glassCard, controller, layout] = await Promise.all([
     readFile(new URL("app/page.tsx", root), "utf8"),
