@@ -762,7 +762,7 @@ let values = (0..4).collect::<Vec<_>>();
 8. trait resolution 不会通过任意 coercion 搜索实现；
 9. 指针形式转换不证明目标可被安全解引用。
 
-下一章将进入静态分发、动态分发与对象安全，分析泛型单态化、`dyn Trait` 的胖指针与虚表、dyn compatibility、对象生命周期以及两种分发方式在 API、性能和异构存储上的边界。
+下一章[《Rust 静态分发、动态分发与对象安全：调用目标何时确定》](/collections/rust/static-dynamic-dispatch)将分析泛型单态化、`dyn Trait` 的胖指针与虚表、dyn compatibility、对象生命周期以及不同分发方式在 API、性能和异构存储上的边界。
 
 ## 延伸阅读
 
