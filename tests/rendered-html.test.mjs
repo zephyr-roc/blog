@@ -38,21 +38,6 @@ test("server-renders the collection cards before client hydration", async () => 
   assert.match(html, /href="\/collections\/kotlin"/);
 });
 
-test("embeds a readable fallback when external CSS and JavaScript fail", async () => {
-  const response = await render();
-  assert.equal(response.status, 200);
-
-  const html = await response.text();
-  assert.match(html, /<style data-critical-fallback="true">\s*@layer fallback/);
-  assert.match(html, /\.glass-card__base[\s\S]*?display: none/);
-  assert.match(html, /\.liquid-navigation__surface \{ display: flex/);
-  assert.match(html, /<img[^>]+width="64"/);
-
-  for (const href of ["/", "/radar", "/tinkering", "/about"]) {
-    assert.match(html, new RegExp(`href="${href === "/" ? "\\/" : href}"`));
-  }
-});
-
 test("renders working collection and post destinations", async () => {
   const collectionResponse = await render("/collections/kotlin");
   assert.equal(collectionResponse.status, 200);

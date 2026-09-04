@@ -15,7 +15,7 @@ function CollectionIcon({ icon, color }: { icon: string; color: string }) {
   if (officialLogo) {
     return (
       <div className={`collection-card__icon collection-card__icon--${icon}`} aria-hidden="true">
-        <img src={officialLogo} alt="" width={64} />
+        <img src={officialLogo} alt="" />
       </div>
     );
   }
