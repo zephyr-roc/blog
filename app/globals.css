@@ -1422,6 +1422,7 @@ a {
   }
 
   .card-collection__item {
+    order: var(--collection-mobile-order);
     width: 100%;
     min-height: 0;
     aspect-ratio: 1.5 / 1;

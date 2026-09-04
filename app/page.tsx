@@ -73,6 +73,7 @@ export default async function Home() {
   const scoreRange = Math.max(...collectionScores) - lowestScore;
   const weightedCollections = collections.map((collection, index) => ({
     collection,
+    mobileOrder: index,
     ratio: scoreRange === 0
       ? 1.3
       : 1 + ((collectionScores[index] - lowestScore) / scoreRange) * 0.6,
@@ -123,16 +124,17 @@ export default async function Home() {
                       .join(" "),
                   } as CSSProperties}
                 >
-                  {row.map(({ collection, ratio }) => (
-                  <div
-                    key={collection.slug}
-                    className="card-collection__item"
-                    style={{
-                      "--collection-ratio": ratio.toFixed(4),
-                    } as CSSProperties}
-                  >
-                    <CollectionCard collection={collection} />
-                  </div>
+                  {row.map(({ collection, mobileOrder, ratio }) => (
+                    <div
+                      key={collection.slug}
+                      className="card-collection__item"
+                      style={{
+                        "--collection-mobile-order": mobileOrder,
+                        "--collection-ratio": ratio.toFixed(4),
+                      } as CSSProperties}
+                    >
+                      <CollectionCard collection={collection} />
+                    </div>
                   ))}
                 </div>
               );

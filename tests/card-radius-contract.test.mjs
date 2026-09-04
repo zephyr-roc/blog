@@ -45,7 +45,9 @@ test("curates seven homepage language collections with C#, React and without Nim
   assert.match(page, /postCountDifference\s*=\s*b\.postCount\s*-\s*a\.postCount/);
   assert.match(page, /collectionScores\s*=\s*collections\.map\(\(collection\)\s*=>\s*Math\.log2\(collection\.postCount\s*\+\s*1\)\)/);
   assert.match(page, /1\s*\+\s*\(\(collectionScores\[index\]\s*-\s*lowestScore\)\s*\/\s*scoreRange\)\s*\*\s*0\.6/);
-  assert.match(page, /row\.map\(\(\{\s*collection,\s*ratio\s*\}\)\s*=>/);
+  assert.match(page, /mobileOrder:\s*index/);
+  assert.match(page, /row\.map\(\(\{\s*collection,\s*mobileOrder,\s*ratio\s*\}\)\s*=>/);
+  assert.match(page, /"--collection-mobile-order":\s*mobileOrder/);
   assert.match(page, /"--collection-ratio":\s*ratio\.toFixed\(4\)/);
   assert.match(page, /createWatchLayout\(weightedCollections\)/);
   assert.match(page, /rowCount\s*=\s*Math\.round\(Math\.sqrt\(items\.length\)\)/);
@@ -64,6 +66,7 @@ test("curates seven homepage language collections with C#, React and without Nim
   assert.match(css, /@media \(max-width:\s*1180px\)[\s\S]*?\.card-collection__row\s*\{[^}]*width:\s*min\(100%,\s*var\(--collection-row-compact-width\)\);/);
   assert.match(css, /@media \(max-width:\s*640px\)[\s\S]*?\.card-collection__row\s*\{[^}]*display:\s*contents;/);
   assert.match(css, /@media \(max-width:\s*640px\)[\s\S]*?\.card-collection__item\s*\{[^}]*aspect-ratio:\s*1\.5\s*\/\s*1;/);
+  assert.match(css, /@media \(max-width:\s*640px\)[\s\S]*?\.card-collection__item\s*\{[^}]*order:\s*var\(--collection-mobile-order\);/);
 
   for (const slug of ["java", "rust", "csharp", "react", "ocaml"]) {
     const meta = await readFile(
