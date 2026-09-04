@@ -21,6 +21,13 @@
           "kind": "公开最低报价",
           "merchant": "公开比价汇总",
           "source": "https://wiki.smzdm.com/p/0yrx3g4/"
+        },
+        {
+          "date": "2026-09-04",
+          "price": 2597.15,
+          "kind": "采集时公开最低报价",
+          "merchant": "公开比价汇总",
+          "source": "https://wiki.smzdm.com/p/0yrx3g4/"
         }
       ]
     },
@@ -52,6 +59,13 @@
           "date": "2026-09-02",
           "price": 1299,
           "kind": "公开最低报价",
+          "merchant": "天猫精选",
+          "source": "https://wiki.smzdm.com/p/yd4y5ow/"
+        },
+        {
+          "date": "2026-09-04",
+          "price": 1299,
+          "kind": "采集时公开最低报价",
           "merchant": "天猫精选",
           "source": "https://wiki.smzdm.com/p/yd4y5ow/"
         }
