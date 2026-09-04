@@ -10,6 +10,62 @@ import {
 } from "./lib/seo";
 import "./globals.css";
 
+const CRITICAL_FALLBACK_CSS = `
+@layer fallback {
+  :root {
+    color-scheme: dark;
+    background: #09090d;
+    color: #f4f4f5;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; min-width: 280px; background: #09090d; color: #f4f4f5; line-height: 1.65; }
+  main { display: block; width: min(72rem, 100%); margin-inline: auto; padding: 1.5rem 1.125rem 3rem; }
+  header, section, article, nav, footer { display: block; }
+  h1, h2, h3, p { overflow-wrap: anywhere; }
+  a { color: inherit; text-underline-offset: .2em; }
+  img, svg { max-width: 100%; height: auto; }
+  pre, table { max-width: 100%; overflow: auto; }
+  pre { padding: 1rem; border-radius: .75rem; background: #18181f; }
+  code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+  table { display: block; border-collapse: collapse; }
+  th, td { padding: .5rem; border: 1px solid #3f3f46; }
+  .ambient, .grain, .glass-card__base, .interaction-hint,
+  .liquid-navigation__backdrop, .liquid-navigation__refraction,
+  .liquid-navigation__indicator, .liquid-navigation__icon { display: none; }
+  .site-header { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 2rem; }
+  .wordmark { font-weight: 700; }
+  .card-collection, .card-collection__row, .post-list { display: grid; gap: 1rem; padding: 0; }
+  .card-collection__item, .post-list__item, .about-card {
+    padding: 1rem;
+    border: 1px solid #3f3f46;
+    border-radius: 1rem;
+    list-style: none;
+  }
+  .collection-card-link, .post-list__link { display: block; }
+  .collection-card__icon-wrap { width: 4rem; }
+  .liquid-navigation { margin: 2rem 1.125rem; }
+  .liquid-navigation__surface { display: flex; flex-wrap: wrap; gap: .75rem; }
+  .liquid-navigation__item {
+    display: inline-flex;
+    padding: .5rem .75rem;
+    border: 1px solid #52525b;
+    border-radius: 999px;
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+`;
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -74,6 +130,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <head>
+        <style data-critical-fallback>{CRITICAL_FALLBACK_CSS}</style>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(websiteJsonLd) }}
