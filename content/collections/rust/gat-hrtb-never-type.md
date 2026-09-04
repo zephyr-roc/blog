@@ -867,7 +867,7 @@ GAT、HRTB 与 never type 共同补全以下类型关系：
 9. `Infallible` 是稳定 API 中可用的无变体错误类型，但当前尚未成为 `!` 的别名；
 10. Rust 2024 的 never fallback 保留发散语义，减少 `!` 被偶然推断为 `()` 的情况。
 
-下一章将进入 `PhantomData`、`Pin` 与 unsafe 边界，分析零大小标记如何影响拥有关系、drop check、型变与 auto trait，地址固定契约如何支持自引用 Future，以及安全抽象必须向编译器和调用者分别证明哪些不变量。
+下一章[《Rust PhantomData、Pin 与 unsafe 边界：如何封装编译器无法证明的不变量》](/collections/rust/phantomdata-pin-unsafe)将分析零大小标记如何影响拥有关系、drop check、型变与 auto trait，地址固定契约如何支持自引用 Future，以及安全抽象必须向编译器和调用者分别证明哪些不变量。
 
 ## 延伸阅读
 
