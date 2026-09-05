@@ -28,6 +28,13 @@
           "kind": "采集时公开最低报价",
           "merchant": "公开比价汇总",
           "source": "https://wiki.smzdm.com/p/0yrx3g4/"
+        },
+        {
+          "date": "2026-09-05",
+          "price": 2599,
+          "kind": "采集时公开最低报价",
+          "merchant": "京东",
+          "source": "https://wiki.smzdm.com/p/0yrx3g4/"
         }
       ]
     },
@@ -68,6 +75,13 @@
           "kind": "采集时公开最低报价",
           "merchant": "天猫精选",
           "source": "https://wiki.smzdm.com/p/yd4y5ow/"
+        },
+        {
+          "date": "2026-09-05",
+          "price": 1299,
+          "kind": "采集时公开最低报价",
+          "merchant": "天猫精选",
+          "source": "https://wiki.smzdm.com/p/yd4y5ow/"
         }
       ]
     },
@@ -86,6 +100,13 @@
           "date": "2026-09-02",
           "price": 3900,
           "kind": "公开最低报价",
+          "merchant": "京东",
+          "source": "https://wiki.smzdm.com/p/61pv64w/"
+        },
+        {
+          "date": "2026-09-05",
+          "price": 3860,
+          "kind": "采集时公开最低报价",
           "merchant": "京东",
           "source": "https://wiki.smzdm.com/p/61pv64w/"
         }
@@ -113,6 +134,13 @@
           "price": 1919,
           "kind": "公开最低报价",
           "merchant": "公开比价汇总",
+          "source": "https://wiki.smzdm.com/p/zm5r4qm/"
+        },
+        {
+          "date": "2026-09-05",
+          "price": 749,
+          "kind": "采集时公开最低报价",
+          "merchant": "天猫精选",
           "source": "https://wiki.smzdm.com/p/zm5r4qm/"
         }
       ]
