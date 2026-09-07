@@ -63,3 +63,7 @@ temperatureReadings()
 | `Dispatchers.Main` | UI 线程（Android/Compose） |
 | `Dispatchers.IO` | 网络、数据库、文件 IO |
 | `Dispatchers.Default` | CPU 密集型计算 |
+
+## 下一章
+
+结构化并发不只规定协程必须属于某个作用域，还规定失败如何沿父子关系传播。下一章将深入 [`await`、`join` 与监督作用域](/collections/kotlin/await-join-supervision)：等待一个任务、读取一个结果，以及隔离一个失败，是三件不同的事。
