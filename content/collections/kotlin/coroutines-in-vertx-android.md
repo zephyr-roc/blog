@@ -2,7 +2,7 @@
 title: Kotlin 协程实战：Vert.x 与 Android 生命周期
 date: 2026-09-07
 excerpt: Vert.x 把协程绑定到 verticle 与 event loop，Android 把协程绑定到 ViewModel、Lifecycle 和 Composition；框架不同，任务所有权的判断方法相同。
-chapter: 工程实践
+chapter: 并发进阶
 chapterOrder: 6
 ---
 
