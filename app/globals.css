@@ -1924,12 +1924,8 @@ a {
 .post-reading-layout {
   --post-outline-width: clamp(184px, 16vw, 220px);
   --post-outline-gap: clamp(28px, 3vw, 48px);
-  display: grid;
-  grid-template-columns: var(--post-outline-width) minmax(0, 720px);
-  align-items: start;
-  gap: var(--post-outline-gap);
-  width: calc(100% + var(--post-outline-width) + var(--post-outline-gap));
-  margin-left: calc(-1 * (var(--post-outline-width) + var(--post-outline-gap)));
+  position: relative;
+  width: 100%;
 }
 
 .post-reading-layout--plain {
@@ -1948,16 +1944,35 @@ a {
 }
 
 .post-outline {
-  position: sticky;
-  top: 28px;
-  max-height: calc(100svh - 56px);
-  overflow-y: auto;
   padding: 16px 16px 18px;
-  border: 1px solid rgba(255, 255, 255, .08);
+  border: 1px solid rgba(202, 187, 255, .18);
   border-radius: 16px;
-  background: rgba(12, 10, 20, .58);
+  background: rgba(9, 8, 15, .9);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .055),
+    0 14px 36px rgba(0, 0, 0, .24);
+  backdrop-filter: blur(16px) saturate(1.08);
   scrollbar-width: thin;
   scrollbar-color: rgba(168, 140, 255, .35) transparent;
+}
+
+.post-outline--desktop {
+  position: fixed;
+  z-index: 8;
+  top: 96px;
+  left: max(
+    24px,
+    calc(50vw - 360px - var(--post-outline-width) - var(--post-outline-gap))
+  );
+  display: none;
+  width: var(--post-outline-width);
+  max-height: calc(100svh - 192px);
+  overflow-y: auto;
+}
+
+.post-outline--mobile {
+  display: block;
+  margin-bottom: 32px;
 }
 
 .post-outline summary {
@@ -2086,9 +2101,12 @@ a {
 .post-content pre {
   margin: 0 0 1.5em;
   padding: 18px 22px;
-  border: 1px solid rgba(255,255,255,.07);
+  border: 1px solid rgba(168, 140, 255, .2);
   border-radius: 12px;
-  background: rgba(0,0,0,.38);
+  background: rgba(10, 8, 20, .88);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .045),
+    0 10px 28px rgba(0, 0, 0, .18);
   overflow-x: auto;
 }
 
@@ -2137,35 +2155,24 @@ a {
 }
 
 @media (min-width: 1180px) {
-  .post-outline summary {
-    display: none;
+  .post-outline--desktop {
+    display: block;
   }
 
-  .post-outline > nav {
-    display: block;
-    margin-top: 0;
+  .post-outline--mobile {
+    display: none;
   }
 }
 
 @media (max-width: 1179px) {
-  .post-reading-layout {
-    display: block;
-    width: 100%;
-    margin-left: 0;
-    transform: none;
-  }
-
-  .post-outline {
-    position: relative;
-    top: auto;
+  .post-outline--mobile {
     max-height: none;
-    margin-bottom: 32px;
     overflow: visible;
   }
 }
 
 @media (max-width: 640px) {
-  .post-outline {
+  .post-outline--mobile {
     margin-bottom: 26px;
     padding: 14px 15px;
     border-radius: 14px;
