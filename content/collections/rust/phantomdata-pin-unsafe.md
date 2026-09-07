@@ -867,6 +867,8 @@ Rust 类型系统从普通值一直延伸到底层安全抽象，形成一条连
 
 类型系统无法证明全部程序性质，但可以精确划定证明责任：类型签名声明关系，安全 API限制状态空间，unsafe 契约记录额外假设，封装边界保证普通调用者无法破坏这些假设。这是 Rust 在零成本抽象与内存安全之间建立工程可行性的核心机制。
 
+下一章[《Rust 内存布局：值如何落到栈、堆与字节中》](/collections/rust/memory-layout-representation)将进入内存与资源阶段，分析大小、对齐、padding、representation、DST、niche 与外部二进制边界。
+
 ## 延伸阅读
 
 - [Rust 标准库：`PhantomData`](https://doc.rust-lang.org/std/marker/struct.PhantomData.html)
