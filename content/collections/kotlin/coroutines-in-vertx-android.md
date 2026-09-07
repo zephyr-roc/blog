@@ -572,3 +572,7 @@ Vert.x 与 Android 表面差异很大，但作用域设计可以用同一张表�
 - [State and Jetpack Compose](https://developer.android.com/develop/ui/compose/state)
 - [Where to hoist state](https://developer.android.com/develop/ui/compose/state-hoisting)
 - [kotlinx-coroutines-test](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-test/)
+
+## 下一章
+
+协程 API 本身大量使用高阶函数和带接收者的 lambda。下一章将从 [函数类型与 Receiver](/collections/kotlin/higher-order-functions-receivers-dsl) 出发，解释普通 lambda、扩展接收者、隐式接收者栈如何进一步组成类型安全 DSL。
