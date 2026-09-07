@@ -1949,12 +1949,10 @@ a {
 
 .post-outline {
   padding: 16px 16px 18px;
-  border: 1px solid rgba(202, 187, 255, .18);
+  border: 1px solid transparent;
   border-radius: 16px;
   background: rgba(9, 8, 15, .9);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .055),
-    0 14px 36px rgba(0, 0, 0, .24);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, .24);
   backdrop-filter: blur(16px) saturate(1.08);
   scrollbar-width: thin;
   scrollbar-color: rgba(168, 140, 255, .35) transparent;
