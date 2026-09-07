@@ -2097,13 +2097,70 @@ a {
 .post-content pre {
   margin: 0 0 1.5em;
   padding: 18px 22px;
-  border: 1px solid rgba(168, 140, 255, .2);
+  border: 1px solid rgba(255, 255, 255, .11);
   border-radius: 12px;
-  background: rgba(10, 8, 20, .88);
+  background: rgba(20, 20, 23, .94);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, .045),
     0 10px 28px rgba(0, 0, 0, .18);
   overflow-x: auto;
+}
+
+.code-block {
+  position: relative;
+  margin: 0 0 1.5em;
+}
+
+.post-content .code-block pre {
+  margin: 0;
+  padding-top: 48px;
+}
+
+.code-block__toolbar {
+  position: absolute;
+  z-index: 1;
+  top: 10px;
+  right: 12px;
+  left: 15px;
+  display: flex;
+  align-items: center;
+  min-height: 26px;
+  pointer-events: none;
+}
+
+.code-block__language {
+  color: rgba(255, 255, 255, .45);
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: .08em;
+}
+
+.code-block__copy {
+  margin-left: auto;
+  padding: 5px 9px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, .055);
+  color: rgba(255, 255, 255, .72);
+  font: inherit;
+  font-size: 10px;
+  line-height: 1.2;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+}
+
+.code-block__copy:hover,
+.code-block__copy:focus-visible {
+  border-color: rgba(255, 255, 255, .2);
+  background: rgba(255, 255, 255, .09);
+  color: #fff;
+}
+
+.code-block__copy[data-copied="true"] {
+  border-color: rgba(126, 220, 160, .24);
+  color: #a7dfb5;
 }
 
 .post-content pre code {
@@ -2111,7 +2168,67 @@ a {
   background: none;
   font-size: 0.875em;
   line-height: 1.7;
-  color: #e2d9ff;
+  color: #fff;
+}
+
+.post-content .hljs-comment,
+.post-content .hljs-quote {
+  color: #8e929d;
+  font-style: italic;
+}
+
+.post-content .hljs-keyword,
+.post-content .hljs-selector-tag,
+.post-content .hljs-literal,
+.post-content .hljs-section {
+  color: #c9adff;
+}
+
+.post-content .hljs-string,
+.post-content .hljs-regexp,
+.post-content .hljs-addition {
+  color: #a7dfb5;
+}
+
+.post-content .hljs-number,
+.post-content .hljs-symbol,
+.post-content .hljs-bullet {
+  color: #ffd18a;
+}
+
+.post-content .hljs-title,
+.post-content .hljs-title.class_,
+.post-content .hljs-title.function_ {
+  color: #9fc9ff;
+}
+
+.post-content .hljs-type,
+.post-content .hljs-built_in,
+.post-content .hljs-name {
+  color: #8edce6;
+}
+
+.post-content .hljs-attr,
+.post-content .hljs-attribute,
+.post-content .hljs-property {
+  color: #f3d99b;
+}
+
+.post-content .hljs-meta,
+.post-content .hljs-doctag,
+.post-content .hljs-template-tag {
+  color: #f0a8d5;
+}
+
+.post-content .hljs-variable,
+.post-content .hljs-params,
+.post-content .hljs-subst,
+.post-content .hljs-punctuation {
+  color: #fff;
+}
+
+.post-content .hljs-deletion {
+  color: #ff9e9e;
 }
 
 .post-content blockquote {

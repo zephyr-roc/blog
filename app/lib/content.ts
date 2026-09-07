@@ -1,6 +1,143 @@
 /// <reference types="vite/client" />
 
 import { marked } from "marked";
+import hljs from "highlight.js/lib/core";
+import bash from "highlight.js/lib/languages/bash";
+import c from "highlight.js/lib/languages/c";
+import cpp from "highlight.js/lib/languages/cpp";
+import csharp from "highlight.js/lib/languages/csharp";
+import dockerfile from "highlight.js/lib/languages/dockerfile";
+import go from "highlight.js/lib/languages/go";
+import gradle from "highlight.js/lib/languages/gradle";
+import groovy from "highlight.js/lib/languages/groovy";
+import ini from "highlight.js/lib/languages/ini";
+import java from "highlight.js/lib/languages/java";
+import javascript from "highlight.js/lib/languages/javascript";
+import json from "highlight.js/lib/languages/json";
+import kotlin from "highlight.js/lib/languages/kotlin";
+import markdown from "highlight.js/lib/languages/markdown";
+import ocaml from "highlight.js/lib/languages/ocaml";
+import properties from "highlight.js/lib/languages/properties";
+import protobuf from "highlight.js/lib/languages/protobuf";
+import python from "highlight.js/lib/languages/python";
+import rust from "highlight.js/lib/languages/rust";
+import sql from "highlight.js/lib/languages/sql";
+import swift from "highlight.js/lib/languages/swift";
+import typescript from "highlight.js/lib/languages/typescript";
+import wasm from "highlight.js/lib/languages/wasm";
+import xml from "highlight.js/lib/languages/xml";
+import yaml from "highlight.js/lib/languages/yaml";
+
+const languages = {
+  bash,
+  c,
+  cpp,
+  csharp,
+  dockerfile,
+  go,
+  gradle,
+  groovy,
+  ini,
+  java,
+  javascript,
+  json,
+  kotlin,
+  markdown,
+  ocaml,
+  properties,
+  protobuf,
+  python,
+  rust,
+  sql,
+  swift,
+  typescript,
+  wasm,
+  xml,
+  yaml,
+};
+
+for (const [name, grammar] of Object.entries(languages)) {
+  hljs.registerLanguage(name, grammar);
+}
+
+const languageAliases: Record<string, string> = {
+  cxx: "cpp",
+  cs: "csharp",
+  "c#": "csharp",
+  gradle: "gradle",
+  html: "xml",
+  js: "javascript",
+  jsx: "javascript",
+  kt: "kotlin",
+  kts: "kotlin",
+  md: "markdown",
+  py: "python",
+  rs: "rust",
+  sh: "bash",
+  shell: "bash",
+  ts: "typescript",
+  tsx: "typescript",
+  yml: "yaml",
+};
+
+const languageLabels: Record<string, string> = {
+  bash: "Shell",
+  c: "C",
+  cpp: "C++",
+  csharp: "C#",
+  dockerfile: "Dockerfile",
+  go: "Go",
+  gradle: "Gradle",
+  groovy: "Groovy",
+  ini: "INI",
+  java: "Java",
+  javascript: "JavaScript",
+  json: "JSON",
+  kotlin: "Kotlin",
+  markdown: "Markdown",
+  ocaml: "OCaml",
+  properties: "Properties",
+  protobuf: "Protocol Buffers",
+  python: "Python",
+  rust: "Rust",
+  sql: "SQL",
+  swift: "Swift",
+  typescript: "TypeScript",
+  wasm: "WebAssembly",
+  xml: "HTML / XML",
+  yaml: "YAML",
+};
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+marked.use({
+  renderer: {
+    code({ text, lang }) {
+      const declared = lang?.trim().split(/\s+/, 1)[0]?.toLowerCase() ?? "";
+      const safeDeclared = /^[a-z0-9_+#.-]+$/.test(declared) ? declared : "";
+      const language = languageAliases[safeDeclared] ?? safeDeclared;
+      const supported = language !== "" && Boolean(hljs.getLanguage(language));
+      const highlighted = supported
+        ? hljs.highlight(text, { language, ignoreIllegals: true }).value
+        : escapeHtml(text);
+      const label = languageLabels[language]
+        ?? (safeDeclared ? safeDeclared.toUpperCase() : "");
+      const languageClass = supported ? ` hljs language-${language}` : "";
+      const languageBadge = label
+        ? `<span class="code-block__language">${escapeHtml(label)}</span>`
+        : "";
+      const copyLabel = label ? `复制 ${label} 代码` : "复制代码";
+
+      return `<div class="code-block"><div class="code-block__toolbar">${languageBadge}<button class="code-block__copy" type="button" aria-label="${escapeHtml(copyLabel)}" hidden>复制</button></div><pre><code class="${languageClass.trim()}">${highlighted}</code></pre></div>\n`;
+    },
+  },
+});
 
 // Import Markdown at build time so it is available in the Cloudflare Worker.
 // Runtime filesystem paths resolve inside the Worker bundle and cannot reach

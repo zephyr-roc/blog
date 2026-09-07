@@ -1,4 +1,5 @@
 import { PostOutline, type OutlineItem } from "./PostOutline";
+import { CodeCopyEnhancer } from "./CodeCopyEnhancer";
 
 function plainText(value: string) {
   return value
@@ -53,6 +54,7 @@ export function PostContent({ html }: { html: string }) {
         className="post-content"
         dangerouslySetInnerHTML={{ __html: content }}
       />
+      <CodeCopyEnhancer />
     </div>
   );
 }
