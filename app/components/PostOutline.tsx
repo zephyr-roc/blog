@@ -130,7 +130,10 @@ export function PostOutline({ items }: { items: OutlineItem[] }) {
 
     event.preventDefault();
     window.history.pushState(null, "", `#${encodeURIComponent(id)}`);
-    heading.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.scrollTo({
+      top: window.scrollY + heading.getBoundingClientRect().top - 28,
+      behavior: "smooth",
+    });
     setActiveId(id);
 
     if (window.matchMedia("(max-width: 1179px)").matches) {

@@ -82,7 +82,7 @@ export default async function PostPage({ params }: Props) {
     : "";
 
   return (
-    <main className="experience-shell">
+    <main className="experience-shell post-shell">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -120,4 +120,3 @@ export default async function PostPage({ params }: Props) {
     </main>
   );
 }
-

@@ -65,7 +65,7 @@ export default async function RadarPostPage({ params }: Props) {
     : "";
 
   return (
-    <main className="experience-shell radar-shell">
+    <main className="experience-shell radar-shell post-shell">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

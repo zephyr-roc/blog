@@ -1882,6 +1882,10 @@ a {
 
 /* ── Post Page ───────────────────────────────────────────────── */
 
+.post-shell {
+  overflow: clip;
+}
+
 .post-page {
   position: relative;
   z-index: 2;
@@ -1957,16 +1961,10 @@ a {
 }
 
 .post-outline--desktop {
-  position: fixed;
   z-index: 8;
-  top: 96px;
-  left: max(
-    24px,
-    calc(50vw - 360px - var(--post-outline-width) - var(--post-outline-gap))
-  );
   display: none;
   width: var(--post-outline-width);
-  max-height: calc(100svh - 192px);
+  max-height: calc(100svh - 56px);
   overflow-y: auto;
 }
 
@@ -2155,12 +2153,31 @@ a {
 }
 
 @media (min-width: 1180px) {
+  .post-reading-layout:not(.post-reading-layout--plain) {
+    display: grid;
+    grid-template-columns: var(--post-outline-width) minmax(0, 720px);
+    align-items: start;
+    gap: var(--post-outline-gap);
+    width: calc(100% + var(--post-outline-width) + var(--post-outline-gap));
+    margin-left: calc(-1 * (var(--post-outline-width) + var(--post-outline-gap)));
+  }
+
   .post-outline--desktop {
+    position: sticky;
+    top: 28px;
+    grid-column: 1;
+    grid-row: 1;
     display: block;
+    width: auto;
   }
 
   .post-outline--mobile {
     display: none;
+  }
+
+  .post-reading-layout:not(.post-reading-layout--plain) > .post-content {
+    grid-column: 2;
+    grid-row: 1;
   }
 }
 

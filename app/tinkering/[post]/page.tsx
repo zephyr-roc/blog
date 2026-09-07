@@ -71,7 +71,7 @@ export default async function TinkeringPostPage({ params }: Props) {
     : "";
 
   return (
-    <main className="experience-shell">
+    <main className="experience-shell post-shell">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -105,4 +105,3 @@ export default async function TinkeringPostPage({ params }: Props) {
     </main>
   );
 }
-
