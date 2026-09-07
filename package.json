@@ -17,6 +17,7 @@
     "db:migrate:likes": "node scripts/migrate-likes.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "drizzle-orm": "0.45.2",
     "marked": "^18.0.10",
     "react": "19.2.6",

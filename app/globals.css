@@ -1921,7 +1921,102 @@ a {
 
 /* ── Post Content (prose) ────────────────────────────────────── */
 
+.post-reading-layout {
+  display: grid;
+  grid-template-columns: minmax(184px, 220px) minmax(0, 720px);
+  align-items: start;
+  gap: clamp(36px, 4vw, 56px);
+  width: min(996px, calc(100vw - 48px));
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+.post-reading-layout--plain {
+  display: block;
+  width: 100%;
+  margin-left: 0;
+  transform: none;
+}
+
+.post-outline,
 .post-content {
+  font-family: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace,
+    "SFMono-Regular", "Cascadia Code", Menlo, Consolas, "PingFang SC",
+    "Microsoft YaHei", monospace;
+  font-variant-ligatures: contextual;
+}
+
+.post-outline {
+  position: sticky;
+  top: 28px;
+  max-height: calc(100svh - 56px);
+  overflow-y: auto;
+  padding: 16px 16px 18px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 16px;
+  background: rgba(12, 10, 20, .58);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(168, 140, 255, .35) transparent;
+}
+
+.post-outline summary {
+  cursor: pointer;
+  color: rgba(240, 237, 248, .78);
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: .06em;
+}
+
+.post-outline nav {
+  margin-top: 12px;
+}
+
+.post-outline ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.post-outline ol ol {
+  margin: 5px 0 8px 12px;
+  padding-left: 11px;
+  border-left: 1px solid rgba(255, 255, 255, .08);
+}
+
+.post-outline li + li {
+  margin-top: 4px;
+}
+
+.post-outline a {
+  display: block;
+  padding: 5px 7px;
+  border-radius: 7px;
+  color: rgba(240, 237, 248, .48);
+  font-size: 11px;
+  line-height: 1.55;
+  text-decoration: none;
+  transition: color 160ms ease, background 160ms ease;
+}
+
+.post-outline ol ol a {
+  font-size: 10px;
+  color: rgba(240, 237, 248, .38);
+}
+
+.post-outline a:hover,
+.post-outline a:focus-visible,
+.post-outline a[data-active="true"] {
+  background: rgba(127, 82, 255, .1);
+  color: #d8cbff;
+}
+
+.post-content h2,
+.post-content h3 {
+  scroll-margin-top: 28px;
+}
+
+.post-content {
+  min-width: 0;
   font-size: 15px;
   line-height: 1.9;
   letter-spacing: 0.02em;
@@ -1982,7 +2077,7 @@ a {
   padding: 0.15em 0.42em;
   border-radius: 5px;
   background: rgba(255,255,255,.07);
-  font-family: "SF Mono", "Fira Code", Menlo, monospace;
+  font-family: inherit;
   font-size: 0.875em;
   color: #e2d9ff;
 }
@@ -2038,6 +2133,48 @@ a {
   margin: 2.5em 0;
   border: none;
   border-top: 1px solid rgba(255,255,255,.08);
+}
+
+@media (min-width: 1050px) {
+  .post-outline summary {
+    display: none;
+  }
+
+  .post-outline > nav {
+    display: block;
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 1049px) {
+  .post-reading-layout {
+    display: block;
+    width: 100%;
+    margin-left: 0;
+    transform: none;
+  }
+
+  .post-outline {
+    position: relative;
+    top: auto;
+    max-height: none;
+    margin-bottom: 32px;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 640px) {
+  .post-outline {
+    margin-bottom: 26px;
+    padding: 14px 15px;
+    border-radius: 14px;
+  }
+
+  .post-content {
+    font-size: 14px;
+    line-height: 1.85;
+    letter-spacing: .01em;
+  }
 }
 
 /* ── Deep Radar ─────────────────────────────────────────────── */

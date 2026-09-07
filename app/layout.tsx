@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "@fontsource-variable/jetbrains-mono";
 import { GlassMotionController } from "./components/GlassMotionController";
 import { LiquidGlassNavigation } from "./components/LiquidGlassNavigation";
 import {
