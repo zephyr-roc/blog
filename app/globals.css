@@ -1922,13 +1922,14 @@ a {
 /* ── Post Content (prose) ────────────────────────────────────── */
 
 .post-reading-layout {
+  --post-outline-width: clamp(184px, 16vw, 220px);
+  --post-outline-gap: clamp(28px, 3vw, 48px);
   display: grid;
-  grid-template-columns: minmax(184px, 220px) minmax(0, 720px);
+  grid-template-columns: var(--post-outline-width) minmax(0, 720px);
   align-items: start;
-  gap: clamp(36px, 4vw, 56px);
-  width: min(996px, calc(100vw - 48px));
-  margin-left: 50%;
-  transform: translateX(-50%);
+  gap: var(--post-outline-gap);
+  width: calc(100% + var(--post-outline-width) + var(--post-outline-gap));
+  margin-left: calc(-1 * (var(--post-outline-width) + var(--post-outline-gap)));
 }
 
 .post-reading-layout--plain {
@@ -2135,7 +2136,7 @@ a {
   border-top: 1px solid rgba(255,255,255,.08);
 }
 
-@media (min-width: 1050px) {
+@media (min-width: 1180px) {
   .post-outline summary {
     display: none;
   }
@@ -2146,7 +2147,7 @@ a {
   }
 }
 
-@media (max-width: 1049px) {
+@media (max-width: 1179px) {
   .post-reading-layout {
     display: block;
     width: 100%;

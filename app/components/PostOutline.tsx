@@ -54,7 +54,7 @@ export function PostOutline({ items }: { items: OutlineItem[] }) {
   }
 
   return (
-    <details className="post-outline">
+    <details className="post-outline" open>
       <summary>文章大纲</summary>
       <nav aria-label="文章大纲">
         <ol className="post-outline__list">
