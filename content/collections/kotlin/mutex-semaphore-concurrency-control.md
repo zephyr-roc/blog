@@ -607,3 +607,7 @@ val result = withTimeout(500) {
 - [Semaphore.acquire API](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.sync/-semaphore/acquire.html)
 - [CoroutineDispatcher.limitedParallelism API](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-coroutine-dispatcher/limited-parallelism.html)
 - [MutableStateFlow.update API](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/update.html)
+
+## 下一章
+
+共享状态安全之后，还需要完整控制任务从启动到结束的过程。下一章将深入 [`withContext`、取消、超时与回调桥接](/collections/kotlin/cancellation-context-callbacks)，补齐结构化并发的生命周期原语。
