@@ -500,3 +500,7 @@ val second = async { loadSecond() }.await()
 - [joinAll API](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/join-all.html)
 - [supervisorScope API](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/supervisor-scope.html)
 - [Coroutine exceptions handling](https://kotlinlang.org/docs/exception-handling.html)
+
+## 下一章
+
+任务的失败边界确定之后，还需要处理共享状态和资源容量。下一章将深入 [`Mutex`、`Semaphore` 与状态所有权](/collections/kotlin/mutex-semaphore-concurrency-control)：互斥、并发度限制和状态串行化解决的是三类不同问题。
