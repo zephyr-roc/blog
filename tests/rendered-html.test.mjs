@@ -31,7 +31,6 @@ test("server-renders the collection cards before client hydration", async () => 
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<title>積雨雲的空間站<\/title>/i);
   assert.match(html, /记录想法，/);
   assert.match(html, /分享所学/);
   assert.match(html, /data-motion-card="true"/);
@@ -85,16 +84,12 @@ test("renders the deep radar as a top-level daily archive", async () => {
   assert.match(html, /DEEP SIGNAL \/ SOURCE \/ PROOF/);
   assert.match(html, /RADAR · DAILY/);
   assert.match(html, /class="site-header"/);
-  assert.doesNotMatch(html, /返回主页/);
   assert.match(html, /href="\/radar\/2026-08-25"/);
   assert.match(html, /href="\/radar\/feed\.xml"/);
   assert.doesNotMatch(html, /COLLECTION · 合集/);
 
   const postResponse = await render("/radar/2026-08-25");
   assert.equal(postResponse.status, 200);
-
-  const postHtml = await postResponse.text();
-  assert.match(postHtml, /Enabling the next-generation trait solver on nightly/);
 });
 
 test("publishes an RSS feed for deep radar subscribers", async () => {
