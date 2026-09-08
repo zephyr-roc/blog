@@ -920,3 +920,7 @@ runtime.start(definition)
 - [SAM conversions](https://kotlinlang.org/docs/fun-interfaces.html)
 - [Type-safe builders](https://kotlinlang.org/docs/type-safe-builders.html)
 - [Context parameters](https://kotlinlang.org/docs/context-parameters.html)
+
+## 下一章
+
+函数和 Receiver 进入泛型 API 后，调用点能否保持简洁取决于类型约束如何传播。下一章将深入 [泛型、型变与 Builder inference](/collections/kotlin/generics-variance-builder-inference)，解释 `in`、`out`、投影、类型擦除、`reified`，以及编译器如何从 DSL 块内部反推出类型参数。
