@@ -35,6 +35,7 @@ test("server-renders the collection cards before client hydration", async () => 
   assert.match(html, /分享所学/);
   assert.match(html, /data-motion-card="true"/);
   assert.match(html, /href="\/collections\/kotlin"/);
+  assert.match(html, /href="\/collections\/swift"/);
 });
 
 test("renders working collection and post destinations", async () => {
@@ -52,6 +53,29 @@ test("renders working collection and post destinations", async () => {
 
   const postHtml = await postResponse.text();
   assert.match(postHtml, /Kotlin/);
+});
+
+test("renders the complete Swift language guide and reference without revision history", async () => {
+  const collectionResponse = await render("/collections/swift");
+  assert.equal(collectionResponse.status, 200);
+
+  const collectionHtml = await collectionResponse.text();
+  assert.match(collectionHtml, /Swift 编程语言/);
+  assert.match(collectionHtml, /语言指南/);
+  assert.match(collectionHtml, /语言参考/);
+  assert.match(collectionHtml, /29<!-- --> 篇/);
+  assert.match(collectionHtml, /9<!-- --> 篇/);
+  assert.match(collectionHtml, /href="\/collections\/swift\/the-basics"/);
+  assert.match(collectionHtml, /href="\/collections\/swift\/generic-parameters-and-arguments"/);
+  assert.doesNotMatch(collectionHtml, /修订历史/);
+
+  const postResponse = await render("/collections/swift/generic-parameters-and-arguments");
+  assert.equal(postResponse.status, 200);
+
+  const postHtml = await postResponse.text();
+  assert.match(postHtml, /泛型形参和实参/);
+  assert.match(postHtml, /SwiftGG 中文版/);
+  assert.match(postHtml, /class="hljs-keyword"/);
 });
 
 test("renders tinkering as a top-level page", async () => {

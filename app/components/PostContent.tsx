@@ -25,9 +25,9 @@ function withOutline(html: string) {
   const usedIds = new Map<string, number>();
 
   const content = html.replace(
-    /<h([23])([^>]*)>([\s\S]*?)<\/h\1>/gi,
+    /<h([234])([^>]*)>([\s\S]*?)<\/h\1>/gi,
     (heading, rawLevel: string, attributes: string, inner: string) => {
-      const level = Number(rawLevel) as 2 | 3;
+      const level = Number(rawLevel) as 2 | 3 | 4;
       const existingId = attributes.match(/\sid=(?:"([^"]+)"|'([^']+)')/i)?.[1]
         ?? attributes.match(/\sid=(?:"([^"]+)"|'([^']+)')/i)?.[2];
       const baseId = existingId || headingId(inner, `section-${items.length + 1}`);
@@ -35,7 +35,9 @@ function withOutline(html: string) {
       const id = duplicate === 0 ? baseId : `${baseId}-${duplicate + 1}`;
       usedIds.set(baseId, duplicate + 1);
 
-      items.push({ id, level, text: plainText(inner) });
+      if (level === 2 || level === 3) {
+        items.push({ id, level, text: plainText(inner) });
+      }
       if (existingId) return heading.replace(existingId, id);
       return `<h${level}${attributes} id="${id}">${inner}</h${level}>`;
     },
