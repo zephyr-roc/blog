@@ -523,4 +523,4 @@ suspend fun readLegacy(stream: InputStream): ByteArray =
 
 ## 下一章
 
-原语最终要落入框架提供的生命周期。下一章将对照讲解 [Vert.x 与 Android 中的协程作用域](/collections/kotlin/coroutines-in-vertx-android)，分析服务端 event loop、ViewModel、Lifecycle 与 Composition 分别拥有哪类任务。
+结构化任务还需要传递随时间产生的多个值。下一章将建立 [Flow、Channel、SharedFlow 与 StateFlow](/collections/kotlin/flow-stream-models) 的统一数据模型，区分冷流、广播、状态与队列语义。

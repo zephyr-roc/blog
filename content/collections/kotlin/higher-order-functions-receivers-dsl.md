@@ -3,7 +3,7 @@ title: Kotlin 高阶函数、Receiver 与 DSL：从函数值到类型安全构�
 date: 2026-09-07
 excerpt: 函数类型描述可执行值，Receiver 改变名称解析的作用域，类型安全构建器再把两者组合成受编译器约束的小型语言。
 chapter: 函数式抽象
-chapterOrder: 7
+chapterOrder: 9
 ---
 
 Kotlin 中的函数不仅能声明和调用，也能作为值保存、传递和返回。集合操作、作用域函数、协程 builder、Compose 与 Gradle Kotlin DSL 都建立在同一组语言能力上：
