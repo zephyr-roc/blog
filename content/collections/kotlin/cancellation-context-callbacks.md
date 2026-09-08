@@ -1,5 +1,5 @@
 ---
-title: Kotlin 结构化并发原语：上下文、取消与回调桥接
+title: Kotlin 协程生命周期：上下文、取消与回调桥接
 date: 2026-09-07
 excerpt: withContext、cancelAndJoin、ensureActive、timeout、NonCancellable 与 suspendCancellableCoroutine 共同定义任务如何切换执行环境、响应取消并安全接入回调 API。
 chapter: 并发进阶
@@ -17,7 +17,9 @@ chapterOrder: 5
 
 这些问题分别落在 `withContext`、`Job` 的取消操作、取消检查、超时作用域、`NonCancellable` 和 `suspendCancellableCoroutine` 上。
 
-## withContext：切换上下文，但不逃离调用者
+## 上下文切换：改变执行位置，不改变所有权
+
+### withContext：切换上下文但不逃离调用者
 
 `withContext(context)` 把传入的上下文元素与当前协程上下文合并，在更新后的上下文中执行代码块，并在完成后返回结果：
 
@@ -43,7 +45,7 @@ val document = async(Dispatchers.Default) {
 
 创建后立即等待，只是用 `async` 绕了一圈。没有其他任务与解析重叠时，`withContext` 更直接。
 
-### withContext 也是结构化边界
+#### withContext 也是结构化边界
 
 `withContext` 不只是“换线程”。它创建一个词法范围内的子协程：代码块完成前调用者不会继续；代码块抛出的异常会从 `withContext` 调用点重新抛出；调用者取消时，代码块也会取消。
 
@@ -59,7 +61,7 @@ suspend fun render(): Bitmap = withContext(Dispatchers.Default) {
 
 调度器改变了，任务仍属于原调用链。
 
-### 不要给 withContext 传入普通 Job
+#### 不要给 withContext 传入普通 Job
 
 协程上下文可以组合，但 `Job` 不是普通配置项：
 
@@ -80,7 +82,7 @@ withContext(ioDispatcher + CoroutineName("load-config")) {
 
 `NonCancellable` 是为清理设计的特殊例外，不应把这个例外推广成任意替换 `Job`。
 
-### 调度器切换存在两次派发
+#### 调度器切换存在两次派发
 
 目标调度器与当前调度器不同时，进入代码块前要派发到目标调度器，结束后还要派发回原调度器。调用者可能在结果返回途中被取消，此时 `withContext` 会丢弃结果并抛出 `CancellationException`。
 
@@ -103,7 +105,9 @@ val result = withContext(Dispatchers.IO) {
 }
 ```
 
-## 取消是状态转换，不是强制终止线程
+## 取消协议：协作停止并完成清理
+
+### 取消是状态转换，不是强制终止线程
 
 调用 `job.cancel()` 会把取消请求沿任务树向下传播，但不会像废弃的 `Thread.stop()` 那样在任意指令处强杀代码。协程在取消检查点观察到取消后，才以 `CancellationException` 退出。
 
@@ -128,7 +132,7 @@ job.cancel()
 
 如果任务正挂起在 `receive()`，取消会立即使其退出。
 
-## CPU 循环必须主动检查取消
+### CPU 循环必须主动检查取消
 
 没有挂起点的计算循环不会自动观察取消：
 
@@ -173,7 +177,7 @@ while (currentCoroutineContext().isActive) {
 
 不要在每条极小指令后检查取消。检查频率应在响应速度与计算开销之间取平衡，通常放在批次、迭代或可恢复边界。
 
-## CancellationException 表示正常取消协议
+### CancellationException 表示正常取消
 
 协程使用 `CancellationException` 传递取消。协程体因它结束时，父任务把它视为正常取消，而不是需要向上升级的失败。
 
@@ -201,7 +205,7 @@ try {
 
 如果 `sync()` 因父任务取消而退出，`catch` 会吞掉取消。后续代码可能继续执行，造成界面离开后仍更新状态、服务关闭后仍访问资源等问题。
 
-## cancel、join 与 cancelAndJoin
+### cancel、join 与 cancelAndJoin
 
 `cancel()` 只发出取消请求，不等待任务结束：
 
@@ -234,7 +238,7 @@ suspend fun restartRefresh() {
 
 调用 `cancelAndJoin()` 的协程本身也可取消。如果必须在父任务已取消后等待子任务完成有界清理，可以在 `finally` 中谨慎使用 `withContext(NonCancellable)`。
 
-## finally 是资源清理的基本边界
+### finally 是资源清理的基本边界
 
 取消以异常方式展开调用栈，因此普通 `try/finally` 会执行：
 
@@ -262,7 +266,7 @@ finally {
 
 这才是 `NonCancellable` 的主要用途。
 
-## NonCancellable：只保护必要且有界的挂起清理
+### NonCancellable：只保护有界的挂起清理
 
 ```kotlin
 try {
@@ -289,7 +293,9 @@ withContext(NonCancellable) {
 
 不要使用 `launch(NonCancellable)` 或 `async(NonCancellable)`。这会切断新协程与父任务的父子关系，破坏结构化并发。`NonCancellable` 的预期形式是已取消协程 `finally` 中的 `withContext(NonCancellable)`。
 
-## withTimeout：时间预算也是作用域
+## 时间与启动：控制任务边界
+
+### withTimeout：时间预算也是作用域
 
 `withTimeout` 创建带时间限制的子作用域：
 
@@ -321,7 +327,7 @@ val cached = withTimeoutOrNull(100.milliseconds) {
 
 如果业务结果本身允许 `null`，这种写法会把“成功返回 null”和“超时”混在一起，应改用异常或显式结果类型。
 
-### 超时可能与成功返回并发发生
+#### 超时可能与成功返回并发发生
 
 超时是异步事件，可能在代码块完成之后、结果恢复给调用者之前到达。代码块直接返回新资源时，调用者可能因为超时拿不到资源引用：
 
@@ -349,7 +355,7 @@ withTimeout(100) {
 
 时间限制不等于事务回滚。底层阻塞调用、远端请求或已经提交的数据库操作若不支持取消，超时后仍可能完成。幂等性和状态确认仍属于业务协议。
 
-## CoroutineStart：只控制第一次执行之前
+### CoroutineStart：只控制首次执行之前
 
 `launch` 与 `async` 的 `start` 参数决定协程体第一次开始执行的方式：
 
@@ -362,7 +368,7 @@ withTimeout(100) {
 
 启动模式只影响协程体开始执行之前。越过第一次执行后，后续调度和取消仍由上下文与挂起函数决定。
 
-### LAZY 容易与结构化等待形成停滞
+#### LAZY 容易与结构化等待形成停滞
 
 ```kotlin
 coroutineScope {
@@ -390,7 +396,9 @@ coroutineScope {
 
 `UNDISPATCHED` 也不表示协程永远留在当前线程。第一次挂起后，它会按自身上下文恢复。依赖“首段同步执行”的代码通常更难推理，应只在确有时序需求时使用。
 
-## invokeOnCompletion：观察结束，不执行挂起清理
+## 外部系统桥接：连接回调与阻塞调用
+
+### invokeOnCompletion：观察结束
 
 `Job.invokeOnCompletion` 注册完成回调：
 
@@ -408,7 +416,7 @@ job.invokeOnCompletion { cause ->
 
 若回调执行时任务已经完成，它可能立即被调用。回调还可能运行在任意线程，因此内部状态也必须线程安全。任务本体需要保证的清理仍应放在 `finally` 中。
 
-## suspendCancellableCoroutine：把一次性回调接入取消链
+### suspendCancellableCoroutine：桥接一次性回调
 
 传统异步 API 常通过回调返回一次结果：
 
@@ -449,7 +457,7 @@ suspend fun <T> Call<T>.await(): T =
 
 如果漏掉 `invokeOnCancellation`，协程虽然结束，网络请求、监听器或定时器仍可能继续运行。
 
-### 回调和取消存在竞争
+#### 回调和取消存在竞争
 
 回调可能与取消同时发生。`suspendCancellableCoroutine` 提供及时取消保证：即使 continuation 已收到成功结果，只要协程在真正恢复执行前被取消，调用者仍会收到 `CancellationException`。
 
@@ -457,7 +465,7 @@ suspend fun <T> Call<T>.await(): T =
 
 底层 API 还必须允许注册、取消和回调并发发生。如果 `cancel()` 与 `enqueue()` 不是线程安全的，包装层需要额外同步，不能假设协程原语会修复底层竞态。
 
-### 多次回调不要使用 suspendCancellableCoroutine
+#### 多次回调不要使用 suspendCancellableCoroutine
 
 `suspendCancellableCoroutine` 只表示一次成功或失败。定位更新、传感器事件、WebSocket 消息等多次回调应使用 `callbackFlow`：
 
@@ -477,7 +485,7 @@ fun locationUpdates(): Flow<Location> = callbackFlow {
 
 `awaitClose` 把监听器注销绑定到收集结束或取消。还要根据业务选择缓冲区、溢出策略，并检查 `trySend` 失败，不能把无限事件流当成没有背压的回调转发器。
 
-## runInterruptible：让可中断阻塞调用响应取消
+### runInterruptible：让阻塞调用响应取消
 
 并非所有旧 API 都是回调式。一些 JVM API 会阻塞线程，但支持 `Thread.interrupt()`。可以使用 `runInterruptible`：
 

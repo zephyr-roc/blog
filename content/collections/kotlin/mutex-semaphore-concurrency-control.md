@@ -1,5 +1,5 @@
 ---
-title: Kotlin 并发控制：Mutex、Semaphore 与状态所有权
+title: Kotlin 并发控制：互斥、限流与状态所有权
 date: 2026-09-07
 excerpt: Mutex 保护共享不变量，Semaphore 限制资源并发度，原子更新和 Channel 则从不同层级消除竞争；选错工具往往比漏加一把锁更危险。
 chapter: 并发进阶
@@ -37,7 +37,9 @@ println(counter) // 不保证是 100_000
 
 这些工具并不是性能不同的同一种锁。它们表达的是不同的并发设计。
 
-## volatile 只保证可见性，不保证复合操作原子性
+## 互斥：保护共享不变量
+
+### volatile 只保证可见性，不保证复合操作原子性
 
 在 JVM 上给字段添加 `@Volatile`，可以保证对该字段的读写具有相应的可见性和顺序语义，但不能把由多次读写组成的操作合并成一个原子步骤：
 
@@ -50,7 +52,7 @@ counter++ // 仍然不是原子操作
 
 `volatile` 解决“一个线程何时看见另一个线程的写入”，不解决“两个线程同时根据旧值计算新值”。只要正确性依赖读取后的判断、计算或多个字段的一致变化，就需要更高层的同步策略。
 
-## Mutex：保护共享不变量
+### Mutex：挂起式互斥
 
 `kotlinx.coroutines.sync.Mutex` 是面向协程的互斥原语。它只有锁定和未锁定两种状态，同一时刻最多一个执行者进入临界区。
 
@@ -79,7 +81,7 @@ class Wallet(initialBalance: Long) {
 
 这里被保护的不是单独一次赋值，而是不变量：余额不足时不能扣款，余额充足时检查与扣减必须作为一个整体发生。
 
-### withLock 优先于手动 lock 和 unlock
+#### withLock 优先于手动 lock 和 unlock
 
 手动管理锁需要保证所有退出路径都释放锁：
 
@@ -102,7 +104,7 @@ mutex.withLock {
 
 除非需要组合 `tryLock`、所有者令牌或特殊控制流，否则应优先使用 `withLock`。
 
-### 等待 Mutex 不会阻塞线程
+#### 等待 Mutex 不会阻塞线程
 
 锁已被占用时，`Mutex.lock()` 会挂起当前协程，而不是占住线程等待。线程可以执行其他协程，等待者在锁可用后再被恢复。
 
@@ -128,13 +130,13 @@ mutex.withLock {
 
 如果“读取旧状态 → 发起操作 → 写入新状态”必须作为一致事务，则简单地把 I/O 移出去也可能引入竞态。此时需要版本号、compare-and-set、数据库事务或重新设计状态所有权，而不是机械缩短锁范围。
 
-### Mutex 没有线程亲和性
+#### Mutex 没有线程亲和性
 
 协程可能在一个线程获得 `Mutex`，挂起后在另一个线程恢复并释放它。`Mutex` 保护的是协程之间的访问权，不依赖固定线程持有 JVM monitor。
 
 在 JVM 上，一次 `unlock` happens-before 同一把 `Mutex` 之后成功的 `lock`，因此临界区内的写入对后续持锁者可见。失败的 `tryLock()` 不建立这种内存关系。
 
-### Mutex 是不可重入的
+#### Mutex 是不可重入的
 
 `Mutex` 与 JVM 的 `synchronized`、`ReentrantLock` 有一个关键差异：它不可重入。已经持锁的协程再次请求同一把锁，仍然会挂起。
 
@@ -167,13 +169,13 @@ private fun applyDepositLocked(amount: Long) {
 
 命名中的 `Locked` 是调用约束，不是编译器证明。类应尽量让所有状态入口集中，避免外部绕过锁访问字段。
 
-### 公平不等于完成顺序固定
+#### 公平不等于完成顺序固定
 
 `Mutex.lock()` 对已经挂起的等待者按 FIFO 顺序恢复。但获得锁后的协程仍可能被调度、取消或抛异常，整个业务操作的完成顺序并不因此完全确定。
 
 等待锁的协程被取消时，会从等待中退出；如果它刚获得锁便收到及时取消，锁也会被归还。取消安全解决的是锁泄漏，不会自动回滚已经在临界区完成的外部副作用。
 
-## tryLock：无法等待时才使用
+### tryLock：无法等待时才使用
 
 `tryLock()` 不挂起：锁空闲时立即获得锁，否则返回 `false`。
 
@@ -199,7 +201,7 @@ if (!mutex.isLocked) {
 }
 ```
 
-## 多把锁：固定顺序避免死锁
+### 多把锁：固定顺序避免死锁
 
 不可重入并不是唯一死锁来源。两个任务以相反顺序获取两把锁，也会形成循环等待：
 
@@ -233,7 +235,9 @@ suspend fun transfer(from: LockedAccount, to: LockedAccount, amount: Long) {
 
 真实设计中还要封装锁的可见性，避免任意调用者破坏顺序。若状态天然需要跨对象事务，一把聚合锁、单一状态所有者或数据库事务通常比暴露多把锁更容易证明正确。
 
-## Semaphore：限制同时占用资源的任务数
+## 限流：管理有限容量
+
+### Semaphore：限制同时占用资源的任务数
 
 `Semaphore` 维护一组许可。每个任务进入受限区域前获取一个许可，退出时归还。没有可用许可时，调用者挂起排队。
 
@@ -264,7 +268,7 @@ class ImageLoader(
 
 即使创建了很多协程，同时执行 `client.load` 的最多只有 8 个。等待许可的协程不占用工作线程。
 
-### withPermit 防止许可泄漏
+#### withPermit 防止许可泄漏
 
 手动调用 `acquire()` 后，必须在 `finally` 中 `release()`：
 
@@ -287,19 +291,19 @@ semaphore.withPermit {
 
 多调用一次 `release()` 并不会让信号量无限扩容；当归还次数超过成功获取次数时，它会抛出 `IllegalStateException`。
 
-### Semaphore 是并发限制器，不是速率限制器
+#### Semaphore 不是速率限制器
 
 `Semaphore(10)` 表示最多 10 个任务同时处于受限区域。它不保证每秒最多开始 10 个请求：如果每个请求 10 毫秒完成，一秒仍可能开始很多批。
 
 限制“同时进行多少个”是 concurrency limiting；限制“单位时间允许多少个”是 rate limiting。后者需要令牌桶、漏桶、时间窗口或服务端配额算法，不能只靠 `Semaphore`。
 
-### 公平性只覆盖许可队列
+#### 公平性只覆盖许可队列
 
 `Semaphore` 对挂起的 `acquire` 调用按 FIFO 顺序发放许可。这能避免后来的等待者持续插队，但不保证任务按请求顺序完成，因为每个任务拿到许可后的耗时不同。
 
 等待许可时取消是安全的。若取消与许可发放同时发生，实现会确保许可不会因及时取消而丢失。已经进入 `withPermit` 的任务仍需遵守正常的协作式取消和资源清理规则。
 
-### 一次创建百万个 async 仍然有成本
+#### 创建大量等待任务仍有成本
 
 信号量限制的是受限代码区的并发度，不限制已创建协程和 `Deferred` 的数量：
 
@@ -340,7 +344,7 @@ suspend fun downloadAll(urls: Iterable<String>) = coroutineScope {
 
 最多 8 个 worker 执行下载，Channel 中最多缓冲 64 个待处理元素；缓冲区满时生产者挂起，不会无限堆积任务。
 
-## Mutex(1) 与 Semaphore(1) 语义接近但意图不同
+### Mutex(1) 与 Semaphore(1)：容量相同，意图不同
 
 只有一个许可的 `Semaphore` 在互斥效果上接近 `Mutex`，但代码表达的意图不同：
 
@@ -349,7 +353,7 @@ suspend fun downloadAll(urls: Iterable<String>) = coroutineScope {
 
 保护余额、缓存索引、状态机转移时使用 `Mutex`。限制连接、下载槽位、编码器实例时使用 `Semaphore`。正确的抽象能让未来把容量从 1 调到 N 时不破坏状态不变量。
 
-## limitedParallelism：限制同时执行，不限制挂起任务数量
+### limitedParallelism：限制执行并行度
 
 `CoroutineDispatcher.limitedParallelism(n)` 创建原调度器的受限视图，保证同时在该视图上执行的协程不超过 `n` 个：
 
@@ -388,7 +392,9 @@ repeat(3) { index ->
 
 `limitedParallelism(1)` 会让各个挂起点之间的代码段顺序执行，并在这些代码段间建立 happens-before 关系，但协程仍可在挂起点交错，所以不能把它当成可跨挂起点的锁。
 
-## 原子变量：简单状态的最小工具
+## 状态所有权：减少共享写入
+
+### 原子变量：简单状态的最小工具
 
 在 JVM 上，简单计数器可以使用 `AtomicInteger`：
 
@@ -409,7 +415,7 @@ val reserved = AtomicInteger(0)
 
 即使两个字段分别原子，`available + reserved == 10` 这样的跨字段约束仍可能在中间状态被观察到。可以把完整状态合并为一个不可变值并整体 CAS，或者使用 `Mutex`、单一所有者来保护复合转换。
 
-## MutableStateFlow.update：发布状态的原子读改写
+### MutableStateFlow.update：原子发布状态
 
 `MutableStateFlow.update` 可以基于当前值执行原子更新：
 
@@ -443,7 +449,7 @@ state.update { current ->
 
 `StateFlow` 的价值还包括向观察者发布最新状态，但它不是通用事务容器。不要仅仅因为项目已经使用 Flow，就把所有并发控制都改写成 `_state.value = ...`。
 
-## Channel + 单消费者：让状态只有一个写入者
+### Channel + 单消费者：让状态只有一个写入者
 
 锁通过排斥并发访问保护状态；另一种思路是根本不共享写权限。所有命令进入 `Channel`，只有一个消费者持有并修改状态：
 
@@ -514,7 +520,7 @@ class CounterStore(
 
 单消费者消除了并发写竞争，但没有自动回答这些业务语义。
 
-## synchronized 和 ReentrantLock 仍有适用范围
+### synchronized 与 ReentrantLock 的边界
 
 JVM 的 `synchronized` 与 `ReentrantLock` 会阻塞等待它们的线程。对于极短、完全不挂起，并且还会被普通线程代码访问的临界区，它们仍然有效：
 
@@ -537,7 +543,7 @@ fun snapshot(): Snapshot = lock.withLock {
 
 把现有 `synchronized` 机械替换成 `Mutex` 也可能因不可重入而产生死锁。迁移前必须重新检查调用图和锁边界。
 
-## 锁的粒度：先保证正确，再减少竞争
+### 锁的粒度：先保证正确，再减少竞争
 
 一把全局锁容易证明正确，但会串行化互不相关的操作；每个对象一把锁可以增加并发度，却增加死锁、生命周期和内存管理成本。
 
@@ -559,7 +565,7 @@ fun lockFor(key: String): Mutex =
 
 进程内 `Mutex` 只能协调同一进程中的协程。服务部署多个实例后，它不能替代数据库锁、唯一索引、幂等键或分布式协调协议。
 
-## 超时与取消不是事务回滚
+### 超时与取消不是事务回滚
 
 可以限制等待时间；如果临界区内的代码会经过挂起点或主动检查取消，也可以限制其协作式执行时间：
 
@@ -610,4 +616,4 @@ val result = withTimeout(500) {
 
 ## 下一章
 
-共享状态安全之后，还需要完整控制任务从启动到结束的过程。下一章将深入 [`withContext`、取消、超时与回调桥接](/collections/kotlin/cancellation-context-callbacks)，补齐结构化并发的生命周期原语。
+共享状态安全之后，还需要完整控制任务从启动到结束的过程。下一章将深入 [上下文、取消与回调桥接](/collections/kotlin/cancellation-context-callbacks)，补齐协程生命周期原语。

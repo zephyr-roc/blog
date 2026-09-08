@@ -1,5 +1,5 @@
 ---
-title: Kotlin Flow 进阶：组合、背压与共享生命周期
+title: Kotlin Flow 执行模型：组合、背压与共享
 date: 2026-09-07
 excerpt: buffer、conflate、latest、combine、flatMapLatest、flowOn、catch、shareIn 与 stateIn 改变的不只是写法，还改变并发、丢弃、失败和生命周期边界。
 chapter: 并发进阶
@@ -15,7 +15,7 @@ Flow 操作符看起来像集合操作，但数据不是已经存在于内存中
 3. 元素是等待、丢弃、合并还是替换？
 4. 上游的生命周期和失败最终属于谁？
 
-## 普通操作符是逐元素流水线
+## 单流变换：逐元素建立流水线
 
 ```kotlin
 source
@@ -28,8 +28,6 @@ source
 没有 `buffer`、`flowOn`、`channelFlow` 等并发边界时，这些阶段在 collector 协程中顺序执行。`persist` 未完成前，上游不能处理下一个元素。
 
 这提供了最简单的背压：慢消费者直接减慢生产者。只有确定需要吞吐、低延迟或丢弃策略时，才应改变默认执行模型。
-
-## 转换操作符
 
 ### map、filter 与 transform
 
@@ -47,7 +45,7 @@ events.transform { event ->
 
 `transform` 的能力更强，但简单一对一转换仍应使用 `map`，让基数关系一眼可见。
 
-### transformWhile 与 takeWhile
+### 提前结束：transformWhile 与 takeWhile
 
 有限数据流可以由内容决定终止：
 
@@ -66,7 +64,7 @@ frames.transformWhile { frame ->
 
 提前终止通常通过取消内部收集实现，自定义资源必须在 `finally` 或 `awaitClose` 中正确释放。
 
-## 组合多个 Flow
+## 多流组合：对齐、汇合与最新值
 
 ### zip：按位置一一配对
 
@@ -103,7 +101,7 @@ merge(localEvents, remoteEvents)
 
 它适合类型相同、来源不同且每个事件都需处理的流。多个上游的相对顺序通常不确定，不应把 merge 当成稳定排序。
 
-## Flow<Flow<T>> 的三种展开语义
+## 高阶 Flow：选择内部流的执行顺序
 
 输入变化后启动另一个异步流是常见模式：
 
@@ -216,7 +214,7 @@ query
 
 新输入会取消旧的转换。它适合单次挂起计算；如果每个输入映射为持续 Flow，则使用 `flatMapLatest`。
 
-## BufferOverflow 必须匹配业务语义
+### BufferOverflow 必须匹配业务语义
 
 Channel、callbackFlow 和 MutableSharedFlow 可以配置缓冲溢出行为：
 
@@ -228,7 +226,9 @@ Channel、callbackFlow 和 MutableSharedFlow 可以配置缓冲溢出行为：
 
 丢弃策略只有在存在缓冲时才有意义。选择前要回答“丢掉哪一个值不会破坏正确性”，而不是仅用它消除性能告警。
 
-## flowOn：只移动上游
+## 上下文与失败：划清操作符边界
+
+### flowOn：只移动上游
 
 ```kotlin
 repository.rows()
@@ -256,9 +256,9 @@ flow { emit(loadBlocking()) }
 
 `flowOn` 使上游和下游分属不同协程。下游取消时，已经由上游产生但尚未交付的缓冲元素可能被丢弃。不可丢副作用必须在事务或消息确认协议中定义，不能依赖 Flow 恰好把每个内存值送达。
 
-## 异常透明：谁的失败能被谁处理
+### 异常透明：谁的失败能被谁处理
 
-### catch 只处理它上方的异常
+#### catch 只处理它上方的异常
 
 ```kotlin
 repository.users()
@@ -279,7 +279,7 @@ flow
 
 不要吞掉 `CancellationException`。使用 Flow 操作符的标准取消会被正确区分；手写宽泛 `catch (Throwable)` 时仍要重新抛出取消。
 
-### onCompletion 观察结束但不自动处理失败
+#### onCompletion 观察结束但不自动处理失败
 
 ```kotlin
 flow.onCompletion { cause ->
@@ -289,7 +289,7 @@ flow.onCompletion { cause ->
 
 `cause == null` 表示正常完成；非空可能是失败或取消。`onCompletion` 类似声明式 `finally`，只观察不吞掉异常。需要恢复上游失败时使用 `catch`。
 
-### retryWhen 重新订阅冷上游
+#### retryWhen 重新订阅冷上游
 
 ```kotlin
 repository.remoteUpdates()
@@ -302,7 +302,9 @@ repository.remoteUpdates()
 
 重试意味着重新执行上游 Flow。它可能重复已经发生的读取或副作用，因此上游操作必须满足相应幂等性。不要重试业务校验错误或永久认证失败。
 
-## shareIn：共享一个上游实例
+## 共享与状态：改变流的生命周期
+
+### shareIn：共享一个上游实例
 
 ```kotlin
 val messages: SharedFlow<Message> = client.messages()
@@ -331,7 +333,7 @@ val messages: SharedFlow<Message> = client.messages()
 
 共享上游正常完成不会让 SharedFlow 自身完成；共享协程仍可按启动策略存在。上游失败会终止共享协程，并由传入 scope 的异常处理规则处理，所以应在 `shareIn` 前使用 `retry`、`catch` 或显式终止事件定义策略。
 
-## stateIn：把计算结果提升为状态
+### stateIn：把计算结果提升为状态
 
 ```kotlin
 val uiState: StateFlow<UiState> = combine(
@@ -358,7 +360,7 @@ val uiState: StateFlow<UiState> = combine(
 
 `stateIn(scope)` 还有一个挂起重载，它等待首个值后返回，没有显式 initialValue。若上游永远不发值，调用者也会一直挂起；应用状态通常更适合带初始值的非挂起重载。
 
-## StateFlow 的去重位置
+### StateFlow 的去重位置
 
 StateFlow 按 `equals` 合并相等状态。对 StateFlow 再调用 `distinctUntilChanged()` 通常没有作用，因为相同语义已经内置。
 
@@ -374,7 +376,9 @@ data class UiState(
 
 使用不可变快照和稳定相等性，能让状态合并、Compose 重组和测试断言具有一致语义。
 
-## 测试冷流
+## 测试：观察值与控制生命周期
+
+### 测试冷流
 
 有限冷流可以直接收集成列表：
 
@@ -397,7 +401,7 @@ val firstContent = viewModel.uiState
     .first()
 ```
 
-## 测试 SharedFlow 与 stateIn
+### 测试 SharedFlow 与 stateIn
 
 共享流的启动取决于 collector。使用 `SharingStarted.WhileSubscribed` 时，测试中必须真的建立订阅：
 

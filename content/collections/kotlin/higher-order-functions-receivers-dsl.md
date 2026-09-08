@@ -1,5 +1,5 @@
 ---
-title: Kotlin 高阶函数、Receiver 与 DSL：从函数值到类型安全构建器
+title: Kotlin 函数式抽象：高阶函数、Receiver 与类型安全 DSL
 date: 2026-09-07
 excerpt: 函数类型描述可执行值，Receiver 改变名称解析的作用域，类型安全构建器再把两者组合成受编译器约束的小型语言。
 chapter: 函数式抽象
@@ -291,7 +291,7 @@ val validator = UserValidator { user ->
 
 直接使用 `(User) -> ValidationResult` 更轻量；`fun interface` 则能提供领域名称、父接口、默认方法和明确的 API 身份。不要仅为了把每个 lambda 包一层而创建接口，也不要在协议未来可能增长多个抽象操作时假设 SAM 永远合适。
 
-# Receiver：谁成为隐式 this
+## Receiver：谁成为隐式 this
 
 Receiver 不是一种单独的对象。它描述的是调用或名称解析时，哪个值位于“接收操作”的位置。Kotlin 中至少要区分以下几种情况：
 
@@ -305,7 +305,7 @@ Receiver 不是一种单独的对象。它描述的是调用或名称解析时�
 
 最后一项很容易被旧术语混淆：当前的 context parameters 取代了实验性的 context receivers，但具名 context parameter 不会把自身成员直接注入为隐式 `this`。
 
-## 分发接收者：普通成员所属的实例
+### 分发接收者：普通成员所属的实例
 
 ```kotlin
 class Repository {
@@ -318,7 +318,7 @@ class Repository {
 
 调用 `repository.save(user)` 时，`repository` 是分发接收者。成员函数体中的 `this` 指向它；普通虚函数分派根据它的运行时类型选择实现。
 
-## 扩展接收者：静态选择的外部能力
+### 扩展接收者：静态选择的外部能力
 
 扩展函数把接收者写在函数名前：
 
@@ -341,7 +341,7 @@ println(shape.label()) // shape
 
 真实成员总是优先于同签名扩展。扩展也不能访问接收者的 `private` 或 `protected` 状态。
 
-### 成员扩展同时拥有两个 Receiver
+#### 成员扩展同时拥有两个 Receiver
 
 扩展可以声明在类内部：
 
@@ -369,7 +369,7 @@ class QueryRenderer {
 
 成员扩展的分发接收者可以虚分派，而扩展接收者仍按静态类型选择。这种双重规则适合把一组扩展限制在特定组件内，但过度使用会使可见性和解析来源难以追踪。
 
-## 带接收者的函数类型
+### 带接收者的函数类型
 
 `A.(B) -> C` 表示调用时需要一个 `A` 作为 Receiver、一个普通参数 `B`，最终返回 `C`：
 
@@ -399,7 +399,7 @@ println("ab".repeatValue(3))
 
 这种互换说明 Receiver 主要改变调用和作用域表达方式，不凭空增加运行时参数。
 
-### 参数还是 Receiver
+#### 参数还是 Receiver
 
 下面两种 API 携带的信息相近：
 
@@ -425,7 +425,7 @@ configure {
 
 Receiver 不是更高级的写法。若块内大部分代码都在把该对象作为参数传出，显式参数通常更清楚。
 
-## 作用域函数只是 Receiver 与返回值的组合
+### 作用域函数只是 Receiver 与返回值的组合
 
 五个常用作用域函数可以按两个维度理解：
 
@@ -453,7 +453,7 @@ request.run {
 
 此时拆成命名局部变量通常比继续压缩代码更可靠。
 
-## 隐式 Receiver 栈与限定 this
+### 隐式 Receiver 栈与限定 this
 
 带接收者 lambda 可以嵌套，形成隐式 Receiver 栈。未限定名称通常从最近的适用 Receiver 开始解析：
 
@@ -472,7 +472,7 @@ application app@ {
 
 显式标签不仅用于解决编译歧义，也能向读者标明状态来自哪个层级。若一个 DSL 经常需要 `this@outer` 才能完成正常操作，通常意味着嵌套层级或 Receiver 职责划分不理想。
 
-## context：由调用环境补齐参数
+## Context parameters：由调用环境补齐能力
 
 Kotlin 2.4 将 context parameters 提升为稳定特性。它取代了早期实验性的 context receivers。两者最关键的区别是：context parameter 是一个由调用环境解析的具名参数，不会成为新的隐式 `this`。
 
@@ -678,7 +678,7 @@ fun ServerBuilder.standardRoute(
 
 context parameter 适合表达横跨一组调用且由外层环境保证的能力，例如事务、日志或请求上下文。不要用它隐藏每个业务函数真正不同的核心输入，也不要把整个依赖注入容器作为单个上下文值传遍应用。
 
-# 从 Receiver 到简单 DSL
+## 类型安全 DSL：把作用域变成领域结构
 
 类型安全 DSL 的核心模式很小：
 
@@ -691,7 +691,7 @@ fun <T> build(value: T, block: T.() -> Unit): T {
 
 创建对象、以它为 Receiver 执行配置块、返回结果。真正的 DSL 还需要领域模型、合法嵌套关系、校验和作用域控制。
 
-## 第一步：定义不可混淆的领域模型
+### 定义不可混淆的领域模型
 
 下面构建一个简单的 HTTP 应用配置：
 
@@ -718,7 +718,7 @@ data class Application(
 
 最终模型使用不可变值。DSL 中的 builder 负责暂存可变配置，构建完成后冻结结果。
 
-## 第二步：为每一层建立 Builder
+### 为每一层建立 Builder
 
 ```kotlin
 @HttpDsl
@@ -772,7 +772,7 @@ class ApplicationBuilder {
 
 Builder 只暴露当前层允许的操作。`route` 只能出现在 `ServerBuilder` 上，handler 只能配置在 `RouteBuilder` 中。结构约束因此进入静态作用域，而端口范围、路径格式等值约束在 `build()` 时检查。
 
-## 第三步：提供 DSL 入口
+### 提供 DSL 入口
 
 ```kotlin
 fun application(block: ApplicationBuilder.() -> Unit): Application =
@@ -811,7 +811,7 @@ val app = application {
 
 外观像配置语言，编译结果仍是普通 Kotlin 对象与函数值。
 
-## @DslMarker 限制外层 Receiver 泄漏
+### @DslMarker：限制外层 Receiver 泄漏
 
 嵌套 DSL 默认能访问所有可见的隐式 Receiver。这可能允许在路由内部意外再声明服务器：
 
@@ -843,7 +843,7 @@ typealias ServerBlock = @HttpDsl ServerBuilder.() -> Unit
 
 `@DslMarker` 只限制隐式 Receiver，不是安全沙箱。调用者仍可以通过显式标签访问外层对象；它解决的是误用与名称污染，不阻止有意绕过。
 
-## DSL 中的控制流仍是 Kotlin 控制流
+### DSL 中仍是 Kotlin 控制流
 
 DSL 块可以使用条件、循环、局部变量和函数调用：
 
@@ -869,7 +869,7 @@ application {
 
 这是 Kotlin DSL 的优势，也意味着构建结果可能依赖运行时分支和副作用。若配置需要稳定 diff、跨语言编辑、严格 schema 验证或不可信输入，JSON、YAML 或专用声明格式可能更合适。
 
-## Builder 应返回模型，不应直接执行世界
+### Builder 返回模型，不直接执行副作用
 
 更容易测试和推理的 DSL 通常把“描述”与“执行”分开：
 
@@ -882,7 +882,7 @@ runtime.start(definition)
 
 同理，DSL 内的 `handler` 是被保存的函数值。构建配置不会执行它，实际请求到达时才调用。高阶函数的时序契约仍然存在，漂亮语法不会替代生命周期设计。
 
-## DSL API 的工程边界
+### DSL API 的工程边界
 
 一个可维护的 DSL 应检查以下问题：
 
@@ -898,7 +898,7 @@ runtime.start(definition)
 
 简单 DSL 不需要复杂语法技巧。优先让领域对象和合法层级清晰，再考虑中缀函数、操作符重载、委托属性或 context parameters。过度隐藏参数会让 IDE 补全看似流畅，却使数据来源和执行时机更难判断。
 
-## 选择函数抽象的顺序
+### 选择函数抽象的顺序
 
 遇到一段可配置行为时，可以按以下顺序判断：
 

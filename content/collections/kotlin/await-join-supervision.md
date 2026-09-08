@@ -1,5 +1,5 @@
 ---
-title: Kotlin 结构化并发：await、join 与监督作用域
+title: Kotlin 结构化并发：Job、async 与监督
 date: 2026-09-07
 excerpt: await 与 join 不只是“有没有返回值”的区别；awaitAll、joinAll、coroutineScope 与 supervisorScope 共同决定等待方式、失败传播和兄弟协程的命运。
 chapter: 并发进阶
@@ -45,7 +45,9 @@ suspend fun loadPage(): Page = coroutineScope {
 
 等待函数不会创建或删除这条传播路径。它们只是从不同角度观察任务。
 
-## launch 返回 Job，async 返回 Deferred
+## 任务句柄与等待语义
+
+### launch 返回 Job，async 返回 Deferred
 
 `launch` 用于只关心完成与否的副作用任务，返回 `Job`：
 
@@ -73,7 +75,7 @@ val user: Deferred<User> = async {
 
 `launch` 和 `async` 默认立即启动。`join` 与 `await` 通常不是“启动并发”的动作，只是在稍后的某个位置等待已经运行的任务。只有使用 `CoroutineStart.LAZY` 时，第一次 `start`、`join` 或 `await` 才会启动任务。
 
-## join：只等待终态
+### join：只等待终态
 
 `join()` 挂起当前协程，直到目标 `Job` 进入完成状态。无论目标任务是成功、失败还是取消，`join()` 本身都不会为了报告目标任务的失败而重新抛出原始异常。
 
@@ -108,7 +110,7 @@ coroutineScope {
 
 因此，不能用“`join` 是否抛异常”判断任务是否成功。需要结果时使用 `async` 与 `await`；只需要检查终态时，可以在 `join` 后读取 `isCompleted`、`isCancelled`，或在适合的抽象层收集完成原因。
 
-## await：读取 Deferred 的结果
+### await：读取 Deferred 的结果
 
 `await()` 同样会挂起等待，但它会解包 `Deferred<T>` 的完成结果：
 
@@ -157,7 +159,7 @@ coroutineScope {
 
 如果业务允许单个结果失败，必须先改变失败传播关系，或在子任务内部把失败转换为普通值，而不是只改变 `await` 周围的语法。
 
-## joinAll：等待所有 Job 结束
+### joinAll：等待所有 Job 结束
 
 `joinAll()` 等价于逐个调用 `join()`：
 
@@ -192,7 +194,7 @@ supervisorScope {
 
 这类写法适合彼此独立、没有返回值，并且每个任务都有明确异常处理策略的工作。
 
-## awaitAll：等待结果，并在任一失败时立即抛出
+### awaitAll：任一失败时立即抛出
 
 `awaitAll()` 接收多个 `Deferred<T>`，全部成功时按输入顺序返回 `List<T>`：
 
@@ -237,7 +239,9 @@ listOf(slow, failed).awaitAll()
 
 `awaitAll` 的失败也不意味着它自动取消了所有传入的 `Deferred`。是否取消其他任务，取决于这些任务所属的作用域及调用者接下来如何处理异常。结构化并发中的兄弟取消，通常来自普通父 `Job` 的失败传播。
 
-## coroutineScope：所有子任务共同决定成败
+## 失败传播与监督
+
+### coroutineScope：所有子任务共同决定成败
 
 `coroutineScope` 适合把一个逻辑任务拆成多个缺一不可的并发子任务：
 
@@ -275,7 +279,7 @@ val dashboard = try {
 }
 ```
 
-## supervisorScope：失败隔离，不是取消隔离
+### supervisorScope：失败隔离，不是取消隔离
 
 用户界面中的多个组件、批量抓取中的多个数据源、服务端互不依赖的多个附加信息，常常允许局部失败。此时可以使用 `supervisorScope`：
 
@@ -301,7 +305,7 @@ suspend fun loadWidgets(): List<Result<Widget>> = supervisorScope {
 
 因此它仍然是结构化并发。监督不是让子任务脱离父节点，而是把“父取消子”保留下来，同时切断“子失败父”的路径。
 
-### supervisorScope 不会吞掉 await 的异常
+#### supervisorScope 不会吞掉 await 的异常
 
 下面的代码仍然会失败：
 
@@ -324,7 +328,7 @@ supervisorScope {
 1. 用 `supervisorScope` 隔离任务层级中的失败传播。
 2. 在业务边界把允许发生的失败转换成显式结果。
 
-## 把局部失败建模为 Result
+### 把局部失败建模为 Result
 
 当一批任务允许部分成功时，最清晰的返回类型通常是 `List<Result<T>>`，而不是依赖日志或任务状态猜测结果。
 
@@ -373,7 +377,7 @@ suspend fun loadAvatar(): Avatar? =
 
 不要为了获得“部分成功”而把程序错误、资源耗尽或取消全部转换成空值。
 
-## launch 在监督作用域中必须独立处理异常
+### launch 在监督作用域中独立处理异常
 
 `async` 把失败保存在 `Deferred` 中，直到 `await` 观察它；`launch` 没有结果容器。在 `supervisorScope` 中，`launch` 的异常既不会交给父任务处理，也不会通过 `join()` 重新抛出，因此必须为它提供明确的异常处理方式：
 
@@ -395,7 +399,7 @@ supervisorScope {
 
 `CoroutineExceptionHandler` 是未捕获异常的最后处理器，不是恢复机制。回调执行时，对应协程已经失败。需要重试、降级或返回备用值时，应在任务体内使用 `try/catch`，并明确取消是否继续传播。
 
-## SupervisorJob 与 supervisorScope
+### SupervisorJob 与 supervisorScope
 
 两者提供相同方向的失败隔离，但生命周期用途不同：
 
@@ -503,4 +507,4 @@ val second = async { loadSecond() }.await()
 
 ## 下一章
 
-任务的失败边界确定之后，还需要处理共享状态和资源容量。下一章将深入 [`Mutex`、`Semaphore` 与状态所有权](/collections/kotlin/mutex-semaphore-concurrency-control)：互斥、并发度限制和状态串行化解决的是三类不同问题。
+任务的失败边界确定之后，还需要处理共享状态和资源容量。下一章将深入 [互斥、限流与状态所有权](/collections/kotlin/mutex-semaphore-concurrency-control)：互斥、并发度限制和状态串行化解决的是三类不同问题。
