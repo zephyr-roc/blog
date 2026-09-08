@@ -3,7 +3,7 @@ title: Kotlin 协程实战：Vert.x 与 Android 生命周期
 date: 2026-09-07
 excerpt: Vert.x 把协程绑定到 verticle 与 event loop，Android 把协程绑定到 ViewModel、Lifecycle 和 Composition；框架不同，任务所有权的判断方法相同。
 chapter: 并发进阶
-chapterOrder: 6
+chapterOrder: 8
 ---
 
 协程库提供 `CoroutineScope`、`Job` 和调度器，框架负责把它们绑定到真实生命周期。在 Vert.x 中，生命周期通常是 verticle、请求、Event Bus consumer；在 Android 中，生命周期可能是 ViewModel、Activity/Fragment、Navigation destination 或某次 Composition。
@@ -246,7 +246,56 @@ suspend fun consume(stream: ReadStream<Buffer>) {
 
 Channel 满时发送方挂起、空时接收方挂起，但缓冲容量和消费速度仍需要设计。把无界网络流收集成列表，会绕开背压并转化成内存问题。
 
-如果业务层已经统一使用 Flow，可以在边界适配，但不应在 Stream → Channel → Flow 之间反复转换只为追求某种语法。每次适配都要重新检查关闭、异常和取消如何传播。
+如果业务层已经统一使用 Flow，可以在边界完成一次适配。Vert.x 当前没有直接的 `ReadStream.asFlow()` 扩展；官方协程集成提供的是 `toReceiveChannel(vertx)`，再由 kotlinx.coroutines 的 `consumeAsFlow()` 把 Channel 暴露为 Flow。项目可以把这条链路封装起来：
+
+```kotlin
+import io.vertx.core.Vertx
+import io.vertx.core.streams.ReadStream
+import io.vertx.kotlin.coroutines.toReceiveChannel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.consumeAsFlow
+
+fun <T> ReadStream<T>.asFlow(vertx: Vertx): Flow<T> =
+    toReceiveChannel(vertx).consumeAsFlow()
+```
+
+这里的 `asFlow` 是项目级便利函数，不是 Vert.x 自带 API。更重要的是，`consumeAsFlow()` 会消费背后的 `ReceiveChannel`，因此返回值只能由一个 collector 收集一次。它虽然具有 `Flow<T>` 类型，却不是可以反复订阅、每次重建生产者的普通冷流。若多个下游需要观察同一数据源，应由一个明确的作用域使用 `shareIn` 共享，而不是多次调用 `collect` 争抢同一个 Channel。
+
+Event Bus consumer 还拥有独立于协程的注册生命周期。若当前任务负责创建 consumer，也应负责注销：
+
+```kotlin
+suspend fun consumeOrders() {
+    val consumer = vertx
+        .eventBus()
+        .consumer<JsonObject>("orders.created")
+
+    try {
+        consumer
+            .toReceiveChannel(vertx)
+            .consumeAsFlow()
+            .map { message -> message.body() }
+            .buffer(capacity = 64)
+            .collect { order -> handleOrder(order) }
+    } finally {
+        consumer.unregister().coAwait()
+    }
+}
+```
+
+适配器会把 Vert.x stream 的暂停/恢复与 Channel 容量连接起来，但 Flow 上的 `buffer` 又增加了一层队列。容量 `64` 表示允许生产和消费短暂错峰，不表示系统获得了无限吞吐；若改用 `conflate` 或 `DROP_OLDEST`，则必须确认订单之类的业务事件是否允许丢失。
+
+CPU 密集转换可以借助 `flowOn` 移出 event loop，但适配器本身应在 Vert.x context 中创建：
+
+```kotlin
+stream
+    .toReceiveChannel(vertx)
+    .consumeAsFlow()
+    .map(::decodePayload)
+    .flowOn(Dispatchers.Default)
+    .collect(::persist)
+```
+
+`flowOn` 只改变它上游那段 Flow 管线的执行上下文，不会把 collector 也迁走。不要在 Stream → Channel → Flow 之间反复转换只为追求某种语法；每次跨越边界，都要重新检查缓冲、单次消费、异常、取消以及底层资源关闭如何传播。
 
 ## Vert.x 中的作用域层级
 
@@ -324,6 +373,59 @@ fun refresh(id: Long) {
 ```
 
 如果工作确实应超过当前屏幕寿命，例如用户离开页面后仍要完成本地书签写入，可以注入由 Application 或导航图等更长生命周期持有的 external scope，并显式 `join` 或返回任务状态。需要跨进程保证执行的工作应交给 WorkManager，而不是依赖内存中的 application scope。
+
+## 用 stateIn 把数据流提升为界面状态
+
+Room DAO、DataStore 或 repository 通常暴露冷 Flow。UI 不应自行决定如何重试、切换 ID 或共享上游；这些策略属于 ViewModel：
+
+```kotlin
+class UserViewModel(
+    savedStateHandle: SavedStateHandle,
+    repository: UserRepository,
+) : ViewModel() {
+    private val userId: StateFlow<Long> =
+        savedStateHandle.getStateFlow("userId", 0L)
+
+    val uiState: StateFlow<UserUiState> = userId
+        .filter { id -> id != 0L }
+        .flatMapLatest(repository::observe)
+        .map<User, UserUiState>(UserUiState::Content)
+        .catch { error ->
+            emit(UserUiState.Error(error.message ?: "load failed"))
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5.seconds),
+            initialValue = UserUiState.Loading,
+        )
+}
+```
+
+这条管线包含四个不同职责：
+
+- `SavedStateHandle.getStateFlow` 把可恢复的最小输入保存为状态；
+- `flatMapLatest` 在 ID 改变时取消旧观察，切换到新用户的数据流；
+- `catch` 只把上游业务失败转换为 UI 状态；
+- `stateIn` 在 `viewModelScope` 中共享上游，并始终保留一个可同步读取的最新状态。
+
+`SharingStarted.WhileSubscribed(5.seconds)` 表示最后一个 UI collector 消失后等待五秒再停止上游。它能跨越短暂的配置重建，避免立即重启 Room 查询或网络观察；五秒不是通用常量，应根据页面切换成本和上游资源占用决定。停止上游也不会清除 `StateFlow` 的当前值，新 collector 会先看到旧状态，再接收重新启动后的更新。
+
+若 `catch` 中需要捕获宽泛的 `Throwable`，仍不要把取消转换成错误。Flow 的 `catch` 对下游取消保持透明；在自定义操作符或普通 `try/catch` 中则应继续抛出 `CancellationException`。
+
+Repository 层只需保持数据语义清晰，例如让 Room 产生变化、由调用者决定共享：
+
+```kotlin
+class OfflineFirstUserRepository(
+    private val dao: UserDao,
+) : UserRepository {
+    override fun observe(id: Long): Flow<User> =
+        dao.observe(id)
+            .filterNotNull()
+            .distinctUntilChanged()
+}
+```
+
+不要在 Repository 内部无条件 `stateIn(GlobalScope, ...)`。那会把本应属于页面或应用组件的数据流提升成进程级任务，并隐藏其停止条件。
 
 ## suspend 函数应当 main-safe
 
@@ -414,6 +516,29 @@ fun UserRoute(
 它把 Flow 转换为 Compose `State`，并默认只在 Lifecycle 至少为 `STARTED` 时收集。屏幕 Composable 只消费不可变状态和发送事件，不直接暴露 `MutableStateFlow`。
 
 `collectAsState()` 只跟随 Composition，不感知 Android Lifecycle。在后台仍保留 Composition 的情况下，它可能继续收集。Android 平台上的 UI 状态优先使用 `collectAsStateWithLifecycle`。
+
+## snapshotFlow：把 Compose 状态送入 Flow 管线
+
+`collectAsStateWithLifecycle` 的方向是 Flow → Compose State；`snapshotFlow` 则把 Compose snapshot 中读取的状态转换为 Flow。它适合把滚动位置等高频 UI 状态交给 Flow 操作符做去重、组合和节流：
+
+```kotlin
+@Composable
+fun ScrollAnalytics(listState: LazyListState) {
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex }
+            .map { index -> index > 0 }
+            .distinctUntilChanged()
+            .filter { hasScrolled -> hasScrolled }
+            .collect {
+                analytics.logScrolledPastFirstItem()
+            }
+    }
+}
+```
+
+`snapshotFlow` 会记录代码块读取的 Compose State；任一读取值变化时重新执行，并在结果与前值不相等时发射。代码块应保持只读和无副作用，真正的副作用放在下游 collector。它创建的 Flow 仍由 `LaunchedEffect` 收集，因此 Composition 节点离开时会随之取消。
+
+不要把普通业务数据先包装成 Compose State，再通过 `snapshotFlow` 转回 Flow。领域数据应从 Repository 直接以 Flow 形式进入 ViewModel；`snapshotFlow` 只用于 Compose snapshot 系统拥有的输入。
 
 ## LaunchedEffect：Composition 拥有的挂起副作用
 
@@ -566,10 +691,13 @@ Vert.x 与 Android 表面差异很大，但作用域设计可以用同一张表�
 ## 参考资料
 
 - [Vert.x Kotlin coroutines](https://vertx.io/docs/vertx-lang-kotlin-coroutines/kotlin/)
+- [Vert.x ReadStream coroutine adapter](https://github.com/vert-x3/vertx-lang-kotlin/blob/master/vertx-lang-kotlin-coroutines/src/main/java/io/vertx/kotlin/coroutines/ReceiveChannelHandler.kt)
+- [consumeAsFlow API](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/consume-as-flow.html)
 - [CoroutineVerticle source](https://github.com/vert-x3/vertx-lang-kotlin/blob/master/vertx-lang-kotlin-coroutines/src/main/java/io/vertx/kotlin/coroutines/CoroutineVerticle.kt)
 - [Android lifecycle-aware coroutines](https://developer.android.com/topic/libraries/architecture/coroutines)
 - [Android coroutines best practices](https://developer.android.com/kotlin/coroutines/coroutines-best-practices)
 - [State and Jetpack Compose](https://developer.android.com/develop/ui/compose/state)
+- [snapshotFlow](https://developer.android.com/develop/ui/compose/side-effects#snapshotFlow)
 - [Where to hoist state](https://developer.android.com/develop/ui/compose/state-hoisting)
 - [kotlinx-coroutines-test](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-test/)
 
