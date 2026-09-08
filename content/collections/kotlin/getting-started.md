@@ -1,16 +1,14 @@
 ---
-title: Kotlin 入门：为什么选择它？
+title: Kotlin 语言基础：空安全、数据类与扩展函数
 date: 2026-08-01
-excerpt: 从 Java 迁移到 Kotlin 的理由已经不需要反复讨论了——它更简洁、更安全，而且与现有 JVM 生态完全兼容。
+excerpt: 从空安全、值语义和扩展函数建立 Kotlin 的基础模型，理解语言如何在保持 JVM 互操作的同时减少样板代码与空指针风险。
 chapter: 基础入门
 chapterOrder: 1
 ---
 
-## 为什么是 Kotlin？
+Kotlin 的核心价值不是把 Java 语法缩短，而是把常见工程约束放进类型系统与语言约定。本章先建立三个最常用的基础：显式可空类型、值对象和无需继承的扩展函数。
 
-Kotlin 由 JetBrains 在 2011 年发布，2017 年成为 Android 开发的官方推荐语言。它的设计目标从一开始就很明确：**比 Java 更简洁，比 Scala 更实用**。
-
-### 空安全
+## 空安全：让 null 进入类型系统
 
 Kotlin 的类型系统将可空性纳入语言层面。`String` 永远不为 null，而 `String?` 则是显式可空类型。
 
@@ -21,7 +19,7 @@ val opt: String? = null       // 可以为 null，编译器强制处理
 println(opt?.length ?: 0)     // 安全调用 + Elvis 运算符
 ```
 
-### 数据类
+## 数据类：声明值语义
 
 告别 Java 的 getter/setter 样板代码：
 
@@ -33,7 +31,7 @@ val user = User(1, "积雨云", "hi@example.com")
 val updated = user.copy(name = "新名字")
 ```
 
-### 扩展函数
+## 扩展函数：在类型外定义操作
 
 无需继承就能给已有类型添加方法：
 
@@ -44,6 +42,6 @@ fun String.isPalindrome(): Boolean =
 println("racecar".isPalindrome()) // true
 ```
 
-## 下一步
+## 下一章
 
-入门之后，协程是你最值得投入时间的特性——它彻底改变了你写异步代码的方式。
+掌握基本类型表达后，下一章进入 [协程基础](/collections/kotlin/coroutines)，建立挂起、任务作用域与调度器的统一执行模型。

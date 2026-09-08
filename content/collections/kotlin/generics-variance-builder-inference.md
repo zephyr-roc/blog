@@ -1,5 +1,5 @@
 ---
-title: Kotlin 泛型、型变与 Builder inference：类型如何穿过高阶 API
+title: Kotlin 泛型系统：型变、类型擦除与 Builder inference
 date: 2026-09-08
 excerpt: 泛型保存类型关系，型变控制关系能否安全传播，类型推导再把调用点、lambda 与 Receiver 中的约束合并起来；理解这三层，才能设计既简洁又不依赖强制转换的高阶 API。
 chapter: 函数式抽象
@@ -26,7 +26,7 @@ fun <T, R> Iterable<T>.mapToList(
 2. 运行时还保留多少类型信息？
 3. 调用点没有写类型参数时，编译器从哪里获得证据？
 
-# 类型参数表达位置之间的关系
+## 类型参数：保存位置之间的关系
 
 最简单的泛型函数把同一个类型参数放在输入和结果中：
 
@@ -57,7 +57,7 @@ fun <T> decode(
 
 泛型安全来自可验证的关系，不来自尖括号本身。
 
-## 上界决定函数体可以做什么
+### 上界决定函数体可以做什么
 
 未声明上界的 `T` 隐含上界是 `Any?`。要求排序能力后，编译器才允许调用 `compareTo`：
 
@@ -80,7 +80,7 @@ fun <T> persist(value: T)
 
 上界还影响 JVM 擦除后的表示。没有更具体上界时通常擦除到 `Object`；修改公开 API 的首个上界可能改变生成签名和桥接方法，不能只当作源码层面的重构。
 
-# 为什么 MutableList 必须不变
+## 不变性：保护同时读写的类型
 
 假设 `MutableList<String>` 可以赋给 `MutableList<Any>`：
 
@@ -103,7 +103,7 @@ interface MutableBox<T> {
 
 `T` 同时出现在输出和输入位置，任何单向的子类型传播都会破坏另一方向。
 
-# 声明处型变：类型作者承诺方向
+## 声明处型变：类型作者承诺方向
 
 只生产 `T` 的抽象可以声明 `out`：
 
@@ -131,7 +131,7 @@ val stringSink: Sink<String> = anySink
 
 能处理所有 `Any` 的消费者当然能处理 `String`，所以替代方向与类型继承方向相反。
 
-## 函数类型已经内置型变
+### 函数类型已经内置型变
 
 函数消费参数、生产结果，因此 `(P) -> R` 的参数逆变、结果协变：
 
@@ -142,7 +142,7 @@ val renderString: (String) -> CharSequence = renderAny
 
 `renderAny` 能接收任何 `String`，返回的 `String` 又可以作为 `CharSequence`。带 Receiver 的函数类型遵守同一规则；`A.(B) -> C` 在类型关系上仍把 Receiver 和普通参数都视为输入位置。
 
-# 使用处投影：在边界借用受限视图
+## 使用处投影：在边界借用受限视图
 
 类型本身可能必须保持不变，但某个函数只需要一个方向：
 
@@ -163,7 +163,7 @@ fun <T> copy(
 
 可以用“生产者 `out`、消费者 `in`”辅助判断，但最终应查看真实操作：若参数既要读又要写同一种精确类型，就应保持不变。
 
-# 星投影表达类型参数未知
+## 星投影：类型参数存在但未知
 
 `List<*>` 不是 `List<Any?>` 的别名。它表示存在某个具体元素类型，但当前代码不知道它是什么：
 
@@ -182,7 +182,7 @@ fun sizeOf(value: Any): Int? =
 
 当业务确实不知道实参时使用 `*`；若调用者本应保留类型关系，应增加类型参数，不要在内部不断强制转换。
 
-# Nothing 位于类型层级底部
+## Nothing：类型层级的底部
 
 `Nothing` 没有实例，表示正常控制流不会返回：
 
@@ -202,7 +202,7 @@ val names: List<String> = empty
 
 这一结论不能套到可变容器。`MutableList<Nothing>` 不能安全替代 `MutableList<String>`，因为不变性仍然存在。
 
-# 类型擦除：编译期关系不会完整进入运行时
+## 类型擦除：编译期关系不会完整进入运行时
 
 在 JVM 上，`List<String>` 与 `List<Int>` 运行时通常都只保留为 `List`，因此不能执行下面的完整检查：
 
@@ -225,7 +225,7 @@ fun Any?.toStringListOrNull(): List<String>? {
 
 最后一次转换由前面的逐项检查支撑。序列化边界则应让 serializer 或 schema 承担同样的运行时证据职责。
 
-# reified 只恢复当前参数可检查的部分
+## reified：只恢复当前参数可检查的部分
 
 普通泛型函数体不能写 `value is T`，因为 `T` 已擦除。内联函数可以把实际类型参数带到调用点：
 
@@ -257,7 +257,7 @@ fun <T : Any> Registry.resolve(type: KClass<T>): T {
 }
 ```
 
-# T & Any：绝对非空的泛型位置
+## T & Any：绝对非空的泛型位置
 
 与 Java 泛型互操作时，类型参数可能来自平台类型。覆盖带 `@NotNull` 的泛型签名时，可以用 definitely non-nullable type：
 
@@ -275,7 +275,7 @@ fun <T : Any> requireValue(value: T): T = value
 
 只有 `T` 本身仍允许可空实例化、某个特定位置却必须非空时，交类型才表达额外信息。
 
-# 类型推导是约束求解
+## 类型推导：从上下文求解约束
 
 编译器从实参、Receiver、期望返回类型和 lambda 收集约束：
 
@@ -290,7 +290,7 @@ val length: Number = convert("Kotlin") { text ->
 
 这里至少有四条信息：`String <: T`，lambda 参数是 `T`，`Int <: R`，赋值目标又要求 `R <: Number`。推导是在编译期求解这些关系，不是在运行时动态决定类型。
 
-## 期望类型可以向内传播
+### 期望类型可以向内传播
 
 ```kotlin
 fun <T> produce(): T = TODO()
@@ -306,7 +306,7 @@ val id = produce() // 无法推断 T
 
 此时应显式写 `produce<UserId>()`，或重新设计 API，让类型证据来自参数，而不是用强制转换掩盖缺失约束。
 
-## 下划线与星投影不是一回事
+### 下划线与星投影不是一回事
 
 已知部分类型实参时，可以用 `_` 让编译器只推导剩余部分：
 
@@ -316,7 +316,7 @@ val result = parse<JsonFormat, _>(payload)
 
 `_` 出现在泛型调用处，表示“求解一个具体类型”；`*` 出现在类型使用处，表示当前视图不知道某个已存在实例的类型实参。
 
-# Builder inference：从 Receiver lambda 内部反推类型
+## Builder inference：从 Receiver lambda 内部反推类型
 
 普通推导通常先从函数调用外部确定类型，再检查 lambda。泛型 builder 的关键信息却经常只存在于 Receiver lambda 内部：
 
@@ -329,7 +329,7 @@ val messages = buildList {
 
 参数表和返回位置都没有显式 `String`。Builder inference 会暂缓确定元素类型，把它当作 postponed type variable。分析 lambda 时，`add("started")` 提供 `String <: E`；处理完整个块后，再求解 `E` 为 `String`。
 
-## 自定义 builder 的结构要求
+### 自定义 builder 的结构要求
 
 待推导参数必须出现在 Receiver 类型的类型实参中，Receiver 还要提供能贡献约束的成员：
 
@@ -360,7 +360,7 @@ val parse: Pipeline<String, Int> = pipeline {
 
 直接写 `fun <T> build(block: T.() -> Unit)` 不满足当前 builder inference 的结构要求。Receiver 应是 `Builder<T>` 这种使用类型参数的具体泛型类型，并暴露 `add(T)`、`get(): T` 等成员。
 
-## 读取也会贡献约束
+### 读取也会贡献约束
 
 ```kotlin
 val values = buildList {
@@ -371,7 +371,7 @@ val values = buildList {
 
 `get(0)` 暂时返回 postponed type variable。赋给 `CharSequence` 形成上界，`add("Kotlin")` 形成下界；求解器选择同时满足它们的结果。它不是按最后一条语句猜类型，而是合并整个块的约束，无法合并时报告编译错误。
 
-## 多个 builder lambda 需要显式标记
+### 多个 builder lambda 需要显式标记
 
 简单的单 Receiver lambda 通常不需要注解。若同一次调用中有多个相互依赖、都需要 builder inference 的 lambda，则需要 `@BuilderInference`，并按当前编译器要求 opt-in：
 
@@ -386,7 +386,7 @@ fun <K, V> buildIndex(
 
 `@BuilderInference` 不是加强所有泛型推导的开关。只有函数形状确实依赖从 Receiver lambda 内收集约束时才应使用，并以项目 Kotlin 版本的 API 标记为准。
 
-# 推导成功不等于 API 清楚
+## API 设计：推导成功不等于容易理解
 
 编译器可以解出多层泛型，不代表读者能轻易定位每个 `it`、Receiver 和结果的类型。DSL 设计仍应控制：
 
@@ -398,7 +398,7 @@ fun <K, V> buildIndex(
 
 关键公共变量、跨模块返回值和复杂 builder 入口适当写出类型，往往比追求零尖括号更稳定。
 
-## 设计检查表
+### 设计检查表
 
 | 需求 | 优先表达 |
 |---|---|
@@ -427,4 +427,4 @@ fun <K, V> buildIndex(
 
 ## 下一章
 
-泛型让 DSL 的静态结构成立，但许多 Kotlin API 还会把读写、运算和属性访问映射到约定函数。下一章将继续讲委托属性、`getValue` / `setValue`、`provideDelegate`、操作符重载与中缀调用，分析它们如何组成更强的声明式 API，以及何时会过度隐藏真实控制流。
+泛型让 DSL 的静态结构成立，但许多 Kotlin API 还会把读写、运算和属性访问映射到约定函数。下一章将进入 [委托属性、操作符与中缀调用](/collections/kotlin/delegates-operators-infix)，分析这些约定如何组成声明式 API，以及何时会过度隐藏真实控制流。

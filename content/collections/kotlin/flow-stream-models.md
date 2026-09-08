@@ -1,5 +1,5 @@
 ---
-title: Kotlin Flow 数据模型：冷流、热流、状态与队列
+title: Kotlin Flow 模型：冷流、热流、状态与队列
 date: 2026-09-07
 excerpt: Flow、SharedFlow、StateFlow 与 Channel 都能传递多个值，但分别表达按需计算、广播、当前状态和竞争消费；选择错误会直接改变数据交付语义。
 chapter: 并发进阶
@@ -19,7 +19,9 @@ Kotlin 协程生态提供四个经常放在一起讨论的抽象：
 
 它们不是容量和性能不同的同一种 Stream。`Flow` 描述一段可重复执行的异步计算；`SharedFlow` 描述广播；`StateFlow` 描述状态；`Channel` 描述元素所有权的转移。
 
-## Flow：挂起式 pull 数据流
+## 冷流：由收集者启动与拥有
+
+### Flow 是挂起式 pull 数据流
 
 `Flow<T>` 只提供一个核心操作：在收集期间把元素依次交给 `FlowCollector<T>`。最常见的创建方式是 `flow` builder：
 
@@ -65,7 +67,7 @@ users().collect(::renderSecondScreen)
 
 如果上游是昂贵的网络连接或唯一硬件监听器，多次收集可能不是所需语义，应在明确的作用域中用 `shareIn` 或 `stateIn` 转换成热流。
 
-## Flow 默认顺序执行
+### 默认按顺序执行
 
 `flow`、中间操作符和 `collect` 默认在同一协程中顺序执行：
 
@@ -85,9 +87,9 @@ flowOf(1, 2, 3)
 
 需要让生产与消费重叠执行时，必须显式加入 `buffer`；需要丢弃过时值时，使用 `conflate` 或 latest 系列操作符。执行策略会在下一篇展开。
 
-## 常见 Flow builder
+### 常见 Flow builder
 
-### flowOf 与 asFlow
+#### flowOf 与 asFlow
 
 已有内存数据可以直接转成 Flow：
 
@@ -99,7 +101,7 @@ val fromSequence: Flow<Record> = records.asFlow()
 
 这些流仍是冷流。每次收集都会重新遍历数据源。若原始 `Sequence` 自身只能遍历一次，包装成 Flow 不会让它自动获得可重放能力。
 
-### flow
+#### flow
 
 `flow` 适合把顺序挂起代码组织为数据流：
 
@@ -117,7 +119,7 @@ fun pages(client: ApiClient): Flow<Item> = flow {
 
 collector 取消时，挂起 API 和 `emit` 会沿同一任务链收到取消。
 
-### callbackFlow
+#### callbackFlow
 
 多次回调的数据源应使用 `callbackFlow`，并在 `awaitClose` 中注销监听器：
 
@@ -139,7 +141,7 @@ fun LocationClient.locations(): Flow<Location> = callbackFlow {
 
 一次性回调应使用 `suspendCancellableCoroutine`；持续回调才适合 Flow。
 
-## Flow 保留调用者上下文
+### 上下文由收集者提供
 
 Flow 遵循上下文保存：下游在哪个协程收集，普通上游代码就在哪个上下文执行。
 
@@ -173,7 +175,7 @@ fun data(): Flow<Data> = flow {
 
 `flowOn` 只影响它上方的操作符，不改变下游 collector 的上下文。它通常会在边界引入另一个协程和 Channel，因而也影响缓冲、取消竞争与调用栈。
 
-## 取消由 collector 拥有
+### 取消由 collector 拥有
 
 冷 Flow 的生命周期属于执行 `collect` 的协程：
 
@@ -200,7 +202,7 @@ fun startObserving(flow: Flow<Event>) {
 
 库层通常返回 Flow，最终所有者在自己的 `CoroutineScope` 中收集或共享。
 
-## 终止操作才会启动冷流
+### 终止操作才会启动冷流
 
 `map`、`filter`、`take` 等中间操作符返回新的 Flow 描述，不立即执行：
 
@@ -234,11 +236,11 @@ events
 
 返回的 `Job` 仍应在需要局部停止时被保存和取消。
 
-# 热流：生产者独立于单个 collector
+## 热流：生产者独立于单个 collector
 
 热流的生产或状态存在不依赖某一个 collector。订阅者离开时，热对象本身可能继续存在；它何时停止取决于拥有它的作用域或显式关闭协议。
 
-## Channel：每个元素交给一个接收者
+### Channel：每个元素交给一个接收者
 
 `Channel<T>` 具有发送端和接收端：
 
@@ -267,7 +269,7 @@ Channel 可以关闭：关闭后不再接受新元素，接收者仍可消费已
 
 它不适合直接表示“所有观察者都应看到的当前界面状态”。多个 collector 从同一 Channel 接收时会分走元素，不会各得一份。
 
-## SharedFlow：向所有当前订阅者广播
+### SharedFlow：向所有当前订阅者广播
 
 `SharedFlow<T>` 是热广播流。通过 `MutableSharedFlow` 发出的值会交给所有符合条件的当前订阅者：
 
@@ -286,7 +288,7 @@ class EventHub {
 
 `SharedFlow` 没有完成语义。它本身不会通过 close 结束；需要有限收集时用 `take`、`takeWhile` 或取消 collector。
 
-### replay 决定新订阅者能看到多少历史
+#### replay 决定新订阅者能看到多少历史
 
 ```kotlin
 val events = MutableSharedFlow<Event>(replay = 2)
@@ -308,7 +310,7 @@ val telemetry = MutableSharedFlow<Sample>(
 
 `tryEmit` 不挂起并返回是否成功，调用者必须处理 `false`；它不是“尽力发送后一定成功”。
 
-## StateFlow：当前状态，而不是事件日志
+### StateFlow：当前状态，而不是事件日志
 
 `StateFlow<T>` 是始终持有一个当前值的热流：
 
@@ -345,7 +347,7 @@ _state.update { it.copy(items = it.items + product) }
 
 `StateFlow` 适合可随时回答“现在是什么”的状态，不适合表达每次都必须消费的事件。相同的两次 `SaveCompleted` 若被视为相等状态，第二次可能被合并；而导航和审计事件通常要求独立身份或确认协议。
 
-## 暴露只读视图
+### 暴露只读视图
 
 状态和广播的写权限应留在所有者内部：
 
@@ -359,7 +361,7 @@ val events: SharedFlow<Effect> = _events.asSharedFlow()
 
 外部持有 `StateFlow` 或 `SharedFlow` 后只能收集，不能任意改写状态或伪造事件。只读类型不会让内部更新自动线程安全；复合更新仍应使用 `update`、`Mutex` 或单一状态所有者。
 
-## 从冷流转成热流
+### 从冷流转成热流
 
 `shareIn` 把一个冷 Flow 放进指定作用域共享，返回 `SharedFlow`；`stateIn` 额外维护当前值，返回 `StateFlow`：
 

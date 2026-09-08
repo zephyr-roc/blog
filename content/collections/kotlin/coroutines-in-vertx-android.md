@@ -1,5 +1,5 @@
 ---
-title: Kotlin 协程实战：Vert.x 与 Android 生命周期
+title: Kotlin 协程框架实践：Vert.x 与 Android
 date: 2026-09-07
 excerpt: Vert.x 把协程绑定到 verticle 与 event loop，Android 把协程绑定到 ViewModel、Lifecycle 和 Composition；框架不同，任务所有权的判断方法相同。
 chapter: 并发进阶
@@ -14,11 +14,11 @@ chapterOrder: 8
 
 只要这个问题没有明确答案，代码即使完全非阻塞，也可能出现任务泄漏、过期状态写入或关闭后继续访问资源。
 
-# Vert.x 中使用协程
+## Vert.x：event loop 上的协程边界
 
 Vert.x 的核心模型是少量 event loop 线程处理大量非阻塞事件。协程可以把 `Future` 和 handler 风格改写成顺序代码，但不会改变 event loop 的基本约束：event loop 上不能执行阻塞调用或长时间占用 CPU。
 
-## 依赖与入口
+### 依赖与入口
 
 Vert.x 的 Kotlin 协程集成由 `vertx-lang-kotlin-coroutines` 提供：
 
@@ -72,7 +72,7 @@ router.get("/users").handler {
 
 在 `CoroutineVerticle` 内直接使用自身作用域，或为明确的请求工作建立子作用域。
 
-## coAwait：等待 Vert.x Future 而不阻塞线程
+### coAwait：等待 Vert.x Future 而不阻塞线程
 
 大多数现代 Vert.x API 返回 `io.vertx.core.Future<T>`。`coAwait()` 会挂起协程，Future 成功时返回值，失败时抛出对应异常：
 
@@ -94,7 +94,7 @@ suspend fun loadUser(id: Long): JsonObject {
 
 旧式 `Handler<AsyncResult<T>>` API 可以通过 `awaitResult` 适配，一次性事件可以通过 `awaitEvent` 等待。新代码优先使用原生返回 `Future` 的 API 和 `coAwait()`，减少自定义回调桥接。
 
-## coAwait 不会把顺序代码变成串行阻塞
+### 顺序代码不等于串行阻塞
 
 下面两个请求按顺序发起和等待：
 
@@ -125,7 +125,7 @@ suspend fun loadDashboard(id: Long): Dashboard = coroutineScope {
 
 协程取消只保证停止等待和后续处理，不一定能取消已经交给 Vert.x 客户端或远端服务的操作。很多 `Future` 本身没有通用取消能力。涉及昂贵查询、流或连接时，还要使用具体 API 提供的 close、unregister 或超时机制。
 
-## HTTP handler：每个请求都要有明确的异常出口
+### HTTP handler：每个请求都要有异常出口
 
 Vert.x handler 不是挂起函数。可以从 verticle 作用域启动请求协程，但必须把异常转换为 HTTP 响应或 `RoutingContext.fail`：
 
@@ -166,7 +166,7 @@ class UserVerticle(
 
 请求断开连接是否应取消业务协程，取决于操作语义：纯查询通常可以取消；已经提交的支付、发券或消息写入则需要幂等与状态确认，不能把 TCP 断开直接等价为业务撤销。
 
-## 不要在 event loop 上使用 runBlocking
+### 禁止在 event loop 上使用 runBlocking
 
 ```kotlin
 router.get("/report").handler { context ->
@@ -181,7 +181,7 @@ router.get("/report").handler { context ->
 
 Vert.x handler 内应该启动协程或使用 Future 链，应用最外层的测试/命令行边界才可能使用 `runBlocking`。
 
-## suspend 不代表非阻塞
+### suspend 不代表非阻塞
 
 把阻塞 JDBC、文件读取或旧 HTTP 客户端放进 `suspend fun`，不会自动释放 event loop：
 
@@ -203,7 +203,7 @@ suspend fun loadReport(): Report = awaitBlocking {
 
 CPU 密集型计算同样不能长期占用 event loop。短小转换可以留在 context 上，大块压缩、加密或图像处理应转移到合适的 worker/dispatcher，并限制并行度。
 
-## Event Bus consumer 与结构化处理
+### Event Bus consumer 与结构化处理
 
 Vert.x 当前协程扩展可以通过 `coConsumer` 在 Event Bus 消费者中调用挂起函数：
 
@@ -230,7 +230,7 @@ class OrderVerticle : CoroutineVerticle(), CoroutineEventBusSupport {
 
 同时处理多少条消息还会影响下游容量。即使 event loop 不阻塞，无限制启动协程也可能压垮数据库。使用 `Semaphore`、固定 worker Channel，或让消息系统本身的流控参与背压。
 
-## ReadStream、Channel 与背压
+### ReadStream、Channel 与背压
 
 Vert.x `ReadStream<T>` 可以适配为 `ReceiveChannel<T>`，`WriteStream<T>` 可以适配为 `SendChannel<T>`。适配器负责连接暂停/恢复与 Channel 的挂起语义：
 
@@ -297,7 +297,7 @@ stream
 
 `flowOn` 只改变它上游那段 Flow 管线的执行上下文，不会把 collector 也迁走。不要在 Stream → Channel → Flow 之间反复转换只为追求某种语法；每次跨越边界，都要重新检查缓冲、单次消费、异常、取消以及底层资源关闭如何传播。
 
-## Vert.x 中的作用域层级
+### Vert.x 作用域层级
 
 | 工作 | 推荐所有者 | 结束条件 |
 |---|---|---|
@@ -309,11 +309,11 @@ stream
 
 不要用 `GlobalScope` 解决生命周期选择困难。真正与应用同寿命的任务也应由启动器持有一个可在关闭时取消并等待的作用域。
 
-# Android 中使用协程
+## Android：让数据流服从界面生命周期
 
 Android 的难点不在 event loop 阻塞，而在多个重叠生命周期：Composition 可以销毁重建，Fragment View 的生命周期短于 Fragment，ViewModel 跨配置变更保留，进程又可能随时被系统回收。
 
-## viewModelScope：屏幕业务状态的所有者
+### viewModelScope：屏幕业务状态的所有者
 
 `viewModelScope` 在 ViewModel 清除时自动取消，适合生产屏幕状态和响应用户业务事件：
 
@@ -350,7 +350,7 @@ ViewModel 跨 Activity/Fragment 的配置重建保留，因此旋转屏幕不会
 
 `viewModelScope` 使用主调度器作为入口并不意味着网络或数据库工作都在主线程阻塞。Retrofit 挂起接口、Room 挂起 DAO 等库会在自身边界处理线程；自写阻塞代码的 repository 则必须保证 main-safe。
 
-## 数据层暴露 suspend 与 Flow，不接管短生命周期
+### 数据层：暴露 suspend 与 Flow
 
 数据层的一次操作暴露挂起函数，持续变化暴露 Flow：
 
@@ -374,7 +374,7 @@ fun refresh(id: Long) {
 
 如果工作确实应超过当前屏幕寿命，例如用户离开页面后仍要完成本地书签写入，可以注入由 Application 或导航图等更长生命周期持有的 external scope，并显式 `join` 或返回任务状态。需要跨进程保证执行的工作应交给 WorkManager，而不是依赖内存中的 application scope。
 
-## 用 stateIn 把数据流提升为界面状态
+### stateIn：把数据流提升为界面状态
 
 Room DAO、DataStore 或 repository 通常暴露冷 Flow。UI 不应自行决定如何重试、切换 ID 或共享上游；这些策略属于 ViewModel：
 
@@ -427,7 +427,7 @@ class OfflineFirstUserRepository(
 
 不要在 Repository 内部无条件 `stateIn(GlobalScope, ...)`。那会把本应属于页面或应用组件的数据流提升成进程级任务，并隐藏其停止条件。
 
-## suspend 函数应当 main-safe
+### suspend 函数应当 main-safe
 
 调用者不应猜测某个 repository 方法需要哪个 dispatcher。执行阻塞或 CPU 密集工作的类负责切换上下文：
 
@@ -446,7 +446,7 @@ Dispatcher 应可注入，测试时替换成 `TestDispatcher`。对 Retrofit、R
 
 CPU 密集转换使用 `Dispatchers.Default`，传统阻塞 I/O 使用 `Dispatchers.IO`。选择依据是工作性质，不是函数位于 repository、use case 还是 ViewModel。
 
-## lifecycleScope：只属于当前 UI 生命周期的工作
+### lifecycleScope：只承担当前 UI 工作
 
 `lifecycleScope` 会在对应 Lifecycle 销毁时取消。它适合 UI 行为，例如等待动画、访问 View、显示 Snackbar：
 
@@ -460,7 +460,7 @@ Fragment 中访问 View 时要使用 `viewLifecycleOwner.lifecycleScope`，而�
 
 不应把需要跨配置变更保留的业务加载放进 Activity/Fragment 的 `lifecycleScope`，否则重建 UI 时任务也被取消并重启。这类工作属于 ViewModel。
 
-## repeatOnLifecycle：可见时收集，离开时取消
+### repeatOnLifecycle：可见时收集，离开时取消
 
 对于 Views，推荐在 lifecycleScope 中使用 `repeatOnLifecycle`：
 
@@ -495,7 +495,7 @@ repeatOnLifecycle(Lifecycle.State.STARTED) {
 
 `repeatOnLifecycle` 的重启语义还意味着，上游冷 Flow 可能重复执行。需要跨订阅共享昂贵上游时，在 ViewModel 中用 `stateIn` / `shareIn` 明确共享策略。
 
-## Compose：collectAsStateWithLifecycle
+### collectAsStateWithLifecycle：Flow 进入 Compose
 
 Compose 中收集 UI 状态时使用生命周期感知的 `collectAsStateWithLifecycle()`：
 
@@ -517,7 +517,7 @@ fun UserRoute(
 
 `collectAsState()` 只跟随 Composition，不感知 Android Lifecycle。在后台仍保留 Composition 的情况下，它可能继续收集。Android 平台上的 UI 状态优先使用 `collectAsStateWithLifecycle`。
 
-## snapshotFlow：把 Compose 状态送入 Flow 管线
+### snapshotFlow：Compose 状态进入 Flow
 
 `collectAsStateWithLifecycle` 的方向是 Flow → Compose State；`snapshotFlow` 则把 Compose snapshot 中读取的状态转换为 Flow。它适合把滚动位置等高频 UI 状态交给 Flow 操作符做去重、组合和节流：
 
@@ -540,7 +540,7 @@ fun ScrollAnalytics(listState: LazyListState) {
 
 不要把普通业务数据先包装成 Compose State，再通过 `snapshotFlow` 转回 Flow。领域数据应从 Repository 直接以 Flow 形式进入 ViewModel；`snapshotFlow` 只用于 Compose snapshot 系统拥有的输入。
 
-## LaunchedEffect：Composition 拥有的挂起副作用
+### LaunchedEffect：Composition 拥有的挂起副作用
 
 `LaunchedEffect(keys...)` 创建与当前 Composition 节点绑定的协程：
 
@@ -569,7 +569,7 @@ class UserViewModel(...) : ViewModel() {
 }
 ```
 
-## rememberCoroutineScope：事件处理中的 UI 协程
+### rememberCoroutineScope：事件处理中的 UI 协程
 
 Composable 的普通回调不是挂起函数。需要在点击后调用 Snackbar、动画或滚动等 UI 挂起 API 时，可以使用 `rememberCoroutineScope()`：
 
@@ -596,7 +596,7 @@ fun SaveButton(
 
 该 scope 在调用它的 Composable 离开 Composition 时取消。业务写入不应只放在这个 scope 中，否则 UI 节点消失时写入也会被取消；应把业务事件交给 ViewModel，再用 Composition scope 执行纯 UI 效果。
 
-## 一次性事件与持久状态要分开
+### 区分一次性事件与持久状态
 
 旋转屏幕后仍应显示的内容属于状态，例如加载结果、表单值、错误页面。只应消费一次的导航、Snackbar、权限请求属于 effect。
 
@@ -609,7 +609,7 @@ fun SaveButton(
 - 导航执行后如何确认？
 - 发送者取消时，已发送事件归谁？
 
-## 配置变更、进程死亡与持久任务
+### 配置变更、进程死亡与持久任务
 
 | 生命周期事件 | Composition scope | View lifecycleScope | viewModelScope | WorkManager |
 |---|---:|---:|---:|---:|
@@ -623,7 +623,7 @@ fun SaveButton(
 
 `SavedStateHandle` 用于保存恢复 UI 所需的少量键、筛选条件或编辑状态，不适合保存大型领域对象，也不会让被杀死的协程从原指令继续执行。
 
-## Android 中的错误边界
+### Android 错误边界
 
 `viewModelScope` 通常具有监督语义，一个子任务失败不会自动取消 ViewModel 的全部其他任务。这不等于异常会自动变成 UI 状态：
 
@@ -637,7 +637,7 @@ viewModelScope.launch {
 
 取消不应显示为普通错误。用户离开页面导致的 `CancellationException` 若被捕获成 `UiState.Error`，新页面可能收到一条虚假的失败状态。
 
-## 测试：控制调度器和虚拟时间
+### 测试：控制调度器和虚拟时间
 
 业务类不要硬编码 dispatcher：
 
@@ -664,7 +664,7 @@ class Parser(
 - 一个监督子任务失败不影响无关任务；
 - timeout 使用虚拟时间而非真实等待。
 
-# 两个框架的共同模型
+## 统一模型：任务所有权决定生命周期
 
 Vert.x 与 Android 表面差异很大，但作用域设计可以用同一张表理解：
 
