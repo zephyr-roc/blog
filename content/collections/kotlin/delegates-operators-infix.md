@@ -434,4 +434,4 @@ val accessRules = rules {
 
 ## 下一章
 
-约定函数改变源码表达形式，contracts 则把函数行为的一部分告诉编译器。下一章将继续讲 `callsInPlace`、`returns`、`returnsNotNull`、smart cast 与 inline 控制流，解释高阶函数何时能安全影响调用点的数据流分析。
+约定函数改变源码表达形式，contracts 则把函数行为的一部分告诉编译器。下一章进入 [Kotlin 控制流分析：Contracts、Smart cast 与调用约束](/collections/kotlin/contracts-control-flow)，解释高阶函数何时能安全影响调用点的数据流分析。
