@@ -62,10 +62,6 @@ export function CollectionCard({
             </time>
           )}
 
-          <div className="collection-card__icon-wrap" aria-hidden="true">
-            <CollectionIcon icon={collection.icon} color={collection.color} />
-          </div>
-
           <div className="collection-card__content">
             <h2>{collection.title}</h2>
             <p className="collection-card__description">{collection.description}</p>
@@ -73,6 +69,10 @@ export function CollectionCard({
               {collection.postCount} 篇文章
             </span>
           </div>
+        </div>
+
+        <div className="collection-card__icon-wrap" aria-hidden="true">
+          <CollectionIcon icon={collection.icon} color={collection.color} />
         </div>
       </GlassCard>
     </a>
