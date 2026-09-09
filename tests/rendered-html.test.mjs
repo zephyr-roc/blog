@@ -162,6 +162,9 @@ test("keeps mobile device tilt exclusive to the about page", async () => {
   assert.doesNotMatch(glassCard, /["']use client["']/);
   assert.match(controller, /^"use client";/);
   assert.match(controller, /document\.querySelectorAll<HTMLElement>/);
+  assert.match(controller, /new MutationObserver\(syncCards\)/);
+  assert.match(controller, /cardObserver\.observe\(document\.body, \{ childList: true, subtree: true \}\)/);
+  assert.match(controller, /cardObserver\.disconnect\(\)/);
   assert.match(controller, /cardsRef\.current\.forEach/);
   assert.match(controller, /pathname === "\/about"/);
   assert.doesNotMatch(controller, /applyGroupTilt|groupsRef|data-motion-group/);
