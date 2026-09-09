@@ -28,12 +28,6 @@ function applyTilt(card: HTMLElement, x: number, y: number, active = true) {
   card.style.setProperty("--content-y", `${boundedY * 4}px`);
   card.style.setProperty("--logo-x", `${boundedX * 8}px`);
   card.style.setProperty("--logo-y", `${boundedY * 6}px`);
-  // The collection mark sits in the top-left rounded corner. When that corner
-  // tilts towards the viewer, its translateZ projection and parallax used to
-  // push the mark into the clip path. Counter only that edge-facing motion;
-  // tilts in the other direction keep the original parallax unchanged.
-  card.style.setProperty("--logo-edge-x", `${Math.max(0, -boundedX) * 32}px`);
-  card.style.setProperty("--logo-edge-y", `${Math.max(0, -boundedY) * 28}px`);
   card.style.setProperty("--detail-x", `${boundedX * 3}px`);
   card.style.setProperty("--detail-y", `${boundedY * 2.5}px`);
 }
