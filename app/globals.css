@@ -1576,11 +1576,7 @@ a {
   filter:
     drop-shadow(var(--content-shadow-x) var(--content-shadow-y) 9px rgba(0, 0, 0, 0.66))
     drop-shadow(0 3px 3px rgba(0, 0, 0, 0.72));
-  transform: translate3d(
-    calc(var(--logo-x) + var(--logo-edge-x)),
-    calc(var(--logo-y) + var(--logo-edge-y)),
-    8cqw
-  );
+  transform: translate3d(var(--logo-x), var(--logo-y), 8cqw);
 }
 
 .glass-card[data-active="true"] .collection-card__icon-wrap {
