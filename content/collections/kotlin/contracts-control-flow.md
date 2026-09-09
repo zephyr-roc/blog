@@ -509,4 +509,4 @@ Contracts 的价值不在于让编译器“更聪明”，而在于把库作者�
 
 ## 下一章
 
-Contracts 描述现有值在控制流中的事实，下一章将转向值本身的建模：`sealed` hierarchy、`enum`、`data object` 与 value class 如何表示封闭状态、身份和值域，并让非法状态更难进入业务代码。
+Contracts 描述函数对控制流的保证，CHAPTER 03 的最后一篇转向 [Kotlin 数据管道：集合、Sequence 与惰性求值](/collections/kotlin/collections-sequences-laziness)，分析高阶函数组合后究竟何时执行、保存多少中间状态，以及它与 `Flow` 的边界。
