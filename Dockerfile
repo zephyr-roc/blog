@@ -1,9 +1,6 @@
 FROM node:24-alpine AS builder
 WORKDIR /app
 
-ARG NEXT_DEPLOYMENT_ID
-ENV NEXT_DEPLOYMENT_ID=${NEXT_DEPLOYMENT_ID}
-
 RUN corepack enable && corepack prepare pnpm@11.13.1 --activate
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
@@ -14,9 +11,6 @@ RUN NODE_DEPLOY=1 pnpm build
 
 FROM node:24-alpine AS runner
 WORKDIR /app
-
-ARG NEXT_DEPLOYMENT_ID
-ENV NEXT_DEPLOYMENT_ID=${NEXT_DEPLOYMENT_ID}
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV LIKES_DB_PATH=/data/blog.db
