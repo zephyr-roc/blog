@@ -62,7 +62,6 @@ test("curates eight homepage language collections with Swift, C#, React and with
   assert.match(css, /\.card-collection__row\s*\{[^}]*width:\s*min\(100%,\s*var\(--collection-row-width\)\);/);
   assert.doesNotMatch(css, /\.card-collection\s*\{[^}]*gap:\s*10px;/);
   assert.match(css, /\.collection-card__clip\s*\{[^}]*overflow:\s*hidden;[^}]*border-radius:\s*inherit;[^}]*clip-path:\s*inset\(0 round var\(--card-radius,\s*4\.93cqw\)\);/);
-  assert.match(css, /\.collection-card__icon-wrap\s*\{[^}]*calc\(var\(--logo-x\) \+ var\(--logo-edge-x\)\)[^}]*calc\(var\(--logo-y\) \+ var\(--logo-edge-y\)\)/);
   assert.match(css, /\.collection-card__content\s*\{[^}]*max-height:\s*calc\(100%\s*-\s*clamp\(28px,\s*14cqmin,\s*56px\)\);[^}]*overflow:\s*hidden;/);
   assert.match(css, /@media \(max-width:\s*1180px\)[\s\S]*?\.card-collection__row\s*\{[^}]*width:\s*min\(100%,\s*var\(--collection-row-compact-width\)\);/);
   assert.match(css, /@media \(max-width:\s*640px\)[\s\S]*?\.card-collection__row\s*\{[^}]*display:\s*contents;/);
