@@ -68,18 +68,28 @@ export function GlassMotionController() {
   const edgeTransitions = useRef(new WeakMap<HTMLElement, number>());
 
   useEffect(() => {
-    cardsRef.current = Array.from(
-      document.querySelectorAll<HTMLElement>("[data-motion-card='true']"),
-    );
-    cardsRef.current.forEach((card) => {
-      const perspective = card.closest<HTMLElement>(".card-perspective");
-      const transitionSize = perspective
-        ? Number.parseFloat(
-            getComputedStyle(perspective).getPropertyValue("--edge-transition"),
-          ) || 44
-        : 44;
-      edgeTransitions.current.set(card, transitionSize);
-    });
+    const syncCards = () => {
+      const cards = Array.from(
+        document.querySelectorAll<HTMLElement>("[data-motion-card='true']"),
+      );
+      cardsRef.current = cards;
+      cards.forEach((card) => {
+        const perspective = card.closest<HTMLElement>(".card-perspective");
+        const transitionSize = perspective
+          ? Number.parseFloat(
+              getComputedStyle(perspective).getPropertyValue("--edge-transition"),
+            ) || 44
+          : 44;
+        edgeTransitions.current.set(card, transitionSize);
+      });
+    };
+
+    // The controller lives in the root layout and can hydrate before a streamed
+    // route's cards enter the DOM. Keep the registry aligned with structural
+    // changes so direct loads and client-side navigation both attach motion.
+    syncCards();
+    const cardObserver = new MutationObserver(syncCards);
+    cardObserver.observe(document.body, { childList: true, subtree: true });
 
     const resetCard = (card: HTMLElement) => {
       keyboardTilt.current.delete(card);
@@ -190,6 +200,7 @@ export function GlassMotionController() {
     document.addEventListener("focusout", handleFocusOut);
 
     return () => {
+      cardObserver.disconnect();
       if (finePointer) {
         window.removeEventListener("pointermove", handlePointerMove);
         window.removeEventListener("pointerout", handlePointerExit);
