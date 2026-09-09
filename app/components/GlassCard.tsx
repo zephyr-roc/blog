@@ -38,6 +38,8 @@ const initialStyle: CardStyle = {
   "--content-y": "0px",
   "--logo-x": "0px",
   "--logo-y": "0px",
+  "--logo-edge-x": "0px",
+  "--logo-edge-y": "0px",
   "--detail-x": "0px",
   "--detail-y": "0px",
 };
