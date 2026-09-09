@@ -26,22 +26,45 @@ const colors = ["#7dd3fc", "#c4b5fd", "#86efac", "#f9a8d4", "#fcd34d", "#fdba74"
 const esc = (value) => String(value).replace(/[&<>\"]/g, (char) => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;"
 }[char]));
-const dateX = (date, x) => x + 26 + ((Date.parse(`${date}T00:00:00Z`) - start) / (end - start)) * (panelWidth - 52);
+const plotLeft = (x) => x + 34;
+const plotRight = (x) => x + panelWidth - 34;
+const dateX = (date, x) => plotLeft(x) + ((Date.parse(`${date}T00:00:00Z`) - start) / (end - start)) * (plotRight(x) - plotLeft(x));
 const money = (price) => `¥${Number.isInteger(price) ? price : price.toFixed(2)}`;
+
+const selectLabels = (points) => {
+  const candidates = points.filter((point, index) =>
+    index === 0 || index === points.length - 1 || point.price !== points[index - 1].price
+  );
+  const selected = [];
+  for (const point of candidates) {
+    const previous = selected.at(-1);
+    if (!previous || point.x - previous.x >= 64) {
+      selected.push(point);
+    } else if (point === points.at(-1)) {
+      selected[selected.length - 1] = point;
+    }
+  }
+  if (selected[0] !== points[0]) selected.unshift(points[0]);
+  return new Set(selected);
+};
 
 const panels = data.series.map((series, index) => {
   const col = index % 3;
   const row = Math.floor(index / 3);
   const x = originX + col * (panelWidth + gapX);
   const y = originY + row * (panelHeight + gapY);
-  const prices = series.observations.map((item) => item.price);
+  const observations = series.observations.filter((item) => {
+    const timestamp = Date.parse(`${item.date}T00:00:00Z`);
+    return timestamp >= start && timestamp <= end;
+  });
+  const prices = observations.map((item) => item.price);
   const min = Math.min(...prices);
   const max = Math.max(...prices);
   const padding = Math.max((max - min) * 0.28, Math.max(max * 0.025, 12));
   const low = min - padding;
   const high = max + padding;
-  const priceY = (price) => y + 88 + ((high - price) / (high - low)) * 126;
-  const points = series.observations.map((item) => ({
+  const priceY = (price) => y + 92 + ((high - price) / (high - low)) * 112;
+  const points = observations.map((item) => ({
     ...item,
     x: dateX(item.date, x),
     y: priceY(item.price)
@@ -49,13 +72,19 @@ const panels = data.series.map((series, index) => {
   const line = points.length > 1
     ? `<polyline points="${points.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ")}" fill="none" stroke="${colors[index]}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`
     : "";
+  const circles = points.map((point) =>
+    `<circle cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="4" fill="${colors[index]}"/>`
+  ).join("");
+  const labels = selectLabels(points);
   const marks = points.map((point, pointIndex) => {
-    const anchor = point.x > x + panelWidth - 90 ? "end" : "start";
-    const labelX = point.x + (anchor === "end" ? -8 : 8);
+    if (!labels.has(point)) return "";
+    const anchor = point.x > x + panelWidth - 84 ? "end" : "start";
+    const labelX = point.x + (anchor === "end" ? -7 : 7);
+    const valueY = Math.max(y + 82, Math.min(y + 201, point.y - 10));
     const dateLabel = point.date.slice(5).replace("-", "/");
-    return `<circle cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="5" fill="${colors[index]}"/>
-      <text x="${labelX.toFixed(1)}" y="${(point.y - 10).toFixed(1)}" text-anchor="${anchor}" class="value">${money(point.price)}</text>
-      <text x="${point.x.toFixed(1)}" y="${y + 239}" text-anchor="middle" class="date">${dateLabel}</text>
+    const showValue = pointIndex === points.length - 1 || !points.slice(pointIndex + 1).some((later) => later.price === point.price);
+    return `${showValue ? `<text x="${labelX.toFixed(1)}" y="${valueY.toFixed(1)}" text-anchor="${anchor}" class="value">${money(point.price)}</text>` : ""}
+      <text x="${point.x.toFixed(1)}" y="${y + 237}" text-anchor="end" transform="rotate(-38 ${point.x.toFixed(1)} ${y + 237})" class="date">${dateLabel}</text>
       ${pointIndex === points.length - 1 ? `<text x="${x + 24}" y="${y + 264}" class="kind">最新：${esc(point.kind)} · ${esc(point.merchant)}</text>` : ""}`;
   }).join("\n");
   return `<g>
@@ -63,7 +92,7 @@ const panels = data.series.map((series, index) => {
     <text x="${x + 24}" y="${y + 34}" class="category">${esc(series.category)}</text>
     <text x="${x + 24}" y="${y + 60}" class="product">${esc(series.product)}</text>
     <line x1="${x + 24}" y1="${y + 214}" x2="${x + panelWidth - 24}" y2="${y + 214}" class="axis"/>
-    ${line}
+    <g clip-path="url(#plot-${index})">${line}${circles}</g>
     ${marks}
     ${points.length === 1 ? `<text x="${x + panelWidth - 24}" y="${y + 34}" text-anchor="end" class="sparse">仅 1 个真实点</text>` : ""}
   </g>`;
@@ -74,6 +103,11 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${
   <desc id="desc">${startDate} 至 ${latestDate} CPU、GPU、主板、DRAM、HDD 与 SSD 的可复核报价。只连接真实日期点，单点品类不生成趋势线。</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#07101f"/><stop offset="1" stop-color="#130d24"/></linearGradient>
+    ${data.series.map((_, index) => {
+      const x = originX + (index % 3) * (panelWidth + gapX);
+      const y = originY + Math.floor(index / 3) * (panelHeight + gapY);
+      return `<clipPath id="plot-${index}"><rect x="${plotLeft(x) - 6}" y="${y + 76}" width="${plotRight(x) - plotLeft(x) + 12}" height="136"/></clipPath>`;
+    }).join("\n")}
   </defs>
   <style>
     text{font-family:ui-sans-serif,system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
