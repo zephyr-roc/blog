@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">中国大陆六类 PC 硬件公开价格事件</title>
+  <desc id="desc">2026-08-12 至 2026-09-10 CPU、GPU、主板、DRAM、HDD 与 SSD 的可复核报价。只连接真实日期点，单点品类不生成趋势线。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#07101f"/><stop offset="1" stop-color="#130d24"/></linearGradient>
+    <clipPath id="plot-0"><rect x="58" y="184" width="314" height="136"/></clipPath>
+<clipPath id="plot-1"><rect x="458" y="184" width="314" height="136"/></clipPath>
+<clipPath id="plot-2"><rect x="858" y="184" width="314" height="136"/></clipPath>
+<clipPath id="plot-3"><rect x="58" y="503" width="314" height="136"/></clipPath>
+<clipPath id="plot-4"><rect x="458" y="503" width="314" height="136"/></clipPath>
+<clipPath id="plot-5"><rect x="858" y="503" width="314" height="136"/></clipPath>
+  </defs>
+  <style>
+    text{font-family:ui-sans-serif,system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+    .title{fill:#f8fafc;font-size:28px;font-weight:700}.subtitle{fill:#94a3b8;font-size:14px}
+    .panel{fill:#ffffff0a;stroke:#ffffff1f}.category{fill:#f8fafc;font-size:20px;font-weight:700}
+    .product{fill:#a7b2c5;font-size:12px}.axis{stroke:#ffffff24}.value{fill:#f8fafc;font-size:12px;font-weight:650}
+    .date{fill:#8290a7;font-size:10px}.kind{fill:#8290a7;font-size:10px}.sparse{fill:#fbbf24;font-size:10px}
+  </style>
+  <rect width="1200" height="760" rx="32" fill="url(#bg)"/>
+  <text x="30" y="45" class="title">中国大陆 PC 硬件价格观察</text>
+  <text x="30" y="75" class="subtitle">2026-08-12—2026-09-10 · 公开可复核价格事件 · 单位：人民币 · 不插值</text>
+  <g>
+    <rect x="30" y="108" width="370" height="285" rx="24" class="panel"/>
+    <text x="54" y="142" class="category">CPU</text>
+    <text x="54" y="168" class="product">AMD Ryzen 7 9800X3D</text>
+    <line x1="54" y1="322" x2="376" y2="322" class="axis"/>
+    <g clip-path="url(#plot-0)"><polyline points="157.7,233.4 293.1,236.9 303.5,237.5 313.9,236.9 324.3,223.0 334.8,223.0 345.2,240.3 355.6,289.0" fill="none" stroke="#7dd3fc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="157.7" cy="233.4" r="4" fill="#7dd3fc"/><circle cx="293.1" cy="236.9" r="4" fill="#7dd3fc"/><circle cx="303.5" cy="237.5" r="4" fill="#7dd3fc"/><circle cx="313.9" cy="236.9" r="4" fill="#7dd3fc"/><circle cx="324.3" cy="223.0" r="4" fill="#7dd3fc"/><circle cx="334.8" cy="223.0" r="4" fill="#7dd3fc"/><circle cx="345.2" cy="240.3" r="4" fill="#7dd3fc"/><circle cx="355.6" cy="289.0" r="4" fill="#7dd3fc"/></g>
+    <text x="164.7" y="223.4" text-anchor="start" class="value">¥2609</text>
+      <text x="157.7" y="345" text-anchor="end" transform="rotate(-38 157.7 345)" class="date">08/21</text>
+      
+
+
+
+
+
+
+<text x="348.6" y="279.0" text-anchor="end" class="value">¥2449</text>
+      <text x="355.6" y="345" text-anchor="end" transform="rotate(-38 355.6 345)" class="date">09/09</text>
+      <text x="54" y="372" class="kind">最新：采集时公开最低报价 · 公开比价汇总</text>
+    
+  </g>
+<g>
+    <rect x="430" y="108" width="370" height="285" rx="24" class="panel"/>
+    <text x="454" y="142" class="category">GPU</text>
+    <text x="454" y="168" class="product">MSI RTX 5070 VENTUS 3X 12G</text>
+    <line x1="454" y1="322" x2="776" y2="322" class="axis"/>
+    <g clip-path="url(#plot-1)"><polyline points="641.0,256.0 734.8,256.0 745.2,256.0 755.6,256.0 766.0,256.0" fill="none" stroke="#c4b5fd" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="641.0" cy="256.0" r="4" fill="#c4b5fd"/><circle cx="734.8" cy="256.0" r="4" fill="#c4b5fd"/><circle cx="745.2" cy="256.0" r="4" fill="#c4b5fd"/><circle cx="755.6" cy="256.0" r="4" fill="#c4b5fd"/><circle cx="766.0" cy="256.0" r="4" fill="#c4b5fd"/></g>
+    
+      <text x="641.0" y="345" text-anchor="end" transform="rotate(-38 641.0 345)" class="date">08/29</text>
+      
+
+
+
+<text x="759.0" y="246.0" text-anchor="end" class="value">¥4464.34</text>
+      <text x="766.0" y="345" text-anchor="end" transform="rotate(-38 766.0 345)" class="date">09/10</text>
+      <text x="454" y="372" class="kind">最新：采集时公开最低报价 · 亚马逊中国</text>
+    
+  </g>
+<g>
+    <rect x="830" y="108" width="370" height="285" rx="24" class="panel"/>
+    <text x="854" y="142" class="category">主板</text>
+    <text x="854" y="168" class="product">ASUS TUF GAMING B850M-PLUS WIFI7</text>
+    <line x1="854" y1="322" x2="1176" y2="322" class="axis"/>
+    <g clip-path="url(#plot-2)"><polyline points="1061.9,220.1 1082.7,291.9 1103.5,291.9 1113.9,291.9 1124.3,291.9 1134.8,291.9 1145.2,291.9" fill="none" stroke="#86efac" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="1061.9" cy="220.1" r="4" fill="#86efac"/><circle cx="1082.7" cy="291.9" r="4" fill="#86efac"/><circle cx="1103.5" cy="291.9" r="4" fill="#86efac"/><circle cx="1113.9" cy="291.9" r="4" fill="#86efac"/><circle cx="1124.3" cy="291.9" r="4" fill="#86efac"/><circle cx="1134.8" cy="291.9" r="4" fill="#86efac"/><circle cx="1145.2" cy="291.9" r="4" fill="#86efac"/></g>
+    <text x="1068.9" y="210.1" text-anchor="start" class="value">¥1449</text>
+      <text x="1061.9" y="345" text-anchor="end" transform="rotate(-38 1061.9 345)" class="date">08/31</text>
+      
+
+
+
+
+
+<text x="1138.2" y="281.9" text-anchor="end" class="value">¥1299</text>
+      <text x="1145.2" y="345" text-anchor="end" transform="rotate(-38 1145.2 345)" class="date">09/08</text>
+      <text x="854" y="372" class="kind">最新：采集时公开最低报价 · 天猫精选</text>
+    
+  </g>
+<g>
+    <rect x="30" y="427" width="370" height="285" rx="24" class="panel"/>
+    <text x="54" y="461" class="category">DRAM</text>
+    <text x="54" y="487" class="product">Kingston FURY Beast DDR5-6000 32GB</text>
+    <line x1="54" y1="641" x2="376" y2="641" class="axis"/>
+    <g clip-path="url(#plot-3)"><polyline points="282.7,565.5 313.9,584.5 324.3,565.5 345.2,565.5 355.6,565.5" fill="none" stroke="#f9a8d4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="282.7" cy="565.5" r="4" fill="#f9a8d4"/><circle cx="313.9" cy="584.5" r="4" fill="#f9a8d4"/><circle cx="324.3" cy="565.5" r="4" fill="#f9a8d4"/><circle cx="345.2" cy="565.5" r="4" fill="#f9a8d4"/><circle cx="355.6" cy="565.5" r="4" fill="#f9a8d4"/></g>
+    
+      <text x="282.7" y="664" text-anchor="end" transform="rotate(-38 282.7 664)" class="date">09/02</text>
+      
+
+
+
+<text x="348.6" y="555.5" text-anchor="end" class="value">¥3900</text>
+      <text x="355.6" y="664" text-anchor="end" transform="rotate(-38 355.6 664)" class="date">09/09</text>
+      <text x="54" y="691" class="kind">最新：采集时公开最低报价 · 京东</text>
+    
+  </g>
+<g>
+    <rect x="430" y="427" width="370" height="285" rx="24" class="panel"/>
+    <text x="454" y="461" class="category">HDD</text>
+    <text x="454" y="487" class="product">Seagate IronWolf Pro 8TB ST8000NE001</text>
+    <line x1="454" y1="641" x2="776" y2="641" class="axis"/>
+    <g clip-path="url(#plot-4)"><polyline points="672.3,575.0 724.3,575.0 734.8,575.0 745.2,575.0 766.0,575.0" fill="none" stroke="#fcd34d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="672.3" cy="575.0" r="4" fill="#fcd34d"/><circle cx="724.3" cy="575.0" r="4" fill="#fcd34d"/><circle cx="734.8" cy="575.0" r="4" fill="#fcd34d"/><circle cx="745.2" cy="575.0" r="4" fill="#fcd34d"/><circle cx="766.0" cy="575.0" r="4" fill="#fcd34d"/></g>
+    
+      <text x="672.3" y="664" text-anchor="end" transform="rotate(-38 672.3 664)" class="date">09/01</text>
+      
+
+
+
+<text x="759.0" y="565.0" text-anchor="end" class="value">¥1849</text>
+      <text x="766.0" y="664" text-anchor="end" transform="rotate(-38 766.0 664)" class="date">09/10</text>
+      <text x="454" y="691" class="kind">最新：采集时公开最低报价 · 公开比价汇总</text>
+    
+  </g>
+<g>
+    <rect x="830" y="427" width="370" height="285" rx="24" class="panel"/>
+    <text x="854" y="461" class="category">SSD</text>
+    <text x="854" y="487" class="product">ZHITAI Ti600 2TB</text>
+    <line x1="854" y1="641" x2="1176" y2="641" class="axis"/>
+    <g clip-path="url(#plot-5)"><polyline points="1082.7,539.1 1113.9,610.9 1124.3,610.9 1134.8,610.9 1145.2,610.9 1155.6,610.9 1166.0,610.9" fill="none" stroke="#fdba74" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="1082.7" cy="539.1" r="4" fill="#fdba74"/><circle cx="1113.9" cy="610.9" r="4" fill="#fdba74"/><circle cx="1124.3" cy="610.9" r="4" fill="#fdba74"/><circle cx="1134.8" cy="610.9" r="4" fill="#fdba74"/><circle cx="1145.2" cy="610.9" r="4" fill="#fdba74"/><circle cx="1155.6" cy="610.9" r="4" fill="#fdba74"/><circle cx="1166.0" cy="610.9" r="4" fill="#fdba74"/></g>
+    <text x="1089.7" y="529.1" text-anchor="start" class="value">¥1919</text>
+      <text x="1082.7" y="664" text-anchor="end" transform="rotate(-38 1082.7 664)" class="date">09/02</text>
+      
+
+
+
+
+
+<text x="1159.0" y="600.9" text-anchor="end" class="value">¥749</text>
+      <text x="1166.0" y="664" text-anchor="end" transform="rotate(-38 1166.0 664)" class="date">09/10</text>
+      <text x="854" y="691" class="kind">最新：采集时公开最低报价 · 天猫精选</text>
+    
+  </g>
+  <text x="30" y="739" class="subtitle">数据由 data/deep-radar-hardware-prices-cn.json 生成；单点表示当前公开样本不足以判断趋势。</text>
+</svg>

@@ -97,6 +97,13 @@
           "kind": "采集时公开最低报价",
           "merchant": "亚马逊中国",
           "source": "https://wiki.smzdm.com/p/yd7jp4o/"
+        },
+        {
+          "date": "2026-09-10",
+          "price": 4464.34,
+          "kind": "采集时公开最低报价",
+          "merchant": "亚马逊中国",
+          "source": "https://wiki.smzdm.com/p/yd7jp4o/"
         }
       ]
     },
@@ -234,6 +241,13 @@
           "kind": "采集时公开最低报价",
           "merchant": "i百联",
           "source": "https://wiki.smzdm.com/p/zm98npm/"
+        },
+        {
+          "date": "2026-09-10",
+          "price": 1849,
+          "kind": "采集时公开最低报价",
+          "merchant": "公开比价汇总",
+          "source": "https://wiki.smzdm.com/p/zm98npm/"
         }
       ]
     },
@@ -278,6 +292,13 @@
         },
         {
           "date": "2026-09-09",
+          "price": 749,
+          "kind": "采集时公开最低报价",
+          "merchant": "天猫精选",
+          "source": "https://wiki.smzdm.com/p/zm5r4qm/"
+        },
+        {
+          "date": "2026-09-10",
           "price": 749,
           "kind": "采集时公开最低报价",
           "merchant": "天猫精选",
