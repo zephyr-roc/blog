@@ -72,6 +72,12 @@ test("retains content-hashed client assets across container deployments", async 
   assert.match(restoredMotionTilt, /glass-card:motion-reset/);
 });
 
+test("prevents the about document cache from serving a stale build for a year", async () => {
+  const config = await readFile(new URL("next.config.ts", root), "utf8");
+
+  assert.match(config, /expireTime:\s*120/);
+});
+
 test("server-renders the collection cards before client hydration", async () => {
   const response = await render();
   assert.equal(response.status, 200);
