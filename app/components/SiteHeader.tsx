@@ -13,7 +13,12 @@ export function SiteHeader({ edition, home = false }: SiteHeaderProps) {
         href={home ? "#collections" : "/"}
         aria-label={home ? "积雨云的空间站首页" : "返回主页"}
       >
-        <span className="wordmark__mark" aria-hidden="true" />
+        <img
+          className="wordmark__mark"
+          src="/favicon.svg"
+          alt=""
+          aria-hidden="true"
+        />
         <span>积雨云的空间站</span>
       </Link>
       <span className="edition">{edition}</span>
