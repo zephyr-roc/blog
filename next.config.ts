@@ -9,6 +9,7 @@ const immutableCache = [
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  expireTime: 120,
   async headers() {
     return [
       {
