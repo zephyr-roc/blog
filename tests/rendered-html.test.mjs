@@ -46,6 +46,24 @@ test("uses the page logo in the shared site header", async () => {
   );
 });
 
+test("retains content-hashed client assets across container deployments", async () => {
+  const workflow = await readFile(
+    new URL(".github/workflows/deploy.yml", root),
+    "utf8",
+  );
+
+  assert.match(workflow, /STATIC_VOLUME="blog-static-assets"/);
+  assert.match(
+    workflow,
+    /cp -a \/app\/dist\/client\/_next\/static\/\. \/retained-static\//,
+  );
+  assert.match(
+    workflow,
+    /-v "\$STATIC_VOLUME:\/app\/dist\/client\/_next\/static:ro"/,
+  );
+  assert.match(workflow, /head -n 5/);
+});
+
 test("server-renders the collection cards before client hydration", async () => {
   const response = await render();
   assert.equal(response.status, 200);
@@ -199,6 +217,7 @@ test("keeps mobile device tilt exclusive to the about page", async () => {
 test("bounds CDN freshness for content-derived routes", async () => {
   const routeFiles = [
     "app/page.tsx",
+    "app/about/page.tsx",
     "app/tinkering/page.tsx",
     "app/tinkering/[post]/page.tsx",
     "app/radar/page.tsx",
