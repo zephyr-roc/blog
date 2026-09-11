@@ -125,10 +125,10 @@ a {
 }
 
 .wordmark__mark {
-  width: 18px;
-  aspect-ratio: 1;
-  background: linear-gradient(135deg, #ff8a34 8%, #c645f4 49%, #6b57ff 87%);
-  clip-path: polygon(0 0, 100% 0, 50% 50%, 100% 100%, 0 100%);
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  object-fit: contain;
   filter: drop-shadow(0 3px 8px rgba(127, 82, 255, 0.38));
 }
 
