@@ -11,6 +11,7 @@ import {
 // Markdown content changes only when a new build is deployed, so render this
 // route once instead of repeating the complete RSC render for every visitor.
 export const dynamic = "force-static";
+export const revalidate = 60;
 
 const ABOUT_DESCRIPTION =
   "积雨云（zephyr-roc）的个人介绍：关注编程语言、系统设计、Linux 虚拟化、网络与数字产品体验。";
