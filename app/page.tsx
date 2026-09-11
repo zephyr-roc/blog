@@ -120,6 +120,8 @@ export default async function Home() {
                   style={{
                     "--collection-row-width": `${ratioSum * desktopHeight + gaps}px`,
                     "--collection-row-compact-width": `${ratioSum * compactHeight + gaps}px`,
+                    "--collection-row-height": `${desktopHeight}px`,
+                    "--collection-row-compact-height": `${compactHeight}px`,
                     gridTemplateColumns: row
                       .map(({ ratio }) => `minmax(0, ${ratio.toFixed(4)}fr)`)
                       .join(" "),
