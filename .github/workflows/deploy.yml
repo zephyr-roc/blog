@@ -54,6 +54,7 @@ jobs:
 
             IMAGE="ghcr.io/zephyr-roc/blog:${{ github.sha }}"
             PREVIOUS_IMAGE="$(docker inspect --format='{{.Config.Image}}' blog 2>/dev/null || true)"
+            STATIC_VOLUME="blog-static-assets"
 
             start_blog() {
               docker run -d \
@@ -61,7 +62,16 @@ jobs:
                 --restart unless-stopped \
                 -p 127.0.0.1:3100:3000 \
                 -v blog-data:/data \
+                -v "$STATIC_VOLUME:/app/dist/client/_next/static:ro" \
                 "$1"
+            }
+
+            seed_static_assets() {
+              docker run --rm \
+                --user 0:0 \
+                -v "$STATIC_VOLUME:/retained-static" \
+                "$1" \
+                sh -c 'cp -a /app/dist/client/_next/static/. /retained-static/'
             }
 
             pkill -f '[d]ocker pull ghcr.io/zephyr-roc/blog:' || true
@@ -74,6 +84,26 @@ jobs:
               fi
               pull_attempt=$((pull_attempt + 1))
               sleep 5
+            done
+
+            # Content-hashed chunks are immutable, but pages opened before a
+            # deployment may still reference the previous hashes. Seed a
+            # persistent volume from the new image and several locally cached
+            # releases before replacing the container so those requests keep
+            # resolving during a version transition.
+            docker volume create "$STATIC_VOLUME" >/dev/null
+            seed_static_assets "$IMAGE"
+            if [ -n "$PREVIOUS_IMAGE" ]; then
+              seed_static_assets "$PREVIOUS_IMAGE"
+            fi
+            for cached_image in $(
+              docker image ls \
+                --format '{{.Repository}}:{{.Tag}}' \
+                ghcr.io/zephyr-roc/blog \
+                | grep -E '^ghcr\.io/zephyr-roc/blog:[0-9a-f]{40}$' \
+                | head -n 5
+            ); do
+              seed_static_assets "$cached_image"
             done
 
             docker stop blog || true
