@@ -88,7 +88,7 @@ jobs:
 
             # Content-hashed chunks are immutable, but pages opened before a
             # deployment may still reference the previous hashes. Seed a
-            # persistent volume from the new image and several locally cached
+            # persistent volume from the new image and every locally cached
             # releases before replacing the container so those requests keep
             # resolving during a version transition.
             docker volume create "$STATIC_VOLUME" >/dev/null
@@ -101,7 +101,6 @@ jobs:
                 --format '{{.Repository}}:{{.Tag}}' \
                 ghcr.io/zephyr-roc/blog \
                 | grep -E '^ghcr\.io/zephyr-roc/blog:[0-9a-f]{40}$' \
-                | head -n 5
             ); do
               seed_static_assets "$cached_image"
             done
