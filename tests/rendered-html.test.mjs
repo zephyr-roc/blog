@@ -91,6 +91,31 @@ test("server-renders the collection cards before client hydration", async () => 
   assert.match(html, /href="\/collections\/swift"/);
 });
 
+test("gives collection rows explicit heights for iPad Safari", async () => {
+  const [home, css] = await Promise.all([
+    readFile(new URL("app/page.tsx", root), "utf8"),
+    readFile(new URL("app/globals.css", root), "utf8"),
+  ]);
+
+  assert.match(home, /"--collection-row-height": `\$\{desktopHeight\}px`/);
+  assert.match(
+    home,
+    /"--collection-row-compact-height": `\$\{compactHeight\}px`/,
+  );
+  assert.match(
+    css,
+    /\.card-collection__row\s*\{[^}]*height:\s*var\(--collection-row-height\);/,
+  );
+  assert.match(
+    css,
+    /@media \(max-width:\s*1180px\)[\s\S]*?\.card-collection__row\s*\{[^}]*height:\s*var\(--collection-row-compact-height\);/,
+  );
+  assert.match(
+    css,
+    /@media \(max-width:\s*640px\)[\s\S]*?\.card-collection__item\s*\{[^}]*height:\s*auto;[^}]*aspect-ratio:\s*1\.5 \/ 1;/,
+  );
+});
+
 test("renders working collection and post destinations", async () => {
   const collectionResponse = await render("/collections/kotlin");
   assert.equal(collectionResponse.status, 200);
