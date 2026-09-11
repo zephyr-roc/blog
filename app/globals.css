@@ -197,12 +197,13 @@ a {
   align-items: stretch;
   gap: 18px;
   width: min(100%, var(--collection-row-width));
+  height: var(--collection-row-height);
   margin-inline: auto;
 }
 
 .card-collection__item {
   min-width: 0;
-  aspect-ratio: var(--collection-ratio, 1);
+  height: 100%;
 }
 
 .card-collection .card-perspective {
@@ -1364,6 +1365,7 @@ a {
 
   .card-collection__row {
     width: min(100%, var(--collection-row-compact-width));
+    height: var(--collection-row-compact-height);
   }
 
   .hero__stage {
@@ -1424,6 +1426,7 @@ a {
   .card-collection__item {
     order: var(--collection-mobile-order);
     width: 100%;
+    height: auto;
     min-height: 0;
     aspect-ratio: 1.5 / 1;
   }
