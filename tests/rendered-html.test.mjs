@@ -47,10 +47,16 @@ test("uses the page logo in the shared site header", async () => {
 });
 
 test("retains content-hashed client assets across container deployments", async () => {
-  const workflow = await readFile(
-    new URL(".github/workflows/deploy.yml", root),
-    "utf8",
-  );
+  const [workflow, restoredMotionTilt] = await Promise.all([
+    readFile(new URL(".github/workflows/deploy.yml", root), "utf8"),
+    readFile(
+      new URL(
+        "public/_next/static/chunks/motionTilt-Bi1dNn-M.js",
+        root,
+      ),
+      "utf8",
+    ),
+  ]);
 
   assert.match(workflow, /STATIC_VOLUME="blog-static-assets"/);
   assert.match(
@@ -61,7 +67,9 @@ test("retains content-hashed client assets across container deployments", async 
     workflow,
     /-v "\$STATIC_VOLUME:\/app\/dist\/client\/_next\/static:ro"/,
   );
-  assert.match(workflow, /head -n 5/);
+  assert.doesNotMatch(workflow, /head -n \d+/);
+  assert.match(restoredMotionTilt, /glass-card:motion-tilt/);
+  assert.match(restoredMotionTilt, /glass-card:motion-reset/);
 });
 
 test("server-renders the collection cards before client hydration", async () => {
