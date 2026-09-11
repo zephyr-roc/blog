@@ -25,6 +25,27 @@ async function render(pathname = "/") {
   );
 }
 
+test("uses the page logo in the shared site header", async () => {
+  const [header, css] = await Promise.all([
+    readFile(new URL("app/components/SiteHeader.tsx", root), "utf8"),
+    readFile(new URL("app/globals.css", root), "utf8"),
+  ]);
+
+  assert.match(
+    header,
+    /<img\s+[\s\S]*?className="wordmark__mark"[\s\S]*?src="\/favicon\.svg"/,
+  );
+  assert.doesNotMatch(header, /<span className="wordmark__mark"/);
+  assert.match(
+    css,
+    /\.wordmark__mark\s*\{[^}]*width:\s*24px;[^}]*height:\s*24px;[^}]*object-fit:\s*contain;/,
+  );
+  assert.doesNotMatch(
+    css,
+    /\.wordmark__mark\s*\{[^}]*(?:clip-path|background:)/,
+  );
+});
+
 test("server-renders the collection cards before client hydration", async () => {
   const response = await render();
   assert.equal(response.status, 200);
