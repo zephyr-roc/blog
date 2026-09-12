@@ -28,7 +28,8 @@ test("scales shared collection-card content from one proportional canvas", async
   assert.match(css, /\.collection-card__date\s*\{[^}]*font-size:\s*clamp\(8px,\s*1\.2cqmin,\s*11px\);/);
   assert.match(css, /\.collection-card__description\s*\{[^}]*font-size:\s*clamp\(10px,\s*2\.3cqmin,\s*15px\);/);
   assert.match(css, /\.collection-card__count\s*\{[^}]*font-size:\s*clamp\(8px,\s*1\.15cqmin,\s*11px\);/);
-  assert.match(css, /\.card-collection__item\s*\{[^}]*aspect-ratio:\s*var\(--collection-ratio,\s*1\);/);
+  assert.match(css, /\.card-collection__row\s*\{[^}]*height:\s*var\(--collection-row-height\);/);
+  assert.match(css, /\.card-collection__item\s*\{[^}]*height:\s*100%;/);
   assert.doesNotMatch(component, /fontSize:\s*"clamp\(/);
   assert.doesNotMatch(component, /className="collection-card__count"\s+style=/);
   assert.doesNotMatch(component, />COLLECTION</);
