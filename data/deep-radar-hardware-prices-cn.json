@@ -104,6 +104,13 @@
           "kind": "采集时公开最低报价",
           "merchant": "亚马逊中国",
           "source": "https://wiki.smzdm.com/p/yd7jp4o/"
+        },
+        {
+          "date": "2026-09-13",
+          "price": 4464.34,
+          "kind": "采集时公开最低报价",
+          "merchant": "亚马逊中国",
+          "source": "https://wiki.smzdm.com/p/yd7jp4o/"
         }
       ]
     },
