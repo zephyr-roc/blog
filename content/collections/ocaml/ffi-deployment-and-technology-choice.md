@@ -192,9 +192,17 @@ val with_resource :
 
 C stub 可以在进入不会访问 OCaml heap 的阻塞区前释放运行时，再在返回前重新获取。
 
-概念结构：
+概念结构（假设 handle 存在 custom block 中）：
 
 ```c
+#include <caml/custom.h>
+#include <caml/fail.h>
+#include <caml/memory.h>
+#include <caml/threads.h>
+
+#define Handle_val(v) \
+  (*((native_handle **) Data_custom_val(v)))
+
 CAMLprim value
 caml_blocking_read(value handle)
 {
@@ -275,7 +283,7 @@ C 可以通过已注册 closure 回调 OCaml，但必须保证：
 OCaml 可以通过 C ABI 调用 Rust 导出的函数：
 
 ```rust
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn add_int(
     left: i64,
     right: i64,
