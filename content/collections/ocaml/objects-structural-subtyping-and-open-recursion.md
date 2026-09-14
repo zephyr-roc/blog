@@ -445,4 +445,3 @@ OCaml 对象系统提供了少见的组合：
 
 - [OCaml 官方教程：Objects](https://ocaml.org/docs/objects)
 - [OCaml Manual：Classes and Objects](https://ocaml.org/manual/5.5/objectexamples.html)
-- [OCaml Manual：Polymorphic Methods](https://ocaml.org/manual/5.5/poly.html)
