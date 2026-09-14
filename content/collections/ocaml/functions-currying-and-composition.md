@@ -463,6 +463,9 @@ let total =
 累加器不必与元素同类型：
 
 ```ocaml
+module IntMap =
+  Map.Make (Int)
+
 let index_by_id users =
   users
   |> List.fold_left
@@ -542,14 +545,13 @@ let validate_email email =
     Error Invalid_email
 
 let create_user name email =
-  validate_name name
-  |> Result.bind (fun valid_name ->
-       validate_email email
-       |> Result.map (fun valid_email ->
-            { name = valid_name; email = valid_email }))
+  Result.bind (validate_name name) (fun valid_name ->
+    validate_email email
+    |> Result.map (fun valid_email ->
+         { name = valid_name; email = valid_email }))
 ```
 
-如果名称失败，不再验证邮箱；如果邮箱失败，不构造用户；只有两步都成功才得到 `Ok user`。
+如果名称失败，不再验证邮箱；如果邮箱失败，不构造用户；只有两步都成功才得到 `Ok user`。注意标准库 `Result.bind` 把 result 放在第一个参数，因此这里直接调用它；若要让 result 从管道末端流入，可以定义一个交换参数顺序的领域辅助函数。
 
 ### let operator：把依赖链写成顺序代码
 
@@ -918,6 +920,5 @@ Kotlin 通过 Receiver、extension 和链式调用，让操作像值自身的能
 
 - [OCaml 官方教程：Higher Order Functions](https://ocaml.org/docs/higher-order-functions)
 - [OCaml 官方教程：Labelled and Optional Arguments](https://ocaml.org/docs/labels)
-- [OCaml 官方教程：Pipelines](https://ocaml.org/docs/pipelines)
 - [Real World OCaml：Lists and Patterns](https://dev.realworldocaml.org/lists-and-patterns.html)
 - [OCaml Programming: Correct + Efficient + Beautiful—Higher-Order Programming](https://cs3110.github.io/textbook/chapters/hop/higher_order.html)
