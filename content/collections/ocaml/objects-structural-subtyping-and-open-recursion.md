@@ -203,7 +203,7 @@ virtual class 声明尚未实现的方法：
 
 ```ocaml
 class virtual shape =
-  object
+  object (self)
     method virtual area : float
 
     method describe =
@@ -243,8 +243,11 @@ let readable =
 方法返回 self 时，类型可能保留为开放的 self type：
 
 ```ocaml
-class point x y =
-  object (self)
+class point initial_x initial_y =
+  object
+    val x = initial_x
+    val y = initial_y
+
     method x = x
     method y = y
     method move dx dy =
