@@ -682,8 +682,8 @@ OCaml 类型系统的力量并不只来自“严格”，而来自它能从实�
 
 ## 延伸阅读
 
-- [OCaml 官方教程：Data Types and Matching](https://ocaml.org/docs/basic-data-types)
-- [OCaml 官方教程：Basic Data Types](https://ocaml.org/docs/basic-data-types)
+- [OCaml 官方教程：Basic Data Types and Pattern Matching](https://ocaml.org/docs/basic-data-types)
+- [OCaml 官方教程：Values and Functions](https://ocaml.org/docs/values-and-functions)
 - [OCaml Programming: Correct + Efficient + Beautiful—Type Inference](https://cs3110.github.io/textbook/chapters/data/type_inference.html)
 - [Real World OCaml：Variables and Functions](https://dev.realworldocaml.org/variables-and-functions.html)
 - [OCaml Manual：Polymorphism and Its Limitations](https://ocaml.org/manual/5.3/polymorphism.html)
