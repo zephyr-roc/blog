@@ -133,6 +133,29 @@ test("renders working collection and post destinations", async () => {
   assert.match(postHtml, /Kotlin/);
 });
 
+test("renders both completed Zig chapters", async () => {
+  const collectionResponse = await render("/collections/zig");
+  assert.equal(collectionResponse.status, 200);
+
+  const collectionHtml = await collectionResponse.text();
+  assert.match(collectionHtml, /类型与数据/);
+  assert.match(collectionHtml, /跟着 Ziglings 学 Zig/);
+  assert.match(
+    collectionHtml,
+    /href="\/collections\/zig\/comptime-generics-reflection"/,
+  );
+  assert.match(
+    collectionHtml,
+    /href="\/collections\/zig\/ziglings-journey"/,
+  );
+
+  const postResponse = await render(
+    "/collections/zig/comptime-generics-reflection",
+  );
+  assert.equal(postResponse.status, 200);
+  assert.match(await postResponse.text(), /当类型也是值/);
+});
+
 test("renders the complete Swift language guide and reference without revision history", async () => {
   const collectionResponse = await render("/collections/swift");
   assert.equal(collectionResponse.status, 200);
