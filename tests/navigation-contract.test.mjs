@@ -102,11 +102,19 @@ test("keeps navigation controls legible over light and dark backgrounds", async 
 
   assert.match(
     css,
-    /\.liquid-navigation__item\s*\{[^}]*color:\s*rgba\(255,\s*255,\s*255,\s*\.62\);[^}]*mix-blend-mode:\s*difference;/,
+    /\.liquid-navigation__item\s*\{[^}]*color:\s*rgba\(255,\s*255,\s*255,\s*\.62\);/,
   );
   assert.match(
     css,
-    /@media \(forced-colors:\s*active\)[\s\S]*?\.liquid-navigation__item\s*\{[^}]*color:\s*ButtonText;[^}]*mix-blend-mode:\s*normal;/,
+    /\.liquid-navigation__label,\s*\n\.liquid-navigation__icon\s*\{[^}]*mix-blend-mode:\s*difference;/,
+  );
+  assert.doesNotMatch(
+    css,
+    /\.liquid-navigation__item\s*\{[^}]*mix-blend-mode:\s*difference;/,
+  );
+  assert.match(
+    css,
+    /@media \(forced-colors:\s*active\)[\s\S]*?\.liquid-navigation__item\s*\{[^}]*color:\s*ButtonText;[^}]*\}[\s\S]*?\.liquid-navigation__label,\s*\n\s*\.liquid-navigation__icon\s*\{[^}]*mix-blend-mode:\s*normal;/,
   );
   assert.doesNotMatch(
     css,
