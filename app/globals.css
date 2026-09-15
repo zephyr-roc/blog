@@ -970,7 +970,6 @@ a {
   padding: 0 22px;
   border-radius: 999px;
   color: rgba(255, 255, 255, .62);
-  mix-blend-mode: difference;
   font-size: 12px;
   font-weight: 650;
   letter-spacing: .08em;
@@ -1005,6 +1004,13 @@ a {
   opacity: .78;
 }
 
+/* Blend only the painted foreground. Blending each full navigation item would
+   create four segment-sized compositor layers over the live refraction lens. */
+.liquid-navigation__label,
+.liquid-navigation__icon {
+  mix-blend-mode: difference;
+}
+
 .liquid-navigation__item[aria-current="page"] .liquid-navigation__icon {
   opacity: 1;
   filter: drop-shadow(0 1px 4px rgba(127, 127, 127, .35));
@@ -1013,6 +1019,10 @@ a {
 @media (forced-colors: active) {
   .liquid-navigation__item {
     color: ButtonText;
+  }
+
+  .liquid-navigation__label,
+  .liquid-navigation__icon {
     mix-blend-mode: normal;
   }
 }
