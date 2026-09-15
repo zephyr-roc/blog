@@ -70,6 +70,13 @@
           "kind": "采集时公开最低报价",
           "merchant": "京东",
           "source": "https://wiki.smzdm.com/p/0yrx3g4/"
+        },
+        {
+          "date": "2026-09-15",
+          "price": 2619,
+          "kind": "采集时公开最低报价",
+          "merchant": "京东",
+          "source": "https://wiki.smzdm.com/p/0yrx3g4/"
         }
       ]
     },
