@@ -96,3 +96,45 @@ test("uses a live backdrop lens without mirrored background copies", async () =>
     /\.liquid-navigation__surface\[data-dragging="true"\] \.liquid-navigation__refraction\s*\{[^}]*transition:\s*none;/,
   );
 });
+
+test("keeps navigation controls legible over light and dark backgrounds", async () => {
+  const css = await readFile(new URL("app/globals.css", root), "utf8");
+
+  assert.match(
+    css,
+    /\.liquid-navigation__item\s*\{[^}]*color:\s*rgba\(255,\s*255,\s*255,\s*\.62\);[^}]*mix-blend-mode:\s*difference;/,
+  );
+  assert.match(
+    css,
+    /@media \(forced-colors:\s*active\)[\s\S]*?\.liquid-navigation__item\s*\{[^}]*color:\s*ButtonText;[^}]*mix-blend-mode:\s*normal;/,
+  );
+  assert.doesNotMatch(
+    css,
+    /\.liquid-navigation(?:__surface)?\s*\{[^}]*mix-blend-mode:\s*difference;/,
+  );
+});
+
+test("gives collection copy more tilt depth than its subdued logo", async () => {
+  const [controller, card, css] = await Promise.all([
+    readFile(new URL("app/components/GlassMotionController.tsx", root), "utf8"),
+    readFile(new URL("app/components/GlassCard.tsx", root), "utf8"),
+    readFile(new URL("app/globals.css", root), "utf8"),
+  ]);
+
+  assert.match(card, /"--collection-content-x":\s*"0px"/);
+  assert.match(card, /"--collection-logo-x":\s*"0px"/);
+  assert.match(controller, /"--collection-content-x",\s*`\$\{boundedX \* 8\}px`/);
+  assert.match(controller, /"--collection-logo-x",\s*`\$\{boundedX \* 3\}px`/);
+  assert.match(
+    css,
+    /\.collection-card__content\s*\{[^}]*transform:\s*translate3d\([\s\S]*?var\(--collection-content-x\)[\s\S]*?11cqw[\s\S]*?\);/,
+  );
+  assert.match(
+    css,
+    /\.collection-card__icon-wrap\s*\{[^}]*opacity:\s*\.78;[^}]*var\(--collection-logo-x\)[\s\S]*?4\.25cqw/,
+  );
+  assert.match(
+    css,
+    /\.collection-card__icon\s*\{[^}]*width:\s*clamp\(34px,\s*15\.5cqmin,\s*76px\);[^}]*filter:\s*saturate\(\.84\) brightness\(\.96\);/,
+  );
+});

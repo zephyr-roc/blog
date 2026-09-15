@@ -969,7 +969,8 @@ a {
   height: 52px;
   padding: 0 22px;
   border-radius: 999px;
-  color: rgba(244, 241, 250, .5);
+  color: rgba(255, 255, 255, .62);
+  mix-blend-mode: difference;
   font-size: 12px;
   font-weight: 650;
   letter-spacing: .08em;
@@ -983,7 +984,7 @@ a {
 }
 
 .liquid-navigation__item:hover {
-  color: rgba(255, 255, 255, .82);
+  color: rgba(255, 255, 255, .86);
   transform: translateY(-1px);
 }
 
@@ -1006,7 +1007,14 @@ a {
 
 .liquid-navigation__item[aria-current="page"] .liquid-navigation__icon {
   opacity: 1;
-  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, .32));
+  filter: drop-shadow(0 1px 4px rgba(127, 127, 127, .35));
+}
+
+@media (forced-colors: active) {
+  .liquid-navigation__item {
+    color: ButtonText;
+    mix-blend-mode: normal;
+  }
 }
 
 .liquid-navigation__icon--home::before {
@@ -1579,7 +1587,12 @@ a {
   filter:
     drop-shadow(var(--content-shadow-x) var(--content-shadow-y) 9px rgba(0, 0, 0, 0.66))
     drop-shadow(0 3px 3px rgba(0, 0, 0, 0.72));
-  transform: translate3d(var(--logo-x), var(--logo-y), 8cqw);
+  opacity: .78;
+  transform: translate3d(
+    var(--collection-logo-x),
+    var(--collection-logo-y),
+    4.25cqw
+  );
 }
 
 .glass-card[data-active="true"] .collection-card__icon-wrap {
@@ -1589,8 +1602,9 @@ a {
 .collection-card__icon {
   display: grid;
   place-items: center;
-  width: clamp(38px, 18cqmin, 88px);
+  width: clamp(34px, 15.5cqmin, 76px);
   aspect-ratio: 1;
+  filter: saturate(.84) brightness(.96);
 }
 
 .collection-card__icon img {
@@ -1601,7 +1615,7 @@ a {
 }
 
 .collection-card__icon--zig {
-  width: clamp(40px, 18cqmin, 92px);
+  width: clamp(36px, 16cqmin, 80px);
 }
 
 .collection-card__icon--rust {
@@ -1611,11 +1625,11 @@ a {
 }
 
 .collection-card__icon--react {
-  width: clamp(40px, 18cqmin, 92px);
+  width: clamp(36px, 16cqmin, 80px);
 }
 
 .collection-card__icon--ocaml {
-  width: clamp(42px, 19cqmin, 96px);
+  width: clamp(38px, 17cqmin, 84px);
 }
 
 .collection-card__icon--generic {
@@ -1653,7 +1667,17 @@ a {
   bottom: clamp(14px, 7cqmin, 28px);
   max-height: calc(100% - clamp(28px, 14cqmin, 56px));
   overflow: hidden;
-  transform: translate3d(var(--content-x), var(--content-y), 7.25cqw);
+  transform: translate3d(
+    var(--collection-content-x),
+    var(--collection-content-y),
+    11cqw
+  );
+}
+
+.glass-card[data-active="true"] .collection-card__content {
+  filter:
+    drop-shadow(var(--content-shadow-x) var(--content-shadow-y) 11px rgba(0, 0, 0, .72))
+    drop-shadow(0 4px 4px rgba(0, 0, 0, .76));
 }
 
 .collection-card__content h2 {
@@ -2543,6 +2567,11 @@ a {
   .mini-card__logo,
   .mini-card__content,
   .mini-card__year {
+    transition: none;
+  }
+
+  .collection-card__content,
+  .collection-card__icon-wrap {
     transition: none;
   }
 }

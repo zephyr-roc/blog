@@ -28,6 +28,12 @@ function applyTilt(card: HTMLElement, x: number, y: number, active = true) {
   card.style.setProperty("--content-y", `${boundedY * 4}px`);
   card.style.setProperty("--logo-x", `${boundedX * 8}px`);
   card.style.setProperty("--logo-y", `${boundedY * 6}px`);
+  // Collection copy sits closest to the viewer; its logo stays nearer the glass.
+  // The larger depth gap makes the hierarchy visible without letting logos lead.
+  card.style.setProperty("--collection-content-x", `${boundedX * 8}px`);
+  card.style.setProperty("--collection-content-y", `${boundedY * 6.5}px`);
+  card.style.setProperty("--collection-logo-x", `${boundedX * 3}px`);
+  card.style.setProperty("--collection-logo-y", `${boundedY * 2.5}px`);
   card.style.setProperty("--detail-x", `${boundedX * 3}px`);
   card.style.setProperty("--detail-y", `${boundedY * 2.5}px`);
 }
