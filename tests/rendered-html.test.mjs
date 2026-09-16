@@ -268,7 +268,7 @@ test("gives transparent post images a default white background toggle", async ()
   assert.doesNotMatch(enhancer, />白底</);
   assert.match(
     css,
-    /\.post-image-frame\s*\{[^}]*position:\s*relative;[^}]*margin:\s*calc\(1\.75rem \+ 42px\) auto 1\.75rem;[^}]*overflow:\s*visible;[^}]*border-radius:\s*0;[^}]*background:\s*#fff;/,
+    /\.post-image-frame\s*\{[^}]*position:\s*relative;[^}]*margin:\s*1\.75rem auto;[^}]*overflow:\s*hidden;[^}]*padding-top:\s*42px;[^}]*border-radius:\s*0;[^}]*background:\s*#fff;/,
   );
   assert.match(css, /\.post-content img\s*\{[^}]*border-radius:\s*0;/);
   assert.match(
@@ -277,7 +277,7 @@ test("gives transparent post images a default white background toggle", async ()
   );
   assert.match(
     css,
-    /\.post-image-background-toggle\s*\{[^}]*position:\s*absolute;[^}]*top:\s*-42px;[^}]*right:\s*0;/,
+    /\.post-image-background-toggle\s*\{[^}]*position:\s*absolute;[^}]*top:\s*4px;[^}]*right:\s*4px;/,
   );
   assert.doesNotMatch(css, /post-image-background-toggle__track/);
 });
