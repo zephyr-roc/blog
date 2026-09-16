@@ -45,16 +45,17 @@ export function BackToTopButton() {
       );
       const buttonWidth = root.offsetWidth;
       const navigationWidth = navigation?.offsetWidth ?? 0;
+      const viewportWidth = document.documentElement.clientWidth;
       const separateGap = navigation
-        ? window.innerWidth
+        ? viewportWidth
           - separateRight
           - buttonWidth
-          - (window.innerWidth + navigationWidth) / 2
-        : window.innerWidth - separateRight - buttonWidth;
+          - (viewportWidth + navigationWidth) / 2
+        : viewportWidth - separateRight - buttonWidth;
       const canStaySeparate = separateGap >= NAVIGATION_GAP;
       const groupedWidth = navigationWidth + NAVIGATION_GAP + buttonWidth;
       const canGroup = navigation
-        ? groupedWidth + MIN_VIEWPORT_EDGE_GAP * 2 <= window.innerWidth
+        ? groupedWidth + MIN_VIEWPORT_EDGE_GAP * 2 <= viewportWidth
         : canStaySeparate;
       const hasScrollablePage = scrollRange >= MIN_SCROLL_RANGE;
       const hasScrolledEnough = window.scrollY >= window.innerHeight * SHOW_AFTER_VIEWPORT_RATIO;

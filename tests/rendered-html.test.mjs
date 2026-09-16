@@ -57,7 +57,8 @@ test("shows a glass back-to-top button only when the navigation leaves enough ro
   assert.match(button, /document\.documentElement\.scrollHeight - window\.innerHeight/);
   assert.match(button, /const separateGap = navigation/);
   assert.match(button, /const canStaySeparate = separateGap >= NAVIGATION_GAP/);
-  assert.match(button, /groupedWidth \+ MIN_VIEWPORT_EDGE_GAP \* 2 <= window\.innerWidth/);
+  assert.match(button, /const viewportWidth = document\.documentElement\.clientWidth/);
+  assert.match(button, /groupedWidth \+ MIN_VIEWPORT_EDGE_GAP \* 2 <= viewportWidth/);
   assert.match(button, /navigation\.dataset\.grouped = String\(isGrouped\)/);
   assert.match(button, /--bottom-navigation-shift/);
   assert.match(button, /--bottom-group-half-width/);
