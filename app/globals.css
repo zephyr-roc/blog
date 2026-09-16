@@ -789,6 +789,7 @@ a {
   bottom: max(20px, env(safe-area-inset-bottom));
   width: max-content;
   transform: translateX(-50%);
+  transition: transform 220ms cubic-bezier(.2, .8, .2, 1);
 }
 
 .liquid-navigation {
@@ -813,7 +814,17 @@ a {
   transition:
     opacity 180ms ease,
     transform 180ms ease,
-    visibility 180ms;
+    visibility 180ms,
+    right 220ms cubic-bezier(.2, .8, .2, 1),
+    bottom 220ms cubic-bezier(.2, .8, .2, 1);
+}
+
+.liquid-navigation[data-grouped="true"] {
+  transform: translateX(calc(-50% - var(--bottom-navigation-shift)));
+}
+
+.back-to-top-button[data-grouped="true"] {
+  right: calc(50% - var(--bottom-group-half-width));
 }
 
 .back-to-top-button::before {
@@ -1606,6 +1617,10 @@ a {
   }
 
   .liquid-navigation {
+    bottom: max(12px, env(safe-area-inset-bottom));
+  }
+
+  .back-to-top-button[data-grouped="true"] {
     bottom: max(12px, env(safe-area-inset-bottom));
   }
 

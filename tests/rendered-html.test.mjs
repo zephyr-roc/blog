@@ -55,7 +55,12 @@ test("shows a glass back-to-top button only when the navigation leaves enough ro
 
   assert.match(layout, /<BackToTopButton \/>/);
   assert.match(button, /document\.documentElement\.scrollHeight - window\.innerHeight/);
-  assert.match(button, /rootBounds\.left - navigationBounds\.right >= NAVIGATION_GAP/);
+  assert.match(button, /const separateGap = navigation/);
+  assert.match(button, /const canStaySeparate = separateGap >= NAVIGATION_GAP/);
+  assert.match(button, /groupedWidth \+ MIN_VIEWPORT_EDGE_GAP \* 2 <= window\.innerWidth/);
+  assert.match(button, /navigation\.dataset\.grouped = String\(isGrouped\)/);
+  assert.match(button, /--bottom-navigation-shift/);
+  assert.match(button, /--bottom-group-half-width/);
   assert.match(button, /window\.scrollY >= window\.innerHeight \* SHOW_AFTER_VIEWPORT_RATIO/);
   assert.match(button, /root\.dataset\.visible = String/);
   assert.match(button, /window\.scrollTo\(\{ top: 0, left: 0, behavior: "smooth" \}\)/);
@@ -70,6 +75,8 @@ test("shows a glass back-to-top button only when the navigation leaves enough ro
     /\.back-to-top-button\s*\{[^}]*position:\s*fixed;[^}]*right:\s*max\(22px, env\(safe-area-inset-right\)\);[^}]*bottom:\s*max\(20px, env\(safe-area-inset-bottom\)\);[^}]*visibility:\s*hidden;/,
   );
   assert.match(css, /\.back-to-top-button\[data-visible="true"\]\s*\{[^}]*visibility:\s*visible;/);
+  assert.match(css, /\.liquid-navigation\[data-grouped="true"\]\s*\{[^}]*translateX\(calc\(-50% - var\(--bottom-navigation-shift\)\)\)/);
+  assert.match(css, /\.back-to-top-button\[data-grouped="true"\]\s*\{[^}]*right:\s*calc\(50% - var\(--bottom-group-half-width\)\);/);
   assert.match(css, /--liquid-navigation-height:\s*70px/);
   assert.match(css, /@media \(max-width:\s*640px\)[\s\S]*?--liquid-navigation-height:\s*64px/);
   assert.match(css, /\.back-to-top-button\s*\{[^}]*width:\s*var\(--liquid-navigation-height\);[^}]*height:\s*var\(--liquid-navigation-height\);/);
