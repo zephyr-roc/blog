@@ -259,6 +259,7 @@ test("gives transparent post images a default white background toggle", async ()
   assert.match(postContent, /<PostImageEnhancer \/>/);
   assert.match(enhancer, /getImageData\(0, 0, width, height\)\.data/);
   assert.match(enhancer, /pixels\[index\] < TRANSPARENT_ALPHA_CUTOFF/);
+  assert.match(enhancer, /if \(!hasAlpha \|\| signal\.aborted \|\| !image\.isConnected\) return/);
   assert.match(enhancer, /frame\.dataset\.background = "white"/);
   assert.match(enhancer, /toggle\.setAttribute\("aria-pressed", "true"\)/);
   assert.match(enhancer, /关闭图片白色背景/);
@@ -268,7 +269,7 @@ test("gives transparent post images a default white background toggle", async ()
   assert.doesNotMatch(enhancer, />白底</);
   assert.match(
     css,
-    /\.post-image-frame\s*\{[^}]*position:\s*relative;[^}]*margin:\s*1\.75rem auto;[^}]*overflow:\s*hidden;[^}]*padding-top:\s*42px;[^}]*border-radius:\s*0;[^}]*background:\s*#fff;/,
+    /\.post-image-frame\s*\{[^}]*position:\s*relative;[^}]*margin:\s*1\.75rem auto;[^}]*overflow:\s*hidden;[^}]*padding:\s*48px 12px 12px;[^}]*border-radius:\s*16px;[^}]*background:\s*#fff;/,
   );
   assert.match(css, /\.post-content img\s*\{[^}]*border-radius:\s*0;/);
   assert.match(
@@ -277,7 +278,7 @@ test("gives transparent post images a default white background toggle", async ()
   );
   assert.match(
     css,
-    /\.post-image-background-toggle\s*\{[^}]*position:\s*absolute;[^}]*top:\s*4px;[^}]*right:\s*4px;/,
+    /\.post-image-background-toggle\s*\{[^}]*position:\s*absolute;[^}]*top:\s*7px;[^}]*right:\s*7px;/,
   );
   assert.doesNotMatch(css, /post-image-background-toggle__track/);
 });
