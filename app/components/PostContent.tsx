@@ -1,6 +1,7 @@
 import { PostOutline, type OutlineItem } from "./PostOutline";
 import { CodeCopyEnhancer } from "./CodeCopyEnhancer";
 import { PostImageEnhancer } from "./PostImageEnhancer";
+import { ReadingAppearance } from "./ReadingAppearance";
 
 function plainText(value: string) {
   return value
@@ -59,6 +60,7 @@ export function PostContent({ html }: { html: string }) {
       />
       <CodeCopyEnhancer />
       <PostImageEnhancer />
+      <ReadingAppearance />
     </div>
   );
 }

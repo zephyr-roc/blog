@@ -268,7 +268,7 @@ test("gives transparent post images a default white background toggle", async ()
   assert.doesNotMatch(enhancer, />白底</);
   assert.match(
     css,
-    /\.post-image-frame\s*\{[^}]*position:\s*relative;[^}]*border-radius:\s*0;[^}]*background:\s*#fff;/,
+    /\.post-image-frame\s*\{[^}]*position:\s*relative;[^}]*margin:\s*calc\(1\.75rem \+ 42px\) auto 1\.75rem;[^}]*overflow:\s*visible;[^}]*border-radius:\s*0;[^}]*background:\s*#fff;/,
   );
   assert.match(css, /\.post-content img\s*\{[^}]*border-radius:\s*0;/);
   assert.match(
@@ -277,9 +277,31 @@ test("gives transparent post images a default white background toggle", async ()
   );
   assert.match(
     css,
-    /\.post-image-background-toggle\s*\{[^}]*position:\s*absolute;[^}]*top:\s*10px;[^}]*right:\s*10px;/,
+    /\.post-image-background-toggle\s*\{[^}]*position:\s*absolute;[^}]*top:\s*-42px;[^}]*right:\s*0;/,
   );
   assert.doesNotMatch(css, /post-image-background-toggle__track/);
+});
+
+test("persists article-wide reading colors with automatic text contrast", async () => {
+  const [postContent, appearance, css] = await Promise.all([
+    readFile(new URL("app/components/PostContent.tsx", root), "utf8"),
+    readFile(new URL("app/components/ReadingAppearance.tsx", root), "utf8"),
+    readFile(new URL("app/globals.css", root), "utf8"),
+  ]);
+
+  assert.match(postContent, /<ReadingAppearance \/>/);
+  assert.match(appearance, /blog-reading-appearance:v1/);
+  assert.match(appearance, /function automaticTextColor\(background: string\)/);
+  assert.match(appearance, /current\.textMode === "auto"/);
+  assert.match(appearance, /textMode: "manual"/);
+  assert.match(appearance, /文字颜色跟随背景/);
+  assert.match(appearance, /window\.localStorage\.setItem/);
+  assert.match(appearance, /shell\.dataset\.readingAppearance = "custom"/);
+  assert.match(
+    css,
+    /\.post-shell\[data-reading-appearance="custom"\]\s*\{[^}]*background:\s*var\(--reading-background\);[^}]*color:\s*var\(--reading-text\);/,
+  );
+  assert.match(css, /\.reading-appearance\s*\{[^}]*position:\s*fixed;/);
 });
 
 test("keeps mobile device tilt exclusive to the about page", async () => {
