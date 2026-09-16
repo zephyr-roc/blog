@@ -118,21 +118,32 @@ export function ScrollCatCompanion() {
       <span className="scroll-cat__cat-wrap" aria-hidden="true">
         <svg className="scroll-cat__cat" viewBox="0 0 82 60">
           <g className="scroll-cat__tail">
-            <path d="M24 36C8 38 8 22 17 20c7-2 10 5 5 9" />
+            <path className="scroll-cat__tail-outline" d="M23 38C9 43 5 34 9 25c3-7 10-9 14-4 3 4 0 8-4 7" />
+            <path className="scroll-cat__tail-fur" d="M23 38C9 43 5 34 9 25c3-7 10-9 14-4 3 4 0 8-4 7" />
           </g>
-          <g className="scroll-cat__body">
-            <ellipse cx="40" cy="37" rx="22" ry="13" />
-            <path className="scroll-cat__belly" d="M22 38c7 9 29 12 40 1-2 8-9 12-21 12-11 0-18-5-19-13Z" />
-          </g>
-          <g className="scroll-cat__head">
-            <path d="M51 22 55 9l8 8 10-5 1 14a14 14 0 1 1-23-4Z" />
-            <path className="scroll-cat__ear" d="m57 16 1-4 3 4m7 0 4-2v5" />
-            <path className="scroll-cat__face" d="M59 26h.1m9 0h.1m-5 3 1 1 1-1m-1 1c-1 3-4 3-5 1m5-1c1 3 4 3 5 1" />
-            <path className="scroll-cat__whiskers" d="m58 29-8-2m8 5-8 1m19-4 8-2m-8 5 8 1" />
-          </g>
+
           <g className="scroll-cat__legs">
-            <path className="scroll-cat__leg scroll-cat__leg--back" d="M29 45 24 56h8l4-9" />
-            <path className="scroll-cat__leg scroll-cat__leg--front" d="m52 46 5 10h8l-6-12" />
+            <path className="scroll-cat__leg scroll-cat__leg--back" d="M28 42c-1 5-5 10-6 13 0 2 1 3 3 3h6c2 0 3-1 3-2 0-2-2-3-5-3l6-9Z" />
+            <path className="scroll-cat__leg scroll-cat__leg--front" d="M51 43c1 5 4 10 7 13 1 2 3 2 5 1 1-1 1-3 0-4l-5-10Z" />
+          </g>
+
+          <g className="scroll-cat__body">
+            <ellipse cx="40" cy="36" rx="23" ry="13" />
+            <path className="scroll-cat__fur-light" d="M23 31c5-6 13-8 21-7-5 3-10 6-20 10Z" />
+            <path className="scroll-cat__fur-light scroll-cat__fur-light--back" d="M48 25c7 2 12 5 14 10-5 0-10-3-14-10Z" />
+          </g>
+
+          <g className="scroll-cat__head">
+            <path className="scroll-cat__head-shape" d="M48 23 51 9l9 7 11-6 1 14c5 3 7 8 6 13-2 8-10 12-19 10-9-1-15-8-14-15 0-4 1-7 3-9Z" />
+            <path className="scroll-cat__inner-ear" d="m53 13 5 4-6 2Zm16 1-6 4 7 2Z" />
+            <path className="scroll-cat__fur-light scroll-cat__fur-light--head" d="M48 24c4-5 9-8 15-8-1 5-5 9-11 12Z" />
+            <ellipse className="scroll-cat__eye" cx="59" cy="30" rx="2.45" ry="3.05" />
+            <ellipse className="scroll-cat__eye" cx="69" cy="29" rx="2.45" ry="3.05" />
+            <circle className="scroll-cat__eye-glint" cx="59.8" cy="29" r=".72" />
+            <circle className="scroll-cat__eye-glint" cx="69.8" cy="28" r=".72" />
+            <path className="scroll-cat__nose" d="m64 34 2-.2-1 1.7Z" />
+            <path className="scroll-cat__mouth" d="M65 35c-1 2-3 2-4 1m4-1c1 2 3 2 4 0" />
+            <path className="scroll-cat__whiskers" d="m57 34-8-2m8 5-8 1m21-5 8-3m-7 6 7 1" />
           </g>
         </svg>
       </span>
