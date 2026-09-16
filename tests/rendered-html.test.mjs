@@ -69,7 +69,12 @@ test("shows a glass back-to-top button only when the navigation leaves enough ro
     /\.back-to-top-button\s*\{[^}]*position:\s*fixed;[^}]*right:\s*max\(22px, env\(safe-area-inset-right\)\);[^}]*bottom:\s*max\(20px, env\(safe-area-inset-bottom\)\);[^}]*visibility:\s*hidden;/,
   );
   assert.match(css, /\.back-to-top-button\[data-visible="true"\]\s*\{[^}]*visibility:\s*visible;/);
-  assert.match(css, /\.back-to-top-button__glass\s*\{[^}]*background:[\s\S]*?rgba\(17, 15, 24, \.11\);/);
+  assert.match(css, /--liquid-navigation-height:\s*70px/);
+  assert.match(css, /@media \(max-width:\s*640px\)[\s\S]*?--liquid-navigation-height:\s*64px/);
+  assert.match(css, /\.back-to-top-button\s*\{[^}]*width:\s*var\(--liquid-navigation-height\);[^}]*height:\s*var\(--liquid-navigation-height\);/);
+  assert.match(css, /\.back-to-top-button__glass\s*\{[^}]*background:[\s\S]*?rgba\(17, 15, 24, \.16\);/);
+  assert.match(css, /\.back-to-top-button::before\s*\{[^}]*background:\s*linear-gradient\(\s*110deg,[^}]*rgba\(255, 255, 255, \.68\) 22%/);
+  assert.doesNotMatch(css, /\.back-to-top-button::before\s*\{[^}]*(?:113, 199, 255|255, 119, 193)/);
   assert.doesNotMatch(css, /fill:\s*#d94f96/);
   assert.doesNotMatch(layout, /ScrollCatCompanion/);
   assert.doesNotMatch(css, /scroll-cat/);
@@ -336,7 +341,9 @@ test("persists article-wide reading colors with automatic text contrast", async 
     /\.post-shell\[data-reading-appearance="custom"\]\s*\{[^}]*background:\s*var\(--reading-background\);[^}]*color:\s*var\(--reading-text\);/,
   );
   assert.match(css, /\.reading-appearance\s*\{[^}]*position:\s*fixed;/);
-  assert.match(css, /\.reading-appearance__trigger-glass\s*\{[^}]*background:[\s\S]*?rgba\(17, 15, 24, \.11\);/);
+  assert.match(css, /\.reading-appearance__trigger-glass\s*\{[^}]*background:[\s\S]*?rgba\(17, 15, 24, \.16\);/);
+  assert.match(css, /\.reading-appearance::before\s*\{[^}]*background:\s*linear-gradient\(\s*110deg,[^}]*rgba\(255, 255, 255, \.68\) 22%/);
+  assert.doesNotMatch(css, /\.reading-appearance::before\s*\{[^}]*(?:113, 199, 255|255, 119, 193)/);
   assert.match(css, /\.reading-appearance__panel\s*\{[^}]*background:[\s\S]*?rgba\(12, 10, 18, \.32\);/);
   assert.doesNotMatch(css, /\.reading-appearance__panel\s*\{[^}]*rgba\(12, 10, 18, \.94\)/);
 });
