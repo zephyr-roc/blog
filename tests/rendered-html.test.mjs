@@ -249,6 +249,34 @@ test("keeps the about title on exactly two smaller lines", async () => {
   assert.match(css, /@media \(max-width:\s*640px\)[\s\S]*?\.about__intro h1\s*\{[^}]*font-size:\s*clamp\(36px,\s*10vw,\s*50px\);/);
 });
 
+test("gives transparent post images a default white background toggle", async () => {
+  const [postContent, enhancer, css] = await Promise.all([
+    readFile(new URL("app/components/PostContent.tsx", root), "utf8"),
+    readFile(new URL("app/components/PostImageEnhancer.tsx", root), "utf8"),
+    readFile(new URL("app/globals.css", root), "utf8"),
+  ]);
+
+  assert.match(postContent, /<PostImageEnhancer \/>/);
+  assert.match(enhancer, /getImageData\(0, 0, width, height\)\.data/);
+  assert.match(enhancer, /pixels\[index\] < TRANSPARENT_ALPHA_CUTOFF/);
+  assert.match(enhancer, /frame\.dataset\.background = "white"/);
+  assert.match(enhancer, /toggle\.setAttribute\("aria-pressed", "true"\)/);
+  assert.match(enhancer, /关闭图片白色背景/);
+  assert.match(enhancer, /开启图片白色背景/);
+  assert.match(
+    css,
+    /\.post-image-frame\s*\{[^}]*position:\s*relative;[^}]*background:\s*#fff;/,
+  );
+  assert.match(
+    css,
+    /\.post-image-frame\[data-background="transparent"\]\s*\{[^}]*background:\s*transparent;/,
+  );
+  assert.match(
+    css,
+    /\.post-image-background-toggle\s*\{[^}]*position:\s*absolute;[^}]*top:\s*10px;[^}]*right:\s*10px;/,
+  );
+});
+
 test("keeps mobile device tilt exclusive to the about page", async () => {
   const [home, about, glassCard, controller, layout] = await Promise.all([
     readFile(new URL("app/page.tsx", root), "utf8"),

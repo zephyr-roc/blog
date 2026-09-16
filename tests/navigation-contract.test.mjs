@@ -98,15 +98,21 @@ test("uses a live backdrop lens without mirrored background copies", async () =>
 });
 
 test("keeps navigation controls legible over light and dark backgrounds", async () => {
-  const css = await readFile(new URL("app/globals.css", root), "utf8");
+  const [navigation, css] = await Promise.all([
+    readFile(new URL("app/components/LiquidGlassNavigation.tsx", root), "utf8"),
+    readFile(new URL("app/globals.css", root), "utf8"),
+  ]);
 
+  assert.match(navigation, /className="liquid-navigation-contrast"/);
+  assert.match(navigation, /aria-hidden="true"/);
+  assert.match(navigation, /className="liquid-navigation-contrast__item"/);
   assert.match(
     css,
-    /\.liquid-navigation__item\s*\{[^}]*color:\s*rgba\(255,\s*255,\s*255,\s*\.62\);/,
+    /\.liquid-navigation-contrast\s*\{[^}]*z-index:\s*61;[^}]*mix-blend-mode:\s*difference;[^}]*pointer-events:\s*none;/,
   );
   assert.match(
     css,
-    /\.liquid-navigation__label,\s*\n\.liquid-navigation__icon\s*\{[^}]*mix-blend-mode:\s*difference;/,
+    /\.liquid-navigation__item\s*\{[^}]*color:\s*transparent;/,
   );
   assert.doesNotMatch(
     css,
@@ -114,7 +120,7 @@ test("keeps navigation controls legible over light and dark backgrounds", async 
   );
   assert.match(
     css,
-    /@media \(forced-colors:\s*active\)[\s\S]*?\.liquid-navigation__item\s*\{[^}]*color:\s*ButtonText;[^}]*\}[\s\S]*?\.liquid-navigation__label,\s*\n\s*\.liquid-navigation__icon\s*\{[^}]*mix-blend-mode:\s*normal;/,
+    /@media \(forced-colors:\s*active\)[\s\S]*?\.liquid-navigation-contrast\s*\{[^}]*color:\s*ButtonText;[^}]*mix-blend-mode:\s*normal;/,
   );
   assert.doesNotMatch(
     css,

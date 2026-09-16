@@ -1,5 +1,6 @@
 import { PostOutline, type OutlineItem } from "./PostOutline";
 import { CodeCopyEnhancer } from "./CodeCopyEnhancer";
+import { PostImageEnhancer } from "./PostImageEnhancer";
 
 function plainText(value: string) {
   return value
@@ -57,6 +58,7 @@ export function PostContent({ html }: { html: string }) {
         dangerouslySetInnerHTML={{ __html: content }}
       />
       <CodeCopyEnhancer />
+      <PostImageEnhancer />
     </div>
   );
 }
