@@ -215,6 +215,7 @@ export function LiquidGlassNavigation() {
   }, [pathname, supportsLiquidGlass]);
 
   return (
+    <>
       <nav className="liquid-navigation" aria-label="页面导航">
         <div
           ref={surfaceRef}
@@ -344,5 +345,24 @@ export function LiquidGlassNavigation() {
           })}
         </div>
       </nav>
+      <div
+        className="liquid-navigation-contrast"
+        data-active-index={activeIndex}
+        aria-hidden="true"
+      >
+        {navigationItems.map((item, index) => (
+          <span
+            className="liquid-navigation-contrast__item"
+            data-active={index === activeIndex ? "true" : "false"}
+            key={item.href}
+          >
+            <span
+              className={`liquid-navigation__icon liquid-navigation__icon--${item.icon}`}
+            />
+            <span className="liquid-navigation__label">{item.label}</span>
+          </span>
+        ))}
+      </div>
+    </>
   );
 }
