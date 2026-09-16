@@ -75,7 +75,7 @@ test("uses a live backdrop lens without mirrored background copies", async () =>
   assert.doesNotMatch(css, /mask-composite:\s*exclude, add, add, add/);
   assert.doesNotMatch(
     navigation,
-    /cloneNode|MutationObserver|addEventListener\("scroll"|feImage|feDisplacementMap/,
+    /cloneNode|feImage|feDisplacementMap/,
   );
   assert.doesNotMatch(navigation, /filterResolution=\{2\}/);
   assert.match(
@@ -103,28 +103,32 @@ test("keeps navigation controls legible over light and dark backgrounds", async 
     readFile(new URL("app/globals.css", root), "utf8"),
   ]);
 
-  assert.match(navigation, /className="liquid-navigation-contrast"/);
-  assert.match(navigation, /aria-hidden="true"/);
-  assert.match(navigation, /className="liquid-navigation-contrast__item"/);
+  assert.match(navigation, /CONTRAST_SAMPLE_COLUMNS = 5/);
+  assert.match(navigation, /CONTRAST_SAMPLE_ROWS = 3/);
+  assert.match(navigation, /document\.elementsFromPoint\(x, y\)/);
+  assert.match(navigation, /lightSamples \/ validSamples/);
+  assert.match(navigation, /item\.dataset\.foreground = useDarkForeground \? "dark" : "light"/);
+  assert.match(navigation, /window\.addEventListener\("scroll", scheduleContrastUpdate/);
+  assert.doesNotMatch(navigation, /className="liquid-navigation-contrast"/);
   assert.match(
     css,
-    /\.liquid-navigation-contrast\s*\{[^}]*z-index:\s*61;[^}]*mix-blend-mode:\s*difference;[^}]*pointer-events:\s*none;/,
+    /\.liquid-navigation__item\[data-foreground="dark"\]\s*\{[^}]*color:\s*rgba\(8, 7, 15, \.68\);/,
   );
   assert.match(
     css,
-    /\.liquid-navigation__item\s*\{[^}]*color:\s*transparent;/,
+    /\.liquid-navigation__item\s*\{[^}]*color:\s*rgba\(255, 255, 255, \.62\);/,
   );
   assert.doesNotMatch(
     css,
-    /\.liquid-navigation__item\s*\{[^}]*mix-blend-mode:\s*difference;/,
+    /mix-blend-mode:\s*difference/,
   );
   assert.match(
     css,
-    /@media \(forced-colors:\s*active\)[\s\S]*?\.liquid-navigation-contrast\s*\{[^}]*color:\s*ButtonText;[^}]*mix-blend-mode:\s*normal;/,
+    /@media \(forced-colors:\s*active\)[\s\S]*?\.liquid-navigation__item[\s\S]*?color:\s*ButtonText;/,
   );
   assert.doesNotMatch(
     css,
-    /\.liquid-navigation(?:__surface)?\s*\{[^}]*mix-blend-mode:\s*difference;/,
+    /color:\s*transparent;/,
   );
 });
 
