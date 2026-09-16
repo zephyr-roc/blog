@@ -11,6 +11,7 @@ import {
   type CSSProperties,
   type MouseEvent,
   type PointerEvent,
+  useEffect,
   useId,
   useLayoutEffect,
   useRef,
@@ -47,6 +48,177 @@ const navigationGlassOptics: Partial<GlassOptics> = {
 
 const DRAG_ACTIVATION_DISTANCE = 12;
 const TOUCH_TAP_DISTANCE = 28;
+const CONTRAST_SAMPLE_COLUMNS = 5;
+const CONTRAST_SAMPLE_ROWS = 3;
+const LIGHT_BACKGROUND_LUMINANCE = .58;
+const DARK_FOREGROUND_ENTER_RATIO = .55;
+const DARK_FOREGROUND_EXIT_RATIO = .45;
+const CONTRAST_SAMPLE_INTERVAL = 72;
+
+type Rgba = {
+  red: number;
+  green: number;
+  blue: number;
+  alpha: number;
+};
+
+type ImageSampler = {
+  context: CanvasRenderingContext2D;
+  width: number;
+  height: number;
+};
+
+const imageSamplerCache = new WeakMap<HTMLImageElement, ImageSampler | null>();
+
+function parseCssColor(value: string): Rgba | null {
+  const match = value.match(/^rgba?\((.*)\)$/i);
+  if (!match) return null;
+
+  const [colorPart, alphaPart] = match[1].split("/").map((part) => part.trim());
+  const channels = colorPart.split(/[\s,]+/).filter(Boolean);
+  if (channels.length < 3) return null;
+
+  const parseChannel = (channel: string) => channel.endsWith("%")
+    ? Number.parseFloat(channel) * 2.55
+    : Number.parseFloat(channel);
+  const parseAlpha = (alpha: string | undefined) => {
+    if (!alpha) return 1;
+    return alpha.endsWith("%")
+      ? Number.parseFloat(alpha) / 100
+      : Number.parseFloat(alpha);
+  };
+  const alphaFromComma = channels[3];
+  const color: Rgba = {
+    red: parseChannel(channels[0]),
+    green: parseChannel(channels[1]),
+    blue: parseChannel(channels[2]),
+    alpha: parseAlpha(alphaPart ?? alphaFromComma),
+  };
+
+  return Object.values(color).every(Number.isFinite) ? color : null;
+}
+
+function relativeLuminance({ red, green, blue }: Rgba) {
+  const linearize = (channel: number) => {
+    const normalized = channel / 255;
+    return normalized <= .04045
+      ? normalized / 12.92
+      : ((normalized + .055) / 1.055) ** 2.4;
+  };
+
+  return linearize(red) * .2126
+    + linearize(green) * .7152
+    + linearize(blue) * .0722;
+}
+
+function getImageSampler(image: HTMLImageElement) {
+  if (imageSamplerCache.has(image)) return imageSamplerCache.get(image) ?? null;
+  if (!image.complete || image.naturalWidth === 0 || image.naturalHeight === 0) {
+    return null;
+  }
+
+  const scale = Math.min(1, 256 / Math.max(image.naturalWidth, image.naturalHeight));
+  const width = Math.max(1, Math.round(image.naturalWidth * scale));
+  const height = Math.max(1, Math.round(image.naturalHeight * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (!context) {
+    imageSamplerCache.set(image, null);
+    return null;
+  }
+
+  try {
+    context.drawImage(image, 0, 0, width, height);
+    // Read once here so cross-origin canvases fail before being cached.
+    context.getImageData(0, 0, 1, 1);
+  } catch {
+    imageSamplerCache.set(image, null);
+    return null;
+  }
+
+  const sampler = { context, width, height };
+  imageSamplerCache.set(image, sampler);
+  return sampler;
+}
+
+function sampleImagePixel(image: HTMLImageElement, x: number, y: number): Rgba | null {
+  const sampler = getImageSampler(image);
+  if (!sampler) return null;
+
+  const bounds = image.getBoundingClientRect();
+  if (bounds.width <= 0 || bounds.height <= 0) return null;
+  const style = window.getComputedStyle(image);
+  const naturalRatio = image.naturalWidth / image.naturalHeight;
+  const boxRatio = bounds.width / bounds.height;
+  let renderedWidth = bounds.width;
+  let renderedHeight = bounds.height;
+
+  if (style.objectFit === "contain") {
+    if (naturalRatio > boxRatio) renderedHeight = bounds.width / naturalRatio;
+    else renderedWidth = bounds.height * naturalRatio;
+  } else if (style.objectFit === "cover") {
+    if (naturalRatio > boxRatio) renderedWidth = bounds.height * naturalRatio;
+    else renderedHeight = bounds.width / naturalRatio;
+  }
+
+  const offsetX = bounds.left + (bounds.width - renderedWidth) / 2;
+  const offsetY = bounds.top + (bounds.height - renderedHeight) / 2;
+  const imageX = (x - offsetX) / renderedWidth;
+  const imageY = (y - offsetY) / renderedHeight;
+  if (imageX < 0 || imageX > 1 || imageY < 0 || imageY > 1) return null;
+
+  const sampleX = Math.min(sampler.width - 1, Math.floor(imageX * sampler.width));
+  const sampleY = Math.min(sampler.height - 1, Math.floor(imageY * sampler.height));
+  const pixel = sampler.context.getImageData(sampleX, sampleY, 1, 1).data;
+  return {
+    red: pixel[0],
+    green: pixel[1],
+    blue: pixel[2],
+    alpha: pixel[3] / 255,
+  };
+}
+
+function sampleBackgroundLuminance(x: number, y: number) {
+  const elements = document.elementsFromPoint(x, y);
+  let red = 0;
+  let green = 0;
+  let blue = 0;
+  let alpha = 0;
+
+  const composite = (color: Rgba) => {
+    const availableAlpha = 1 - alpha;
+    const layerAlpha = Math.max(0, Math.min(1, color.alpha)) * availableAlpha;
+    red += color.red * layerAlpha;
+    green += color.green * layerAlpha;
+    blue += color.blue * layerAlpha;
+    alpha += layerAlpha;
+  };
+
+  for (const element of elements) {
+    if (!(element instanceof HTMLElement) || element.closest(".liquid-navigation")) {
+      continue;
+    }
+
+    if (element instanceof HTMLImageElement) {
+      const pixel = sampleImagePixel(element, x, y);
+      if (pixel) composite(pixel);
+    }
+
+    const style = window.getComputedStyle(element);
+    const background = parseCssColor(style.backgroundColor);
+    if (background && background.alpha > 0) composite(background);
+    if (alpha >= .995) break;
+  }
+
+  if (alpha < 1) {
+    // The site canvas is dark; use it for any remaining transparent area.
+    composite({ red: 8, green: 7, blue: 15, alpha: 1 });
+  }
+
+  return relativeLuminance({ red, green, blue, alpha: 1 });
+}
 
 type GestureStart = {
   x: number;
@@ -214,9 +386,88 @@ export function LiquidGlassNavigation() {
     return () => resizeObserver.disconnect();
   }, [pathname, supportsLiquidGlass]);
 
+  useEffect(() => {
+    const surface = surfaceRef.current;
+    if (!surface) return;
+
+    let animationFrame = 0;
+    let timer = 0;
+    let lastSampleTime = -CONTRAST_SAMPLE_INTERVAL;
+
+    const updateContrast = (time: number) => {
+      animationFrame = 0;
+      lastSampleTime = time;
+      const items = surface.querySelectorAll<HTMLElement>(".liquid-navigation__item");
+      const previousPointerEvents = surface.style.pointerEvents;
+      surface.style.pointerEvents = "none";
+
+      try {
+        items.forEach((item) => {
+          const bounds = item.getBoundingClientRect();
+          let lightSamples = 0;
+          let validSamples = 0;
+
+          for (let row = 1; row <= CONTRAST_SAMPLE_ROWS; row += 1) {
+            const y = bounds.top + bounds.height * row / (CONTRAST_SAMPLE_ROWS + 1);
+            for (let column = 1; column <= CONTRAST_SAMPLE_COLUMNS; column += 1) {
+              const x = bounds.left + bounds.width * column / (CONTRAST_SAMPLE_COLUMNS + 1);
+              const luminance = sampleBackgroundLuminance(x, y);
+              validSamples += 1;
+              if (luminance >= LIGHT_BACKGROUND_LUMINANCE) lightSamples += 1;
+            }
+          }
+
+          const lightRatio = validSamples === 0 ? 0 : lightSamples / validSamples;
+          const wasDarkForeground = item.dataset.foreground === "dark";
+          const useDarkForeground = wasDarkForeground
+            ? lightRatio >= DARK_FOREGROUND_EXIT_RATIO
+            : lightRatio >= DARK_FOREGROUND_ENTER_RATIO;
+          item.dataset.foreground = useDarkForeground ? "dark" : "light";
+          item.style.setProperty("--background-light-ratio", lightRatio.toFixed(3));
+        });
+      } finally {
+        surface.style.pointerEvents = previousPointerEvents;
+      }
+    };
+
+    const scheduleContrastUpdate = () => {
+      if (animationFrame || timer) return;
+      const elapsed = window.performance.now() - lastSampleTime;
+      const delay = Math.max(0, CONTRAST_SAMPLE_INTERVAL - elapsed);
+      if (delay === 0) {
+        animationFrame = window.requestAnimationFrame(updateContrast);
+        return;
+      }
+      timer = window.setTimeout(() => {
+        timer = 0;
+        animationFrame = window.requestAnimationFrame(updateContrast);
+      }, delay);
+    };
+
+    scheduleContrastUpdate();
+    window.addEventListener("scroll", scheduleContrastUpdate, { passive: true, capture: true });
+    window.addEventListener("resize", scheduleContrastUpdate, { passive: true });
+    document.addEventListener("load", scheduleContrastUpdate, { capture: true });
+    const mutationObserver = new MutationObserver(scheduleContrastUpdate);
+    mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["data-background", "src"],
+    });
+
+    return () => {
+      window.removeEventListener("scroll", scheduleContrastUpdate, true);
+      window.removeEventListener("resize", scheduleContrastUpdate);
+      document.removeEventListener("load", scheduleContrastUpdate, true);
+      mutationObserver.disconnect();
+      if (animationFrame) window.cancelAnimationFrame(animationFrame);
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [pathname]);
+
   return (
-    <>
-      <nav className="liquid-navigation" aria-label="页面导航">
+    <nav className="liquid-navigation" aria-label="页面导航">
         <div
           ref={surfaceRef}
           className="liquid-navigation__surface"
@@ -344,25 +595,6 @@ export function LiquidGlassNavigation() {
             );
           })}
         </div>
-      </nav>
-      <div
-        className="liquid-navigation-contrast"
-        data-active-index={activeIndex}
-        aria-hidden="true"
-      >
-        {navigationItems.map((item, index) => (
-          <span
-            className="liquid-navigation-contrast__item"
-            data-active={index === activeIndex ? "true" : "false"}
-            key={item.href}
-          >
-            <span
-              className={`liquid-navigation__icon liquid-navigation__icon--${item.icon}`}
-            />
-            <span className="liquid-navigation__label">{item.label}</span>
-          </span>
-        ))}
-      </div>
-    </>
+    </nav>
   );
 }
