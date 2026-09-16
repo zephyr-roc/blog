@@ -63,6 +63,7 @@ test("shows a glass back-to-top button only when the navigation leaves enough ro
   assert.match(button, /aria-label="返回页面顶部"/);
   assert.match(button, /<Glass[\s\S]*?className="back-to-top-button__glass"/);
   assert.match(button, /backToTopGlassOptics/);
+  assert.match(button, /backToTopGlassOptics:[\s\S]*?dispersion:\s*0,[\s\S]*?specular:\s*0,[\s\S]*?sheen:\s*0,/);
   assert.doesNotMatch(button, /back-to-top-button__yarn/);
   assert.match(
     css,
@@ -335,6 +336,8 @@ test("persists article-wide reading colors with automatic text contrast", async 
   assert.match(appearance, /<Glass[\s\S]*?className="reading-appearance__trigger-glass"/);
   assert.match(appearance, /className="reading-appearance__panel"/);
   assert.match(appearance, /readingAppearancePanelOptics/);
+  assert.match(appearance, /readingAppearanceTriggerOptics:[\s\S]*?dispersion:\s*0,[\s\S]*?specular:\s*0,[\s\S]*?sheen:\s*0,/);
+  assert.match(appearance, /readingAppearancePanelOptics:[\s\S]*?dispersion:\s*0,[\s\S]*?specular:\s*0,[\s\S]*?sheen:\s*0,/);
   assert.match(appearance, /role="dialog"/);
   assert.match(
     css,
