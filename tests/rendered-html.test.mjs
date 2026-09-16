@@ -263,10 +263,14 @@ test("gives transparent post images a default white background toggle", async ()
   assert.match(enhancer, /toggle\.setAttribute\("aria-pressed", "true"\)/);
   assert.match(enhancer, /关闭图片白色背景/);
   assert.match(enhancer, /开启图片白色背景/);
+  assert.match(enhancer, /post-image-background-toggle__icon--sun/);
+  assert.match(enhancer, /post-image-background-toggle__icon--moon/);
+  assert.doesNotMatch(enhancer, />白底</);
   assert.match(
     css,
-    /\.post-image-frame\s*\{[^}]*position:\s*relative;[^}]*background:\s*#fff;/,
+    /\.post-image-frame\s*\{[^}]*position:\s*relative;[^}]*border-radius:\s*0;[^}]*background:\s*#fff;/,
   );
+  assert.match(css, /\.post-content img\s*\{[^}]*border-radius:\s*0;/);
   assert.match(
     css,
     /\.post-image-frame\[data-background="transparent"\]\s*\{[^}]*background:\s*transparent;/,
@@ -275,6 +279,7 @@ test("gives transparent post images a default white background toggle", async ()
     css,
     /\.post-image-background-toggle\s*\{[^}]*position:\s*absolute;[^}]*top:\s*10px;[^}]*right:\s*10px;/,
   );
+  assert.doesNotMatch(css, /post-image-background-toggle__track/);
 });
 
 test("keeps mobile device tilt exclusive to the about page", async () => {
