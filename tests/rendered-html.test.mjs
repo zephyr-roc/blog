@@ -46,6 +46,29 @@ test("uses the page logo in the shared site header", async () => {
   );
 });
 
+test("shows a scroll-driven cat only when the navigation leaves enough room", async () => {
+  const [layout, companion, css] = await Promise.all([
+    readFile(new URL("app/layout.tsx", root), "utf8"),
+    readFile(new URL("app/components/ScrollCatCompanion.tsx", root), "utf8"),
+    readFile(new URL("app/globals.css", root), "utf8"),
+  ]);
+
+  assert.match(layout, /<ScrollCatCompanion \/>/);
+  assert.match(companion, /document\.documentElement\.scrollHeight - window\.innerHeight/);
+  assert.match(companion, /companionBounds\.left - navigationBounds\.right >= NAVIGATION_GAP/);
+  assert.match(companion, /companion\.dataset\.visible = String/);
+  assert.match(companion, /companion\.dataset\.running = "true"/);
+  assert.match(companion, /window\.scrollTo\(\{[\s\S]*?top:\s*0/);
+  assert.match(companion, /disabled=\{!caught\}/);
+  assert.match(companion, /返回页面顶部/);
+  assert.match(
+    css,
+    /\.scroll-cat-companion\s*\{[^}]*position:\s*fixed;[^}]*right:\s*max\(22px, env\(safe-area-inset-right\)\);[^}]*bottom:\s*max\(16px, env\(safe-area-inset-bottom\)\);[^}]*visibility:\s*hidden;/,
+  );
+  assert.match(css, /\.scroll-cat-companion\[data-visible="true"\]\s*\{[^}]*visibility:\s*visible;/);
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?scroll-cat-companion/);
+});
+
 test("retains content-hashed client assets across container deployments", async () => {
   const [workflow, restoredMotionTilt] = await Promise.all([
     readFile(new URL(".github/workflows/deploy.yml", root), "utf8"),
