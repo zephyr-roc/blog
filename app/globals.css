@@ -2096,7 +2096,7 @@ a {
   max-width: 100%;
   height: auto;
   margin: 1.75rem auto;
-  border-radius: 18px;
+  border-radius: 0;
   object-fit: contain;
 }
 
@@ -2107,7 +2107,7 @@ a {
   max-width: 100%;
   margin: 1.75rem auto;
   overflow: hidden;
-  border-radius: 18px;
+  border-radius: 0;
   background: #fff;
   box-shadow: 0 12px 32px rgba(0, 0, 0, .2);
   transition: background-color 180ms ease, box-shadow 180ms ease;
@@ -2128,11 +2128,11 @@ a {
   z-index: 2;
   top: 10px;
   right: 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 30px;
-  padding: 5px 9px 5px 7px;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  padding: 0;
   border: 1px solid rgba(255, 255, 255, .26);
   border-radius: 999px;
   background: rgba(9, 8, 15, .76);
@@ -2140,11 +2140,6 @@ a {
   box-shadow: 0 5px 16px rgba(0, 0, 0, .24);
   backdrop-filter: blur(8px) saturate(120%);
   -webkit-backdrop-filter: blur(8px) saturate(120%);
-  font: inherit;
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: .08em;
   cursor: pointer;
 }
 
@@ -2153,33 +2148,41 @@ a {
   outline-offset: 2px;
 }
 
-.post-image-background-toggle__track {
-  position: relative;
-  width: 24px;
-  height: 14px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, .22);
-}
-
-.post-image-background-toggle__track > span {
+.post-image-background-toggle__icon {
   position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #fff;
-  transform: translateX(10px);
-  transition: transform 160ms ease;
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: opacity 160ms ease, transform 160ms ease;
 }
 
-.post-image-background-toggle[aria-pressed="false"] .post-image-background-toggle__track > span {
-  transform: translateX(0);
+.post-image-background-toggle__icon--sun {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+
+.post-image-background-toggle__icon--moon {
+  opacity: 0;
+  transform: rotate(-18deg) scale(.72);
+}
+
+.post-image-background-toggle[aria-pressed="false"] .post-image-background-toggle__icon--sun {
+  opacity: 0;
+  transform: rotate(18deg) scale(.72);
+}
+
+.post-image-background-toggle[aria-pressed="false"] .post-image-background-toggle__icon--moon {
+  opacity: 1;
+  transform: rotate(0) scale(1);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .post-image-frame,
-  .post-image-background-toggle__track > span {
+  .post-image-background-toggle__icon {
     transition: none;
   }
 }

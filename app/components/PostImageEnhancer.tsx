@@ -61,7 +61,15 @@ function enhanceImage(image: HTMLImageElement, signal: AbortSignal) {
     toggle.type = "button";
     toggle.setAttribute("aria-pressed", "true");
     toggle.setAttribute("aria-label", "关闭图片白色背景");
-    toggle.innerHTML = '<span class="post-image-background-toggle__track" aria-hidden="true"><span /></span><span>白底</span>';
+    toggle.innerHTML = `
+      <svg class="post-image-background-toggle__icon post-image-background-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="3.75" />
+        <path d="M12 2.25v2.1M12 19.65v2.1M2.25 12h2.1M19.65 12h2.1M5.1 5.1l1.48 1.48M17.42 17.42l1.48 1.48M18.9 5.1l-1.48 1.48M6.58 17.42 5.1 18.9" />
+      </svg>
+      <svg class="post-image-background-toggle__icon post-image-background-toggle__icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.1 15.1A8.25 8.25 0 0 1 8.9 3.9 8.26 8.26 0 1 0 20.1 15.1Z" />
+      </svg>
+    `;
 
     image.before(frame);
     frame.append(image, toggle);
