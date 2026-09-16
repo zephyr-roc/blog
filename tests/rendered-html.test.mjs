@@ -46,7 +46,7 @@ test("uses the page logo in the shared site header", async () => {
   );
 });
 
-test("shows a yarn back-to-top button only when the navigation leaves enough room", async () => {
+test("shows a glass back-to-top button only when the navigation leaves enough room", async () => {
   const [layout, button, css] = await Promise.all([
     readFile(new URL("app/layout.tsx", root), "utf8"),
     readFile(new URL("app/components/BackToTopButton.tsx", root), "utf8"),
@@ -55,17 +55,22 @@ test("shows a yarn back-to-top button only when the navigation leaves enough roo
 
   assert.match(layout, /<BackToTopButton \/>/);
   assert.match(button, /document\.documentElement\.scrollHeight - window\.innerHeight/);
-  assert.match(button, /buttonBounds\.left - navigationBounds\.right >= NAVIGATION_GAP/);
+  assert.match(button, /rootBounds\.left - navigationBounds\.right >= NAVIGATION_GAP/);
   assert.match(button, /window\.scrollY >= window\.innerHeight \* SHOW_AFTER_VIEWPORT_RATIO/);
-  assert.match(button, /button\.dataset\.visible = String/);
+  assert.match(button, /root\.dataset\.visible = String/);
   assert.match(button, /window\.scrollTo\(\{ top: 0, left: 0, behavior: "smooth" \}\)/);
   assert.match(button, /if \(window\.scrollY > 1\) window\.scrollTo\(0, 0\)/);
   assert.match(button, /aria-label="返回页面顶部"/);
+  assert.match(button, /<Glass[\s\S]*?className="back-to-top-button__glass"/);
+  assert.match(button, /backToTopGlassOptics/);
+  assert.doesNotMatch(button, /back-to-top-button__yarn/);
   assert.match(
     css,
     /\.back-to-top-button\s*\{[^}]*position:\s*fixed;[^}]*right:\s*max\(22px, env\(safe-area-inset-right\)\);[^}]*bottom:\s*max\(20px, env\(safe-area-inset-bottom\)\);[^}]*visibility:\s*hidden;/,
   );
   assert.match(css, /\.back-to-top-button\[data-visible="true"\]\s*\{[^}]*visibility:\s*visible;/);
+  assert.match(css, /\.back-to-top-button__glass\s*\{[^}]*background:[\s\S]*?rgba\(17, 15, 24, \.11\);/);
+  assert.doesNotMatch(css, /fill:\s*#d94f96/);
   assert.doesNotMatch(layout, /ScrollCatCompanion/);
   assert.doesNotMatch(css, /scroll-cat/);
 });
@@ -322,11 +327,18 @@ test("persists article-wide reading colors with automatic text contrast", async 
   assert.match(appearance, /文字颜色跟随背景/);
   assert.match(appearance, /window\.localStorage\.setItem/);
   assert.match(appearance, /shell\.dataset\.readingAppearance = "custom"/);
+  assert.match(appearance, /<Glass[\s\S]*?className="reading-appearance__trigger-glass"/);
+  assert.match(appearance, /className="reading-appearance__panel"/);
+  assert.match(appearance, /readingAppearancePanelOptics/);
+  assert.match(appearance, /role="dialog"/);
   assert.match(
     css,
     /\.post-shell\[data-reading-appearance="custom"\]\s*\{[^}]*background:\s*var\(--reading-background\);[^}]*color:\s*var\(--reading-text\);/,
   );
   assert.match(css, /\.reading-appearance\s*\{[^}]*position:\s*fixed;/);
+  assert.match(css, /\.reading-appearance__trigger-glass\s*\{[^}]*background:[\s\S]*?rgba\(17, 15, 24, \.11\);/);
+  assert.match(css, /\.reading-appearance__panel\s*\{[^}]*background:[\s\S]*?rgba\(12, 10, 18, \.32\);/);
+  assert.doesNotMatch(css, /\.reading-appearance__panel\s*\{[^}]*rgba\(12, 10, 18, \.94\)/);
 });
 
 test("keeps mobile device tilt exclusive to the about page", async () => {
