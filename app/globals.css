@@ -2298,8 +2298,8 @@ a {
   max-width: 100%;
   margin: 1.75rem auto;
   overflow: hidden;
-  padding-top: 42px;
-  border-radius: 0;
+  padding: 48px 12px 12px;
+  border-radius: 16px;
   background: #fff;
   box-shadow: 0 12px 32px rgba(0, 0, 0, .2);
   transition: background-color 180ms ease, box-shadow 180ms ease;
@@ -2318,8 +2318,8 @@ a {
 .post-image-background-toggle {
   position: absolute;
   z-index: 2;
-  top: 4px;
-  right: 4px;
+  top: 7px;
+  right: 7px;
   display: grid;
   width: 34px;
   height: 34px;
