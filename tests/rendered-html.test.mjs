@@ -46,27 +46,28 @@ test("uses the page logo in the shared site header", async () => {
   );
 });
 
-test("shows a scroll-driven cat only when the navigation leaves enough room", async () => {
-  const [layout, companion, css] = await Promise.all([
+test("shows a yarn back-to-top button only when the navigation leaves enough room", async () => {
+  const [layout, button, css] = await Promise.all([
     readFile(new URL("app/layout.tsx", root), "utf8"),
-    readFile(new URL("app/components/ScrollCatCompanion.tsx", root), "utf8"),
+    readFile(new URL("app/components/BackToTopButton.tsx", root), "utf8"),
     readFile(new URL("app/globals.css", root), "utf8"),
   ]);
 
-  assert.match(layout, /<ScrollCatCompanion \/>/);
-  assert.match(companion, /document\.documentElement\.scrollHeight - window\.innerHeight/);
-  assert.match(companion, /companionBounds\.left - navigationBounds\.right >= NAVIGATION_GAP/);
-  assert.match(companion, /companion\.dataset\.visible = String/);
-  assert.match(companion, /companion\.dataset\.running = "true"/);
-  assert.match(companion, /window\.scrollTo\(\{[\s\S]*?top:\s*0/);
-  assert.match(companion, /disabled=\{!caught\}/);
-  assert.match(companion, /返回页面顶部/);
+  assert.match(layout, /<BackToTopButton \/>/);
+  assert.match(button, /document\.documentElement\.scrollHeight - window\.innerHeight/);
+  assert.match(button, /buttonBounds\.left - navigationBounds\.right >= NAVIGATION_GAP/);
+  assert.match(button, /window\.scrollY >= window\.innerHeight \* SHOW_AFTER_VIEWPORT_RATIO/);
+  assert.match(button, /button\.dataset\.visible = String/);
+  assert.match(button, /window\.scrollTo\(\{ top: 0, left: 0, behavior: "smooth" \}\)/);
+  assert.match(button, /if \(window\.scrollY > 1\) window\.scrollTo\(0, 0\)/);
+  assert.match(button, /aria-label="返回页面顶部"/);
   assert.match(
     css,
-    /\.scroll-cat-companion\s*\{[^}]*position:\s*fixed;[^}]*right:\s*max\(22px, env\(safe-area-inset-right\)\);[^}]*bottom:\s*max\(16px, env\(safe-area-inset-bottom\)\);[^}]*visibility:\s*hidden;/,
+    /\.back-to-top-button\s*\{[^}]*position:\s*fixed;[^}]*right:\s*max\(22px, env\(safe-area-inset-right\)\);[^}]*bottom:\s*max\(20px, env\(safe-area-inset-bottom\)\);[^}]*visibility:\s*hidden;/,
   );
-  assert.match(css, /\.scroll-cat-companion\[data-visible="true"\]\s*\{[^}]*visibility:\s*visible;/);
-  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?scroll-cat-companion/);
+  assert.match(css, /\.back-to-top-button\[data-visible="true"\]\s*\{[^}]*visibility:\s*visible;/);
+  assert.doesNotMatch(layout, /ScrollCatCompanion/);
+  assert.doesNotMatch(css, /scroll-cat/);
 });
 
 test("retains content-hashed client assets across container deployments", async () => {
