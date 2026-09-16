@@ -2296,8 +2296,9 @@ a {
   display: block;
   width: fit-content;
   max-width: 100%;
-  margin: calc(1.75rem + 42px) auto 1.75rem;
-  overflow: visible;
+  margin: 1.75rem auto;
+  overflow: hidden;
+  padding-top: 42px;
   border-radius: 0;
   background: #fff;
   box-shadow: 0 12px 32px rgba(0, 0, 0, .2);
@@ -2317,8 +2318,8 @@ a {
 .post-image-background-toggle {
   position: absolute;
   z-index: 2;
-  top: -42px;
-  right: 0;
+  top: 4px;
+  right: 4px;
   display: grid;
   width: 34px;
   height: 34px;
