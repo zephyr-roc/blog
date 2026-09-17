@@ -132,7 +132,7 @@ test("server-renders the collection cards before client hydration", async () => 
   assert.match(html, /data-motion-card="true"/);
   assert.match(html, /href="\/collections\/kotlin"/);
   assert.match(html, /href="\/collections\/swift"/);
-  assert.doesNotMatch(html, /href="\/collections\/java"/);
+  assert.match(html, /href="\/collections\/java"/);
   assert.doesNotMatch(html, /href="\/collections\/react"/);
   assert.doesNotMatch(html, />0<!-- --> 篇文章</);
 });
@@ -443,6 +443,27 @@ test("persists article-wide reading colors with automatic text contrast", async 
   assert.doesNotMatch(css, /\.reading-appearance::before\s*\{[^}]*(?:113, 199, 255|255, 119, 193)/);
   assert.match(css, /\.reading-appearance__panel\s*\{[^}]*background:[\s\S]*?rgba\(12, 10, 18, \.32\);/);
   assert.doesNotMatch(css, /\.reading-appearance__panel\s*\{[^}]*rgba\(12, 10, 18, \.94\)/);
+});
+
+test("keeps the outline and code surfaces neutral frosted glass across reading colors", async () => {
+  const css = await readFile(new URL("app/globals.css", root), "utf8");
+
+  assert.match(
+    css,
+    /\.post-shell\s*\{[^}]*--post-glass-surface:\s*rgba\(128, 128, 136, \.14\);[^}]*--post-glass-border:\s*color-mix\(in srgb, var\(--ink\) 14%, transparent\);/,
+  );
+  assert.match(
+    css,
+    /\.post-outline\s*\{[^}]*border:\s*1px solid var\(--post-glass-border\);[^}]*background:[\s\S]*?var\(--post-glass-surface\);[^}]*backdrop-filter:\s*blur\(18px\) saturate\(\.82\);/,
+  );
+  assert.match(
+    css,
+    /\.post-content pre\s*\{[^}]*border:\s*1px solid var\(--post-glass-border\);[^}]*background:[\s\S]*?var\(--post-glass-surface-strong\);[^}]*backdrop-filter:\s*blur\(18px\) saturate\(\.82\);/,
+  );
+  assert.match(css, /\.post-content pre code\s*\{[^}]*color:\s*var\(--ink\);/);
+  assert.match(css, /\.post-content \.hljs-keyword,[\s\S]*?color:\s*var\(--post-code-keyword\);/);
+  assert.doesNotMatch(css, /\.post-outline\s*\{[^}]*background:\s*rgba\(9, 8, 15, \.9\);/);
+  assert.doesNotMatch(css, /\.post-content pre\s*\{[^}]*background:\s*rgba\(20, 20, 23, \.94\);/);
 });
 
 test("keeps mobile device tilt exclusive to the about page", async () => {
