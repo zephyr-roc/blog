@@ -58,7 +58,8 @@ function createWatchLayout<T>(items: T[]) {
 
 export default async function Home() {
   const collections = (await getAllCollections()).filter(
-    (collection) => !HOME_COLLECTIONS_HIDDEN.has(collection.slug),
+    (collection) =>
+      collection.postCount > 0 && !HOME_COLLECTIONS_HIDDEN.has(collection.slug),
   ).sort((a, b) => {
     const postCountDifference = b.postCount - a.postCount;
     if (postCountDifference !== 0) return postCountDifference;
