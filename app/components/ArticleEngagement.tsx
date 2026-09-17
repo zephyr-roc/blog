@@ -26,21 +26,29 @@ const GITHUB_PROBE_TIMEOUT = 4000;
 
 type GitHubAvailability = "checking" | "available" | "unavailable";
 
-async function canReachGitHub(signal: AbortSignal) {
-  if (!navigator.onLine) return false;
+function canReachGitHub(signal: AbortSignal) {
+  if (!navigator.onLine) return Promise.resolve(false);
 
-  try {
-    await fetch(GITHUB_PROBE_URL, {
-      mode: "no-cors",
-      cache: "no-store",
-      credentials: "omit",
-      referrerPolicy: "no-referrer",
-      signal,
-    });
-    return true;
-  } catch {
-    return false;
-  }
+  return new Promise<boolean>((resolve) => {
+    const probe = new Image();
+    let settled = false;
+
+    const finish = (available: boolean) => {
+      if (settled) return;
+      settled = true;
+      probe.onload = null;
+      probe.onerror = null;
+      signal.removeEventListener("abort", abort);
+      resolve(available);
+    };
+    const abort = () => finish(false);
+
+    probe.onload = () => finish(true);
+    probe.onerror = () => finish(false);
+    probe.referrerPolicy = "no-referrer";
+    signal.addEventListener("abort", abort, { once: true });
+    probe.src = GITHUB_PROBE_URL;
+  });
 }
 
 function canonicalShareUrl() {
