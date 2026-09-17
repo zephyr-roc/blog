@@ -1,6 +1,6 @@
 ---
 title: Java 深入
-description: 深入 JVM、并发、性能工程与现代 Java，在运行时与工程实践之间建立联系。
+description: 从 Panama、Loom 与 Valhalla 进入现代 Java，深入 JVM、并发、原生互操作与性能工程。
 color: "#ff7657"
 icon: java
 ---
