@@ -740,10 +740,6 @@ JNI 的思路是通过 C glue 跨越 JVM 边界；Panama 的思路是让 JVM 看
 
 这并没有取消 C ABI、内存所有权和平台差异，反而要求 Java 开发者正面理解它们。成熟的 Panama 工程不是把 `MemorySegment` 传遍业务代码，而是用一个窄小、可审计、可测试的 adapter，把 native 能力重新封装成稳定的 Java/Kotlin 领域接口。
 
-## 下一篇
-
-下一篇继续深入 Panama 工程化：使用 jextract 为 Rust/C library 生成 binding，处理 struct、string、error、callback 与 Gradle 多平台制品，并用 JMH 和 async-profiler 比较 JNI 与 FFM 的真实成本。
-
 ## 延伸阅读
 
 - [JEP 454：Foreign Function & Memory API](https://openjdk.org/jeps/454)
