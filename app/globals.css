@@ -2063,6 +2063,19 @@ a {
 /* ── Post Page ───────────────────────────────────────────────── */
 
 .post-shell {
+  --post-glass-surface: rgba(128, 128, 136, .14);
+  --post-glass-surface-strong: rgba(128, 128, 136, .2);
+  --post-glass-border: color-mix(in srgb, var(--ink) 14%, transparent);
+  --post-glass-highlight: color-mix(in srgb, var(--ink) 11%, transparent);
+  --post-glass-shadow: rgba(0, 0, 0, .18);
+  --post-code-keyword: color-mix(in srgb, var(--ink) 70%, #9b73ff 30%);
+  --post-code-string: color-mix(in srgb, var(--ink) 70%, #57b879 30%);
+  --post-code-number: color-mix(in srgb, var(--ink) 70%, #d99226 30%);
+  --post-code-title: color-mix(in srgb, var(--ink) 70%, #559ce9 30%);
+  --post-code-type: color-mix(in srgb, var(--ink) 70%, #36a5b3 30%);
+  --post-code-property: color-mix(in srgb, var(--ink) 70%, #c69730 30%);
+  --post-code-meta: color-mix(in srgb, var(--ink) 70%, #d464aa 30%);
+  --post-code-deletion: color-mix(in srgb, var(--ink) 70%, #e65353 30%);
   overflow: clip;
 }
 
@@ -2607,11 +2620,16 @@ a {
 
 .post-outline {
   padding: 16px 16px 18px;
-  border: 1px solid transparent;
+  border: 1px solid var(--post-glass-border);
   border-radius: 16px;
-  background: rgba(9, 8, 15, .9);
-  box-shadow: 0 14px 36px rgba(0, 0, 0, .24);
-  backdrop-filter: blur(16px) saturate(1.08);
+  background:
+    linear-gradient(135deg, var(--post-glass-highlight), transparent 58%),
+    var(--post-glass-surface);
+  box-shadow:
+    inset 0 1px 0 var(--post-glass-highlight),
+    0 14px 36px var(--post-glass-shadow);
+  backdrop-filter: blur(18px) saturate(.82);
+  -webkit-backdrop-filter: blur(18px) saturate(.82);
   scrollbar-width: thin;
   scrollbar-color: rgba(168, 140, 255, .35) transparent;
 }
@@ -2631,7 +2649,7 @@ a {
 
 .post-outline summary {
   cursor: pointer;
-  color: rgba(240, 237, 248, .78);
+  color: color-mix(in srgb, var(--ink) 78%, transparent);
   font-size: 12px;
   font-weight: 650;
   letter-spacing: .06em;
@@ -2650,7 +2668,7 @@ a {
 .post-outline ol ol {
   margin: 5px 0 8px 12px;
   padding-left: 11px;
-  border-left: 1px solid rgba(255, 255, 255, .08);
+  border-left: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
 }
 
 .post-outline li + li {
@@ -2661,7 +2679,7 @@ a {
   display: block;
   padding: 5px 7px;
   border-radius: 7px;
-  color: rgba(240, 237, 248, .48);
+  color: color-mix(in srgb, var(--ink) 48%, transparent);
   font-size: 11px;
   line-height: 1.55;
   text-decoration: none;
@@ -2670,14 +2688,14 @@ a {
 
 .post-outline ol ol a {
   font-size: 10px;
-  color: rgba(240, 237, 248, .38);
+  color: color-mix(in srgb, var(--ink) 38%, transparent);
 }
 
 .post-outline a:hover,
 .post-outline a:focus-visible,
 .post-outline a[data-active="true"] {
   background: rgba(127, 82, 255, .1);
-  color: #d8cbff;
+  color: color-mix(in srgb, var(--ink) 82%, #a88cff 18%);
 }
 
 .post-content h2,
@@ -2843,12 +2861,16 @@ a {
 .post-content pre {
   margin: 0 0 1.5em;
   padding: 18px 22px;
-  border: 1px solid rgba(255, 255, 255, .11);
+  border: 1px solid var(--post-glass-border);
   border-radius: 12px;
-  background: rgba(20, 20, 23, .94);
+  background:
+    linear-gradient(135deg, var(--post-glass-highlight), transparent 58%),
+    var(--post-glass-surface-strong);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .045),
-    0 10px 28px rgba(0, 0, 0, .18);
+    inset 0 1px 0 var(--post-glass-highlight),
+    0 10px 28px var(--post-glass-shadow);
+  backdrop-filter: blur(18px) saturate(.82);
+  -webkit-backdrop-filter: blur(18px) saturate(.82);
   overflow-x: auto;
 }
 
@@ -2875,7 +2897,7 @@ a {
 }
 
 .code-block__language {
-  color: rgba(255, 255, 255, .45);
+  color: color-mix(in srgb, var(--ink) 48%, transparent);
   font-size: 10px;
   font-weight: 650;
   line-height: 1;
@@ -2885,10 +2907,10 @@ a {
 .code-block__copy {
   margin-left: auto;
   padding: 5px 9px;
-  border: 1px solid rgba(255, 255, 255, .1);
+  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
   border-radius: 7px;
-  background: rgba(255, 255, 255, .055);
-  color: rgba(255, 255, 255, .72);
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+  color: color-mix(in srgb, var(--ink) 72%, transparent);
   font: inherit;
   font-size: 10px;
   line-height: 1.2;
@@ -2899,14 +2921,14 @@ a {
 
 .code-block__copy:hover,
 .code-block__copy:focus-visible {
-  border-color: rgba(255, 255, 255, .2);
-  background: rgba(255, 255, 255, .09);
-  color: #fff;
+  border-color: color-mix(in srgb, var(--ink) 22%, transparent);
+  background: color-mix(in srgb, var(--ink) 11%, transparent);
+  color: var(--ink);
 }
 
 .code-block__copy[data-copied="true"] {
-  border-color: rgba(126, 220, 160, .24);
-  color: #a7dfb5;
+  border-color: color-mix(in srgb, var(--ink) 12%, #57b879 26%);
+  color: var(--post-code-string);
 }
 
 .post-content pre code {
@@ -2914,12 +2936,12 @@ a {
   background: none;
   font-size: 0.875em;
   line-height: 1.7;
-  color: #fff;
+  color: var(--ink);
 }
 
 .post-content .hljs-comment,
 .post-content .hljs-quote {
-  color: #8e929d;
+  color: color-mix(in srgb, var(--ink) 54%, transparent);
   font-style: italic;
 }
 
@@ -2927,54 +2949,54 @@ a {
 .post-content .hljs-selector-tag,
 .post-content .hljs-literal,
 .post-content .hljs-section {
-  color: #c9adff;
+  color: var(--post-code-keyword);
 }
 
 .post-content .hljs-string,
 .post-content .hljs-regexp,
 .post-content .hljs-addition {
-  color: #a7dfb5;
+  color: var(--post-code-string);
 }
 
 .post-content .hljs-number,
 .post-content .hljs-symbol,
 .post-content .hljs-bullet {
-  color: #ffd18a;
+  color: var(--post-code-number);
 }
 
 .post-content .hljs-title,
 .post-content .hljs-title.class_,
 .post-content .hljs-title.function_ {
-  color: #9fc9ff;
+  color: var(--post-code-title);
 }
 
 .post-content .hljs-type,
 .post-content .hljs-built_in,
 .post-content .hljs-name {
-  color: #8edce6;
+  color: var(--post-code-type);
 }
 
 .post-content .hljs-attr,
 .post-content .hljs-attribute,
 .post-content .hljs-property {
-  color: #f3d99b;
+  color: var(--post-code-property);
 }
 
 .post-content .hljs-meta,
 .post-content .hljs-doctag,
 .post-content .hljs-template-tag {
-  color: #f0a8d5;
+  color: var(--post-code-meta);
 }
 
 .post-content .hljs-variable,
 .post-content .hljs-params,
 .post-content .hljs-subst,
 .post-content .hljs-punctuation {
-  color: #fff;
+  color: var(--ink);
 }
 
 .post-content .hljs-deletion {
-  color: #ff9e9e;
+  color: var(--post-code-deletion);
 }
 
 .post-content blockquote {
