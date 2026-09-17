@@ -50,7 +50,7 @@ export function blogPostingJsonLd(post: PostMeta, path: string) {
     dateModified: post.date || undefined,
     inLanguage: "zh-CN",
     mainEntityOfPage: absoluteUrl(path),
-    image: post.cover ? absoluteUrl(post.cover) : undefined,
+    image: absoluteUrl(`${path}/opengraph-image`),
     author: {
       "@type": "Person",
       "@id": `${SITE_URL}/#person`,

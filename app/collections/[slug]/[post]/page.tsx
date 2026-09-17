@@ -31,9 +31,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     slug === "tinkering"
       ? `/tinkering/${postSlug}`
       : `/collections/${slug}/${postSlug}`;
-  const images = post.cover
-    ? [{ url: post.cover, alt: post.title }]
-    : undefined;
 
   return {
     title: post.title,
@@ -48,13 +45,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: post.excerpt,
       publishedTime: post.date || undefined,
       modifiedTime: post.date || undefined,
-      images,
     },
     twitter: {
-      card: images ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
-      images: post.cover ? [post.cover] : undefined,
     },
   };
 }

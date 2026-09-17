@@ -132,6 +132,29 @@ test("server-renders the collection cards before client hydration", async () => 
   assert.match(html, /data-motion-card="true"/);
   assert.match(html, /href="\/collections\/kotlin"/);
   assert.match(html, /href="\/collections\/swift"/);
+  assert.doesNotMatch(html, /href="\/collections\/java"/);
+  assert.doesNotMatch(html, /href="\/collections\/react"/);
+  assert.doesNotMatch(html, />0<!-- --> 篇文章</);
+});
+
+test("publishes generated Open Graph and Twitter images for every article type", async () => {
+  const paths = [
+    "/collections/kotlin/getting-started",
+    "/tinkering/github-actions-deploy",
+    "/radar/2026-08-25",
+  ];
+
+  for (const pathname of paths) {
+    const response = await render(pathname);
+    assert.equal(response.status, 200);
+
+    const html = await response.text();
+    assert.match(html, /property="og:image" content="https:\/\/www\.ready-jump\.top\/.+\/opengraph-image(?:\?[^\"]+)?"/);
+    assert.match(html, /name="twitter:card" content="summary_large_image"/);
+    assert.match(html, /name="twitter:image" content="https:\/\/www\.ready-jump\.top\/.+\/twitter-image(?:\?[^\"]+)?"/);
+    assert.match(html, /property="og:image:width" content="1200"/);
+    assert.match(html, /property="og:image:height" content="630"/);
+  }
 });
 
 test("gives collection rows explicit heights for iPad Safari", async () => {
