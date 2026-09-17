@@ -149,11 +149,71 @@ test("publishes generated Open Graph and Twitter images for every article type",
     assert.equal(response.status, 200);
 
     const html = await response.text();
-    assert.match(html, /property="og:image" content="https:\/\/www\.ready-jump\.top\/.+\/opengraph-image(?:\?[^\"]+)?"/);
+    assert.match(html, /property="og:image" content="https:\/\/www\.ready-jump\.top\/.+\/opengraph-image(?:\?[^"]+)?"/);
     assert.match(html, /name="twitter:card" content="summary_large_image"/);
-    assert.match(html, /name="twitter:image" content="https:\/\/www\.ready-jump\.top\/.+\/twitter-image(?:\?[^\"]+)?"/);
+    assert.match(html, /name="twitter:image" content="https:\/\/www\.ready-jump\.top\/.+\/twitter-image(?:\?[^"]+)?"/);
     assert.match(html, /property="og:image:width" content="1200"/);
     assert.match(html, /property="og:image:height" content="630"/);
+  }
+});
+
+test("renders glass like and share actions with Giscus beneath every article", async () => {
+  const [engagement, giscus, css, collectionPage, tinkeringPage, radarPage] = await Promise.all([
+    readFile(new URL("app/components/ArticleEngagement.tsx", root), "utf8"),
+    readFile(new URL("app/components/GiscusComments.tsx", root), "utf8"),
+    readFile(new URL("app/globals.css", root), "utf8"),
+    readFile(new URL("app/collections/[slug]/[post]/page.tsx", root), "utf8"),
+    readFile(new URL("app/tinkering/[post]/page.tsx", root), "utf8"),
+    readFile(new URL("app/radar/[post]/page.tsx", root), "utf8"),
+  ]);
+
+  assert.equal((engagement.match(/className="article-engagement__glass"/g) ?? []).length, 2);
+  assert.match(engagement, /GITHUB_PROBE_URL = "https:\/\/github\.com\/favicon\.ico"/);
+  assert.match(engagement, /GITHUB_PROBE_TIMEOUT = 4000/);
+  assert.match(engagement, /mode: "no-cors"/);
+  assert.match(engagement, /window\.addEventListener\("online", checkGitHub\)/);
+  assert.match(engagement, /window\.addEventListener\("offline", markUnavailable\)/);
+  assert.match(engagement, /githubAvailability === "available" \? \(/);
+  assert.match(engagement, /githubAvailability === "available" \? <GiscusComments \/> : null/);
+  assert.match(engagement, /navigator\.share\(\{ title, url \}\)/);
+  assert.match(engagement, /navigator\.clipboard\?\.writeText/);
+  assert.match(engagement, /window\.location\.origin\}\$\{window\.location\.pathname/);
+  assert.match(engagement, /<GiscusComments \/>/);
+  assert.match(giscus, /script\.src = `\$\{GISCUS_ORIGIN\}\/client\.js`/);
+  assert.match(giscus, /script\.dataset\.repo = "zephyr-roc\/blog"/);
+  assert.match(giscus, /script\.dataset\.repoId = "R_kgDOT9ji4g"/);
+  assert.match(giscus, /script\.dataset\.category = "Announcements"/);
+  assert.match(giscus, /script\.dataset\.categoryId = "DIC_kwDOT9ji4s4DFx5B"/);
+  assert.match(giscus, /script\.dataset\.mapping = "pathname"/);
+  assert.match(giscus, /script\.dataset\.strict = "1"/);
+  assert.match(giscus, /script\.dataset\.loading = "lazy"/);
+  assert.match(giscus, /currentGiscusTheme/);
+  assert.match(giscus, /postMessage\(/);
+
+  for (const page of [collectionPage, tinkeringPage, radarPage]) {
+    assert.match(page, /<ArticleEngagement/);
+    assert.match(page, /title=\{post\.title\}/);
+  }
+
+  assert.match(
+    css,
+    /\.article-engagement__glass\s*\{[^}]*background:[\s\S]*?rgba\(17, 15, 24, \.16\);/,
+  );
+  assert.match(css, /\.article-engagement__actions\s*\{[^}]*display:\s*flex;/);
+  assert.match(css, /\.article-comments\s*\{[^}]*margin-top:\s*52px;/);
+
+  for (const pathname of [
+    "/collections/kotlin/getting-started",
+    "/tinkering/github-actions-deploy",
+    "/radar/2026-08-25",
+  ]) {
+    const response = await render(pathname);
+    assert.equal(response.status, 200);
+    const html = await response.text();
+    assert.match(html, /class="article-engagement"/);
+    assert.match(html, /aria-label="点赞，共 0 次点赞"/);
+    assert.doesNotMatch(html, />分享</);
+    assert.doesNotMatch(html, /id="article-comments-title">评论</);
   }
 });
 

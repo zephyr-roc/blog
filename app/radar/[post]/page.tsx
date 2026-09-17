@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { LikeButton } from "../../components/LikeButton";
+import { ArticleEngagement } from "../../components/ArticleEngagement";
 import { PostContent } from "../../components/PostContent";
 import { getPost, getPostsInCollection } from "../../lib/content";
 import {
@@ -94,7 +94,11 @@ export default async function RadarPostPage({ params }: Props) {
         </header>
 
         <PostContent html={post.htmlContent} />
-        <LikeButton collectionSlug="deep-radar" postSlug={postSlug} />
+        <ArticleEngagement
+          collectionSlug="deep-radar"
+          postSlug={postSlug}
+          title={post.title}
+        />
       </article>
     </main>
   );

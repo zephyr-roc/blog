@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getAllPostSlugs, getCollection, getPost } from "../../../lib/content";
 import { PostContent } from "../../../components/PostContent";
-import { LikeButton } from "../../../components/LikeButton";
+import { ArticleEngagement } from "../../../components/ArticleEngagement";
 import {
   blogPostingJsonLd,
   serializeJsonLd,
@@ -110,7 +110,11 @@ export default async function PostPage({ params }: Props) {
         </header>
 
         <PostContent html={post.htmlContent} />
-        <LikeButton collectionSlug={slug} postSlug={postSlug} />
+        <ArticleEngagement
+          collectionSlug={slug}
+          postSlug={postSlug}
+          title={post.title}
+        />
       </article>
     </main>
   );

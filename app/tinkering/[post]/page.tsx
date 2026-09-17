@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PostContent } from "../../components/PostContent";
-import { LikeButton } from "../../components/LikeButton";
+import { ArticleEngagement } from "../../components/ArticleEngagement";
 import { getPost, getPostsInCollection } from "../../lib/content";
 import {
   blogPostingJsonLd,
@@ -95,7 +95,11 @@ export default async function TinkeringPostPage({ params }: Props) {
         </header>
 
         <PostContent html={post.htmlContent} />
-        <LikeButton collectionSlug="tinkering" postSlug={postSlug} />
+        <ArticleEngagement
+          collectionSlug="tinkering"
+          postSlug={postSlug}
+          title={post.title}
+        />
       </article>
     </main>
   );
