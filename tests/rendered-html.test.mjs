@@ -170,7 +170,10 @@ test("renders glass like and share actions with Giscus beneath every article", a
   assert.equal((engagement.match(/className="article-engagement__glass"/g) ?? []).length, 2);
   assert.match(engagement, /GITHUB_PROBE_URL = "https:\/\/github\.com\/favicon\.ico"/);
   assert.match(engagement, /GITHUB_PROBE_TIMEOUT = 4000/);
-  assert.match(engagement, /mode: "no-cors"/);
+  assert.match(engagement, /const probe = new Image\(\)/);
+  assert.match(engagement, /probe\.onload = \(\) => finish\(true\)/);
+  assert.match(engagement, /probe\.onerror = \(\) => finish\(false\)/);
+  assert.match(engagement, /signal\.addEventListener\("abort", abort/);
   assert.match(engagement, /window\.addEventListener\("online", checkGitHub\)/);
   assert.match(engagement, /window\.addEventListener\("offline", markUnavailable\)/);
   assert.match(engagement, /githubAvailability === "available" \? \(/);
