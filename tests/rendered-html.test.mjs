@@ -460,6 +460,10 @@ test("keeps the outline and code surfaces neutral frosted glass across reading c
     css,
     /\.post-content pre\s*\{[^}]*border:\s*1px solid var\(--post-glass-border\);[^}]*background:[\s\S]*?var\(--post-glass-surface-strong\);[^}]*backdrop-filter:\s*blur\(18px\) saturate\(\.82\);/,
   );
+  assert.doesNotMatch(
+    css,
+    /\.(?:post-outline|post-content pre)\s*\{[^}]*-webkit-backdrop-filter:/,
+  );
   assert.match(css, /\.post-content pre code\s*\{[^}]*color:\s*var\(--ink\);/);
   assert.match(css, /\.post-content \.hljs-keyword,[\s\S]*?color:\s*var\(--post-code-keyword\);/);
   assert.doesNotMatch(css, /\.post-outline\s*\{[^}]*background:\s*rgba\(9, 8, 15, \.9\);/);
