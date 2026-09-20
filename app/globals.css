@@ -3019,7 +3019,8 @@ a {
 
 .mermaid-diagram__canvas svg {
   display: block;
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   height: auto;
   margin: 0 auto;
   font-family: inherit !important;
