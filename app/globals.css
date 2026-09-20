@@ -2997,6 +2997,81 @@ a {
   color: var(--post-code-deletion);
 }
 
+.mermaid-diagram {
+  margin: 0 0 1.5em;
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid var(--post-glass-border);
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, var(--post-glass-highlight), transparent 58%),
+    var(--post-glass-surface-strong);
+  box-shadow:
+    inset 0 1px 0 var(--post-glass-highlight),
+    0 10px 28px var(--post-glass-shadow);
+  backdrop-filter: blur(18px) saturate(.82);
+  overflow-x: auto;
+}
+
+.mermaid-diagram__canvas {
+  min-width: 0;
+  color: var(--ink);
+}
+
+.mermaid-diagram__canvas svg {
+  display: block;
+  width: 100%;
+  max-width: 100% !important;
+  height: auto;
+  margin: 0 auto;
+  font-family: inherit !important;
+}
+
+.post-content .mermaid-diagram__source {
+  margin: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.mermaid-diagram .node rect,
+.mermaid-diagram .node circle,
+.mermaid-diagram .node ellipse,
+.mermaid-diagram .node polygon,
+.mermaid-diagram .node path {
+  fill: var(--post-glass-surface-strong) !important;
+  stroke: color-mix(in srgb, var(--ink) 34%, transparent) !important;
+}
+
+.mermaid-diagram .label text,
+.mermaid-diagram .nodeLabel,
+.mermaid-diagram .edgeLabel {
+  color: var(--ink) !important;
+  fill: var(--ink) !important;
+}
+
+.mermaid-diagram .nodeLabel p,
+.mermaid-diagram .edgeLabel p {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.mermaid-diagram .flowchart-link,
+.mermaid-diagram .edgePath path {
+  stroke: color-mix(in srgb, var(--ink) 48%, transparent) !important;
+}
+
+.mermaid-diagram marker path,
+.mermaid-diagram .arrowheadPath {
+  fill: color-mix(in srgb, var(--ink) 58%, transparent) !important;
+  stroke: color-mix(in srgb, var(--ink) 58%, transparent) !important;
+}
+
+.mermaid-diagram .edgeLabel,
+.mermaid-diagram .labelBkg {
+  background: color-mix(in srgb, var(--reading-background, var(--night)) 78%, transparent) !important;
+}
+
 .post-content blockquote {
   margin: 1.5em 0;
   padding: 1em 1.25em;

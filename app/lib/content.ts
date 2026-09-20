@@ -122,6 +122,11 @@ marked.use({
       const declared = lang?.trim().split(/\s+/, 1)[0]?.toLowerCase() ?? "";
       const safeDeclared = /^[a-z0-9_+#.-]+$/.test(declared) ? declared : "";
       const language = languageAliases[safeDeclared] ?? safeDeclared;
+
+      if (language === "mermaid") {
+        return `<figure class="mermaid-diagram" data-mermaid-diagram><div class="mermaid-diagram__canvas" role="img" aria-label="文章流程图" hidden></div><pre class="mermaid-diagram__source"><code class="language-mermaid">${escapeHtml(text)}</code></pre><figcaption class="sr-only">文章流程图</figcaption></figure>\n`;
+      }
+
       const supported = language !== "" && Boolean(hljs.getLanguage(language));
       const highlighted = supported
         ? hljs.highlight(text, { language, ignoreIllegals: true }).value
