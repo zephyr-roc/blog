@@ -489,6 +489,10 @@ test("renders Mermaid fences as responsive article diagrams", async () => {
   assert.match(enhancer, /canvas\.innerHTML = svg/);
   assert.match(css, /\.mermaid-diagram\s*\{[^}]*backdrop-filter:\s*blur\(18px\) saturate\(\.82\);/);
   assert.match(css, /\.mermaid-diagram__canvas svg\s*\{[^}]*width:\s*100%;[^}]*height:\s*auto;/);
+  assert.doesNotMatch(
+    css,
+    /\.mermaid-diagram__canvas svg\s*\{[^}]*max-width:\s*100%\s*!important;/,
+  );
   assert.match(packageJson, /"mermaid":\s*"\^12\.0\.0"/);
 
   const response = await render("/collections/java/project-loom-structured-concurrency");
