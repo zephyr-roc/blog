@@ -470,6 +470,36 @@ test("keeps the outline and code surfaces neutral frosted glass across reading c
   assert.doesNotMatch(css, /\.post-content pre\s*\{[^}]*background:\s*rgba\(20, 20, 23, \.94\);/);
 });
 
+test("renders Mermaid fences as responsive article diagrams", async () => {
+  const [content, postContent, enhancer, css, packageJson] = await Promise.all([
+    readFile(new URL("app/lib/content.ts", root), "utf8"),
+    readFile(new URL("app/components/PostContent.tsx", root), "utf8"),
+    readFile(new URL("app/components/MermaidEnhancer.tsx", root), "utf8"),
+    readFile(new URL("app/globals.css", root), "utf8"),
+    readFile(new URL("package.json", root), "utf8"),
+  ]);
+
+  assert.match(content, /if \(language === "mermaid"\)/);
+  assert.match(content, /data-mermaid-diagram/);
+  assert.match(content, /class="language-mermaid"/);
+  assert.match(postContent, /<MermaidEnhancer contentVersion=\{contentVersion\(content\)\} \/>/);
+  assert.match(enhancer, /await import\("mermaid"\)/);
+  assert.match(enhancer, /securityLevel:\s*"strict"/);
+  assert.match(enhancer, /suppressErrorRendering:\s*true/);
+  assert.match(enhancer, /canvas\.innerHTML = svg/);
+  assert.match(css, /\.mermaid-diagram\s*\{[^}]*backdrop-filter:\s*blur\(18px\) saturate\(\.82\);/);
+  assert.match(css, /\.mermaid-diagram__canvas svg\s*\{[^}]*width:\s*100%;[^}]*height:\s*auto;/);
+  assert.match(packageJson, /"mermaid":\s*"\^12\.0\.0"/);
+
+  const response = await render("/collections/java/project-loom-structured-concurrency");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(
+    html,
+    /<figure class="mermaid-diagram" data-mermaid-diagram[^>]*>[\s\S]*?<code class="language-mermaid">flowchart TD[\s\S]*?<\/figure>/,
+  );
+});
+
 test("keeps mobile device tilt exclusive to the about page", async () => {
   const [home, about, glassCard, controller, layout] = await Promise.all([
     readFile(new URL("app/page.tsx", root), "utf8"),

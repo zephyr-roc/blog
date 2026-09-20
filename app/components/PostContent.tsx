@@ -1,5 +1,6 @@
 import { PostOutline, type OutlineItem } from "./PostOutline";
 import { CodeCopyEnhancer } from "./CodeCopyEnhancer";
+import { MermaidEnhancer } from "./MermaidEnhancer";
 import { PostImageEnhancer } from "./PostImageEnhancer";
 import { ReadingAppearance } from "./ReadingAppearance";
 
@@ -48,6 +49,15 @@ function withOutline(html: string) {
   return { content, items };
 }
 
+function contentVersion(value: string) {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36);
+}
+
 export function PostContent({ html }: { html: string }) {
   const { content, items } = withOutline(html);
 
@@ -58,6 +68,7 @@ export function PostContent({ html }: { html: string }) {
         className="post-content"
         dangerouslySetInnerHTML={{ __html: content }}
       />
+      <MermaidEnhancer contentVersion={contentVersion(content)} />
       <CodeCopyEnhancer />
       <PostImageEnhancer />
       <ReadingAppearance />
