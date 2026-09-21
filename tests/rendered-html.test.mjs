@@ -133,7 +133,7 @@ test("server-renders the collection cards before client hydration", async () => 
   assert.match(html, /href="\/collections\/kotlin"/);
   assert.match(html, /href="\/collections\/swift"/);
   assert.match(html, /href="\/collections\/java"/);
-  assert.doesNotMatch(html, /href="\/collections\/react"/);
+  assert.match(html, /href="\/collections\/react"/);
   assert.doesNotMatch(html, />0<!-- --> 篇文章</);
 });
 
