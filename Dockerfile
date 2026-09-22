@@ -20,8 +20,10 @@ ENV NEXT_DEPLOYMENT_ID=${NEXT_DEPLOYMENT_ID}
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV LIKES_DB_PATH=/data/blog.db
+ENV GALLERY_CHROME_PATH=/usr/bin/chromium-browser
 
-RUN addgroup --system --gid 1001 nodejs && \
+RUN apk add --no-cache chromium && \
+    addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs && \
     mkdir -p /data && \
     chown nextjs:nodejs /data

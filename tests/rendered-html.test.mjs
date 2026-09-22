@@ -137,6 +137,76 @@ test("server-renders the collection cards before client hydration", async () => 
   assert.doesNotMatch(html, />0<!-- --> 篇文章</);
 });
 
+test("server-renders a compact WebP gallery with NAS-hosted originals", async () => {
+  const [builder, syncer, workflow, dockerfile, tokenManager, imageRoute, page, grid, manifest, packageJson, sitemap, navigation, css] = await Promise.all([
+    readFile(new URL("scripts/build-gallery.mjs", root), "utf8"),
+    readFile(new URL("scripts/sync-gallery-nas.mjs", root), "utf8"),
+    readFile(new URL(".github/workflows/deploy.yml", root), "utf8"),
+    readFile(new URL("Dockerfile", root), "utf8"),
+    readFile(new URL("app/lib/gallery-nas-token.ts", root), "utf8"),
+    readFile(new URL("app/api/gallery/image/route.ts", root), "utf8"),
+    readFile(new URL("app/gallery/page.tsx", root), "utf8"),
+    readFile(new URL("app/gallery/GalleryGrid.tsx", root), "utf8"),
+    readFile(new URL("app/gallery/gallery-manifest.generated.ts", root), "utf8"),
+    readFile(new URL("package.json", root), "utf8"),
+    readFile(new URL("app/sitemap.ts", root), "utf8"),
+    readFile(new URL("app/components/LiquidGlassNavigation.tsx", root), "utf8"),
+    readFile(new URL("app/globals.css", root), "utf8"),
+  ]);
+
+  assert.match(packageJson, /"gallery:build": "node scripts\/build-gallery\.mjs"/);
+  assert.match(packageJson, /"gallery:sync": "node scripts\/sync-gallery-nas\.mjs"/);
+  assert.match(packageJson, /"prebuild": "pnpm gallery:build"/);
+  assert.match(packageJson, /"photoswipe":/);
+  assert.match(packageJson, /"sharp":/);
+  assert.match(builder, /const targetWidths = \[480, 960\]/);
+  assert.match(builder, /metadata\.pages \?\? 1/);
+  assert.match(builder, /sharp\(input, \{ page: 0, limitInputPixels: false \}\)/);
+  assert.match(builder, /\.webp\(\{/);
+  assert.match(builder, /"\.heic"/);
+  assert.match(builder, /"\.gif"/);
+  assert.match(builder, /data:image\/webp;base64/);
+  assert.match(syncer, /GALLERY_NAS_PASSWORD/);
+  assert.match(syncer, /GALLERY_NAS_URL/);
+  assert.match(syncer, /allowedStreamPath = "\/ugreen\/v5\/photo\/share\/external\/stream"/);
+  assert.match(syncer, /fileType === "3" \? "0" : "3"/);
+  assert.match(syncer, /\/api\/gallery\/image\?id=/);
+  assert.match(syncer, /new Map\(\)/);
+  assert.match(syncer, /await fetch\(photo\.source/);
+  assert.doesNotMatch(syncer, /6VeK/);
+  assert.doesNotMatch(syncer, /happy\.nas\.ready-jump\.top/);
+  assert.match(workflow, /GALLERY_NAS_URL: \$\{\{ secrets\.GALLERY_NAS_URL \}\}/);
+  assert.match(workflow, /GALLERY_NAS_PASSWORD: \$\{\{ secrets\.GALLERY_NAS_PASSWORD \}\}/);
+  assert.match(workflow, /run: pnpm gallery:sync/);
+  assert.doesNotMatch(workflow, /schedule:/);
+  assert.match(workflow, /envs: GALLERY_NAS_URL,GALLERY_NAS_PASSWORD/);
+  assert.match(dockerfile, /apk add --no-cache chromium/);
+  assert.match(tokenManager, /TOKEN_REFRESH_MARGIN_MS/);
+  assert.match(tokenManager, /scheduleRenewal\(cachedToken\)/);
+  assert.match(tokenManager, /renewalTimer\.unref\(\)/);
+  assert.match(tokenManager, /external_token/);
+  assert.match(imageRoute, /status: 307/);
+  assert.match(imageRoute, /"Cache-Control": "private, no-store"/);
+  assert.match(manifest, /export const galleryImages: GalleryImage\[\]/);
+  assert.match(manifest, /original: string/);
+  assert.match(page, /export const dynamic = "force-static"/);
+  assert.match(page, /<GalleryGrid images=\{galleryImages\} \/>/);
+  assert.match(grid, /new PhotoSwipeLightbox/);
+  assert.match(grid, /pswpModule: \(\) => import\("photoswipe"\)/);
+  assert.match(grid, /prefers-reduced-motion: reduce/);
+  assert.match(grid, /href=\{image\.original \|\| largest\.src\}/);
+  assert.match(navigation, /href: "\/gallery"/);
+  assert.match(sitemap, /`\$\{SITE_URL\}\/gallery`/);
+  assert.match(css, /\.gallery-grid\s*\{[^}]*columns:\s*3 320px;/);
+
+  const response = await render("/gallery");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /<h1 id="gallery-title">画廊<\/h1>/);
+  assert.match(html, /照片尚未挂墙/);
+  assert.match(html, /href="\/gallery"/);
+});
+
 test("publishes generated Open Graph and Twitter images for every article type", async () => {
   const paths = [
     "/collections/kotlin/getting-started",

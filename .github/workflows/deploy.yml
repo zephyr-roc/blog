@@ -3,10 +3,14 @@ name: Build and Deploy
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 concurrency:
   group: production-deploy
   cancel-in-progress: true
+
+env:
+  DEPLOYMENT_ID: ${{ github.sha }}-${{ github.run_id }}
 
 jobs:
   deploy:
@@ -18,6 +22,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install gallery build dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Synchronize gallery from NAS
+        env:
+          GALLERY_NAS_URL: ${{ secrets.GALLERY_NAS_URL }}
+          GALLERY_NAS_PASSWORD: ${{ secrets.GALLERY_NAS_PASSWORD }}
+          GALLERY_CHROME_PATH: /usr/bin/google-chrome
+        run: pnpm gallery:sync
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v4
@@ -35,24 +58,28 @@ jobs:
           context: .
           push: true
           build-args: |
-            NEXT_DEPLOYMENT_ID=${{ github.sha }}
+            NEXT_DEPLOYMENT_ID=${{ env.DEPLOYMENT_ID }}
           tags: |
-            ghcr.io/zephyr-roc/blog:${{ github.sha }}
+            ghcr.io/zephyr-roc/blog:${{ env.DEPLOYMENT_ID }}
             ghcr.io/zephyr-roc/blog:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Deploy to server
         uses: appleboy/ssh-action@v1
+        env:
+          GALLERY_NAS_URL: ${{ secrets.GALLERY_NAS_URL }}
+          GALLERY_NAS_PASSWORD: ${{ secrets.GALLERY_NAS_PASSWORD }}
         with:
           host: 101.34.21.42
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: GALLERY_NAS_URL,GALLERY_NAS_PASSWORD
           command_timeout: 8m
           script: |
             set -eu
 
-            IMAGE="ghcr.io/zephyr-roc/blog:${{ github.sha }}"
+            IMAGE="ghcr.io/zephyr-roc/blog:${{ env.DEPLOYMENT_ID }}"
             PREVIOUS_IMAGE="$(docker inspect --format='{{.Config.Image}}' blog 2>/dev/null || true)"
             STATIC_VOLUME="blog-static-assets"
 
@@ -61,6 +88,8 @@ jobs:
                 --name blog \
                 --restart unless-stopped \
                 -p 127.0.0.1:3100:3000 \
+                -e GALLERY_NAS_URL \
+                -e GALLERY_NAS_PASSWORD \
                 -v blog-data:/data \
                 -v "$STATIC_VOLUME:/app/dist/client/_next/static:ro" \
                 "$1"
@@ -100,7 +129,7 @@ jobs:
               docker image ls \
                 --format '{{.Repository}}:{{.Tag}}' \
                 ghcr.io/zephyr-roc/blog \
-                | grep -E '^ghcr\.io/zephyr-roc/blog:[0-9a-f]{40}$' \
+                | grep -E '^ghcr\.io/zephyr-roc/blog:[0-9a-f]{40}(-[0-9]+)?$' \
             ); do
               seed_static_assets "$cached_image"
             done

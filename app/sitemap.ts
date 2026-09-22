@@ -45,6 +45,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 0.9,
     },
+    {
+      url: `${SITE_URL}/gallery`,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
   ];
 
   const collectionPages: MetadataRoute.Sitemap = collections
@@ -76,4 +81,3 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [...staticPages, ...collectionPages, ...postPages];
 }
-
