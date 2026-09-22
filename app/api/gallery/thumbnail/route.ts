@@ -2,7 +2,9 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { galleryThumbnailDirectory } from "../../../lib/gallery-runtime";
 
-const validFileName = /^[a-z0-9][a-z0-9._-]{0,180}\.webp$/i;
+// Generated thumbnail names retain CJK characters from the source photo name.
+// Keep the allow-list narrow while accepting those legitimate filenames.
+const validFileName = /^[a-z0-9\u4e00-\u9fff][a-z0-9\u4e00-\u9fff._-]{0,180}\.webp$/i;
 
 export async function GET(request: Request) {
   const fileName = new URL(request.url).searchParams.get("file") || "";

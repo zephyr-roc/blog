@@ -1,7 +1,7 @@
 "use client";
 
 import PhotoSwipeLightbox from "photoswipe/lightbox";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import type { GalleryImage } from "./gallery-types";
 
 type GalleryGridProps = {
@@ -12,7 +12,86 @@ function imageSources(image: GalleryImage) {
   return image.sources.map((source) => `${source.src} ${source.width}w`).join(", ");
 }
 
+function galleryColumnCount(width: number) {
+  if (width >= 1180) return 3;
+  if (width >= 680) return 2;
+  return 1;
+}
+
 export function GalleryGrid({ images }: GalleryGridProps) {
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+
+    let animationFrame = 0;
+    let previousWidth = 0;
+
+    const layout = () => {
+      const width = grid.clientWidth;
+      if (width <= 0) return;
+
+      const styles = window.getComputedStyle(grid);
+      const gap = Number.parseFloat(styles.columnGap || styles.gap) || 18;
+      const columnCount = galleryColumnCount(width);
+      const columnWidth = (width - gap * (columnCount - 1)) / columnCount;
+      const columnHeights = Array.from({ length: columnCount }, () => 0);
+      const cards = Array.from(
+        grid.querySelectorAll<HTMLElement>(":scope > .gallery-item"),
+      );
+
+      grid.style.setProperty("--gallery-columns", String(columnCount));
+      for (const card of cards) card.style.width = `${columnWidth}px`;
+
+      // Source order is newest-first. Equal empty columns are selected from
+      // left to right, so every viewport starts with a newest-first first row.
+      for (const card of cards) {
+        let shortestColumn = 0;
+        for (let column = 1; column < columnCount; column += 1) {
+          if (columnHeights[column] < columnHeights[shortestColumn]) {
+            shortestColumn = column;
+          }
+        }
+
+        card.style.left = `${shortestColumn * (columnWidth + gap)}px`;
+        card.style.top = `${columnHeights[shortestColumn]}px`;
+        columnHeights[shortestColumn] += card.getBoundingClientRect().height + gap;
+      }
+
+      grid.style.height = `${Math.max(0, Math.max(...columnHeights, 0) - gap)}px`;
+      grid.dataset.masonryReady = "true";
+    };
+
+    const scheduleLayout = () => {
+      window.cancelAnimationFrame(animationFrame);
+      animationFrame = window.requestAnimationFrame(layout);
+    };
+
+    layout();
+    previousWidth = grid.clientWidth;
+
+    const observer = new ResizeObserver((entries) => {
+      const gridEntry = entries.find((entry) => entry.target === grid);
+      const nextWidth = gridEntry?.contentRect.width ?? grid.clientWidth;
+      if (Math.abs(nextWidth - previousWidth) > .5) {
+        previousWidth = nextWidth;
+        scheduleLayout();
+        return;
+      }
+      if (entries.some((entry) => entry.target !== grid)) scheduleLayout();
+    });
+
+    observer.observe(grid);
+    grid.querySelectorAll<HTMLElement>(":scope > .gallery-item")
+      .forEach((card) => observer.observe(card));
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      observer.disconnect();
+    };
+  }, [images]);
+
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const lightbox = new PhotoSwipeLightbox({
@@ -78,7 +157,7 @@ export function GalleryGrid({ images }: GalleryGridProps) {
   }, [images]);
 
   return (
-    <div className="gallery-grid" id="gallery-grid">
+    <div className="gallery-grid" id="gallery-grid" ref={gridRef}>
       {images.map((image, index) => {
         const largest = image.sources.at(-1);
         const display = image.sources.find((source) => source.width >= 960) ?? largest;
@@ -89,6 +168,7 @@ export function GalleryGrid({ images }: GalleryGridProps) {
           <a
             className="gallery-item"
             href={image.original || largest.src}
+            data-pswp-src={image.original || largest.src}
             data-pswp-width={image.width}
             data-pswp-height={lightboxHeight}
             data-cropped="true"
