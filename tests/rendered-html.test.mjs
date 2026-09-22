@@ -138,66 +138,71 @@ test("server-renders the collection cards before client hydration", async () => 
 });
 
 test("server-renders a compact WebP gallery with NAS-hosted originals", async () => {
-  const [builder, syncer, workflow, dockerfile, tokenManager, imageRoute, page, grid, manifest, packageJson, sitemap, navigation, css] = await Promise.all([
-    readFile(new URL("scripts/build-gallery.mjs", root), "utf8"),
-    readFile(new URL("scripts/sync-gallery-nas.mjs", root), "utf8"),
+  const [syncService, runtimeGallery, workflow, dockerfile, startServer, tokenManager, imageRoute, thumbnailRoute, page, grid, types, packageJson, sitemap, navigation, css] = await Promise.all([
+    readFile(new URL("app/lib/gallery-sync-service.ts", root), "utf8"),
+    readFile(new URL("app/lib/gallery-runtime.ts", root), "utf8"),
     readFile(new URL(".github/workflows/deploy.yml", root), "utf8"),
     readFile(new URL("Dockerfile", root), "utf8"),
+    readFile(new URL("scripts/start-server.mjs", root), "utf8"),
     readFile(new URL("app/lib/gallery-nas-token.ts", root), "utf8"),
     readFile(new URL("app/api/gallery/image/route.ts", root), "utf8"),
+    readFile(new URL("app/api/gallery/thumbnail/route.ts", root), "utf8"),
     readFile(new URL("app/gallery/page.tsx", root), "utf8"),
     readFile(new URL("app/gallery/GalleryGrid.tsx", root), "utf8"),
-    readFile(new URL("app/gallery/gallery-manifest.generated.ts", root), "utf8"),
+    readFile(new URL("app/gallery/gallery-types.ts", root), "utf8"),
     readFile(new URL("package.json", root), "utf8"),
     readFile(new URL("app/sitemap.ts", root), "utf8"),
     readFile(new URL("app/components/LiquidGlassNavigation.tsx", root), "utf8"),
     readFile(new URL("app/globals.css", root), "utf8"),
   ]);
 
-  assert.match(packageJson, /"gallery:build": "node scripts\/build-gallery\.mjs"/);
-  assert.match(packageJson, /"gallery:sync": "node scripts\/sync-gallery-nas\.mjs"/);
-  assert.match(packageJson, /"prebuild": "pnpm gallery:build"/);
   assert.match(packageJson, /"photoswipe":/);
+  assert.match(packageJson, /"exifr":/);
   assert.match(packageJson, /"sharp":/);
-  assert.match(builder, /const targetWidths = \[480, 960\]/);
-  assert.match(builder, /metadata\.pages \?\? 1/);
-  assert.match(builder, /sharp\(input, \{ page: 0, limitInputPixels: false \}\)/);
-  assert.match(builder, /\.webp\(\{/);
-  assert.match(builder, /"\.heic"/);
-  assert.match(builder, /"\.gif"/);
-  assert.match(builder, /data:image\/webp;base64/);
-  assert.match(syncer, /GALLERY_NAS_PASSWORD/);
-  assert.match(syncer, /GALLERY_NAS_URL/);
-  assert.match(syncer, /allowedStreamPath = "\/ugreen\/v5\/photo\/share\/external\/stream"/);
-  assert.match(syncer, /fileType === "3" \? "0" : "3"/);
-  assert.match(syncer, /\/api\/gallery\/image\?id=/);
-  assert.match(syncer, /new Map\(\)/);
-  assert.match(syncer, /await fetch\(photo\.source/);
-  assert.doesNotMatch(syncer, /6VeK/);
-  assert.doesNotMatch(syncer, /happy\.nas\.ready-jump\.top/);
+  assert.doesNotMatch(packageJson, /"prebuild"/);
+  assert.match(syncService, /const TARGET_WIDTHS = \[480, 960\]/);
+  assert.match(syncService, /DEFAULT_SYNC_INTERVAL_MS = 30 \* 60 \* 1000/);
+  assert.match(syncService, /DateTimeOriginal/);
+  assert.match(syncService, /sortByCapturedTime/);
+  assert.match(syncService, /rightTime - leftTime/);
+  assert.match(syncService, /processed \$\{missing\.length\} new item/);
+  assert.match(syncService, /\/api\/gallery\/image\?id=/);
+  assert.match(syncService, /\/api\/gallery\/thumbnail\?file=/);
+  assert.match(syncService, /data:image\/webp;base64/);
+  assert.doesNotMatch(syncService, /6VeK/);
+  assert.doesNotMatch(syncService, /happy\.nas\.ready-jump\.top/);
   assert.match(workflow, /GALLERY_NAS_URL: \$\{\{ secrets\.GALLERY_NAS_URL \}\}/);
   assert.match(workflow, /GALLERY_NAS_PASSWORD: \$\{\{ secrets\.GALLERY_NAS_PASSWORD \}\}/);
-  assert.match(workflow, /run: pnpm gallery:sync/);
+  assert.doesNotMatch(workflow, /pnpm gallery:sync/);
   assert.doesNotMatch(workflow, /schedule:/);
   assert.match(workflow, /envs: GALLERY_NAS_URL,GALLERY_NAS_PASSWORD/);
   assert.match(dockerfile, /apk add --no-cache chromium/);
+  assert.match(dockerfile, /CMD \["node", "scripts\/start-server\.mjs"\]/);
+  assert.match(startServer, /\/api\/gallery\/bootstrap/);
   assert.match(tokenManager, /TOKEN_REFRESH_MARGIN_MS/);
   assert.match(tokenManager, /scheduleRenewal\(cachedToken\)/);
   assert.match(tokenManager, /renewalTimer\.unref\(\)/);
   assert.match(tokenManager, /external_token/);
   assert.match(imageRoute, /status: 307/);
   assert.match(imageRoute, /"Cache-Control": "private, no-store"/);
-  assert.match(manifest, /export const galleryImages: GalleryImage\[\]/);
-  assert.match(manifest, /original: string/);
-  assert.match(page, /export const dynamic = "force-static"/);
+  assert.match(thumbnailRoute, /max-age=31536000, immutable/);
+  assert.match(runtimeGallery, /readGalleryImages/);
+  assert.match(types, /capturedAt: string \| null/);
+  assert.match(types, /camera: string \| null/);
+  assert.match(types, /shutterSpeed: string \| null/);
+  assert.match(page, /export const dynamic = "force-dynamic"/);
+  assert.match(page, /await readGalleryImages\(\)/);
   assert.match(page, /<GalleryGrid images=\{galleryImages\} \/>/);
   assert.match(grid, /new PhotoSwipeLightbox/);
+  assert.match(grid, /gallery-lightbox-meta/);
+  assert.match(grid, /image\.metadata\.capturedAt/);
   assert.match(grid, /pswpModule: \(\) => import\("photoswipe"\)/);
   assert.match(grid, /prefers-reduced-motion: reduce/);
   assert.match(grid, /href=\{image\.original \|\| largest\.src\}/);
   assert.match(navigation, /href: "\/gallery"/);
   assert.match(sitemap, /`\$\{SITE_URL\}\/gallery`/);
   assert.match(css, /\.gallery-grid\s*\{[^}]*columns:\s*3 320px;/);
+  assert.match(css, /\.gallery-lightbox-meta/);
 
   const response = await render("/gallery");
   assert.equal(response.status, 200);

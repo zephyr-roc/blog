@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "../components/SiteHeader";
+import { readGalleryImages } from "../lib/gallery-runtime";
 import { SITE_NAME } from "../lib/seo";
 import { GalleryGrid } from "./GalleryGrid";
-import { galleryImages } from "./gallery-manifest.generated";
 
-export const dynamic = "force-static";
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 const GALLERY_DESCRIPTION = "积雨云的影像画廊：收集旅途、日常与偶然遇见的光。";
 
@@ -23,7 +22,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function GalleryPage() {
+export default async function GalleryPage() {
+  const galleryImages = await readGalleryImages();
   return (
     <main className="experience-shell gallery-shell">
       <div className="ambient ambient--violet gallery-shell__violet" aria-hidden="true" />
