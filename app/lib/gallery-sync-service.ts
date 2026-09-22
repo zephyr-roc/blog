@@ -65,7 +65,9 @@ function configuration() {
 function safeName(value: string) {
   return value
     .normalize("NFKD")
-    .replace(/[^a-zA-Z0-9\u4e00-\u9fff.-]+/g, "-")
+    // Keep persisted filenames portable across Alpine/musl and host volumes.
+    // Human-readable Unicode remains in the manifest title, not the disk path.
+    .replace(/[^a-zA-Z0-9.-]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 92) || "photo";
 }
