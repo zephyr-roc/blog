@@ -10,6 +10,7 @@ export type GalleryImage = {
   height: number;
   animated: boolean;
   poster: string;
+  original: string;
   sources: GallerySource[];
 };
 

@@ -137,11 +137,14 @@ test("server-renders the collection cards before client hydration", async () => 
   assert.doesNotMatch(html, />0<!-- --> 篇文章</);
 });
 
-test("server-renders the gallery and builds responsive animated WebP assets", async () => {
-  const [builder, syncer, workflow, page, grid, manifest, packageJson, sitemap, navigation, css] = await Promise.all([
+test("server-renders a compact WebP gallery with NAS-hosted originals", async () => {
+  const [builder, syncer, workflow, dockerfile, tokenManager, imageRoute, page, grid, manifest, packageJson, sitemap, navigation, css] = await Promise.all([
     readFile(new URL("scripts/build-gallery.mjs", root), "utf8"),
     readFile(new URL("scripts/sync-gallery-nas.mjs", root), "utf8"),
     readFile(new URL(".github/workflows/deploy.yml", root), "utf8"),
+    readFile(new URL("Dockerfile", root), "utf8"),
+    readFile(new URL("app/lib/gallery-nas-token.ts", root), "utf8"),
+    readFile(new URL("app/api/gallery/image/route.ts", root), "utf8"),
     readFile(new URL("app/gallery/page.tsx", root), "utf8"),
     readFile(new URL("app/gallery/GalleryGrid.tsx", root), "utf8"),
     readFile(new URL("app/gallery/gallery-manifest.generated.ts", root), "utf8"),
@@ -156,9 +159,9 @@ test("server-renders the gallery and builds responsive animated WebP assets", as
   assert.match(packageJson, /"prebuild": "pnpm gallery:build"/);
   assert.match(packageJson, /"photoswipe":/);
   assert.match(packageJson, /"sharp":/);
-  assert.match(builder, /const targetWidths = \[480, 960, 1600, 2400\]/);
+  assert.match(builder, /const targetWidths = \[480, 960\]/);
   assert.match(builder, /metadata\.pages \?\? 1/);
-  assert.match(builder, /sharp\(input, \{ animated, limitInputPixels: false \}\)/);
+  assert.match(builder, /sharp\(input, \{ page: 0, limitInputPixels: false \}\)/);
   assert.match(builder, /\.webp\(\{/);
   assert.match(builder, /"\.heic"/);
   assert.match(builder, /"\.gif"/);
@@ -167,6 +170,7 @@ test("server-renders the gallery and builds responsive animated WebP assets", as
   assert.match(syncer, /GALLERY_NAS_URL/);
   assert.match(syncer, /allowedStreamPath = "\/ugreen\/v5\/photo\/share\/external\/stream"/);
   assert.match(syncer, /fileType === "3" \? "0" : "3"/);
+  assert.match(syncer, /\/api\/gallery\/image\?id=/);
   assert.match(syncer, /new Map\(\)/);
   assert.match(syncer, /await fetch\(photo\.source/);
   assert.doesNotMatch(syncer, /6VeK/);
@@ -174,12 +178,23 @@ test("server-renders the gallery and builds responsive animated WebP assets", as
   assert.match(workflow, /GALLERY_NAS_URL: \$\{\{ secrets\.GALLERY_NAS_URL \}\}/);
   assert.match(workflow, /GALLERY_NAS_PASSWORD: \$\{\{ secrets\.GALLERY_NAS_PASSWORD \}\}/);
   assert.match(workflow, /run: pnpm gallery:sync/);
+  assert.doesNotMatch(workflow, /schedule:/);
+  assert.match(workflow, /envs: GALLERY_NAS_URL,GALLERY_NAS_PASSWORD/);
+  assert.match(dockerfile, /apk add --no-cache chromium/);
+  assert.match(tokenManager, /TOKEN_REFRESH_MARGIN_MS/);
+  assert.match(tokenManager, /scheduleRenewal\(cachedToken\)/);
+  assert.match(tokenManager, /renewalTimer\.unref\(\)/);
+  assert.match(tokenManager, /external_token/);
+  assert.match(imageRoute, /status: 307/);
+  assert.match(imageRoute, /"Cache-Control": "private, no-store"/);
   assert.match(manifest, /export const galleryImages: GalleryImage\[\]/);
+  assert.match(manifest, /original: string/);
   assert.match(page, /export const dynamic = "force-static"/);
   assert.match(page, /<GalleryGrid images=\{galleryImages\} \/>/);
   assert.match(grid, /new PhotoSwipeLightbox/);
   assert.match(grid, /pswpModule: \(\) => import\("photoswipe"\)/);
   assert.match(grid, /prefers-reduced-motion: reduce/);
+  assert.match(grid, /href=\{image\.original \|\| largest\.src\}/);
   assert.match(navigation, /href: "\/gallery"/);
   assert.match(sitemap, /`\$\{SITE_URL\}\/gallery`/);
   assert.match(css, /\.gallery-grid\s*\{[^}]*columns:\s*3 320px;/);

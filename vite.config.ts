@@ -26,6 +26,14 @@ export default defineConfig(async () => {
   }
 
   return {
+    build: {
+      rolldownOptions: {
+        // Chromium is a Node-only runtime dependency used by the NAS token
+        // refresher. Keep it external so the RSC bundler does not attempt to
+        // rewrite Playwright's optional protocol adapters.
+        external: [/^playwright-core(?:\/|$)/],
+      },
+    },
     server: isCodexSeatbeltSandbox
       ? { watch: { useFsEvents: false, usePolling: true } }
       : undefined,

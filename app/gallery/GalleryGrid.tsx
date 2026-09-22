@@ -39,13 +39,13 @@ export function GalleryGrid({ images }: GalleryGridProps) {
         const largest = image.sources.at(-1);
         const display = image.sources.find((source) => source.width >= 960) ?? largest;
         if (!largest || !display) return null;
-        const lightboxHeight = Math.round(largest.width * image.height / image.width);
+        const lightboxHeight = image.height;
 
         return (
           <a
             className="gallery-item"
-            href={largest.src}
-            data-pswp-width={largest.width}
+            href={image.original || largest.src}
+            data-pswp-width={image.width}
             data-pswp-height={lightboxHeight}
             data-cropped="true"
             key={image.id}
@@ -61,8 +61,8 @@ export function GalleryGrid({ images }: GalleryGridProps) {
                 <source media="(prefers-reduced-motion: reduce)" srcSet={image.poster} />
               ) : null}
               <img
-                src={display.src}
-                srcSet={imageSources(image)}
+                src={image.animated ? image.original : display.src}
+                srcSet={image.animated ? undefined : imageSources(image)}
                 sizes="(max-width: 680px) calc(100vw - 36px), (max-width: 1100px) 46vw, 31vw"
                 width={image.width}
                 height={image.height}

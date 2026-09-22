@@ -18,6 +18,11 @@ const manifestPath = path.resolve(
   process.env.GALLERY_MANIFEST_PATH
     || path.join("app", "gallery", "gallery-manifest.generated.ts"),
 );
+const remoteManifestPath = path.resolve(
+  root,
+  process.env.GALLERY_REMOTE_MANIFEST_PATH
+    || path.join("gallery", "source", "nas-manifest.json"),
+);
 if (outputDirectory === root || outputDirectory === path.parse(outputDirectory).root) {
   throw new Error("GALLERY_OUTPUT_DIR must point to a dedicated generated-assets directory.");
 }
@@ -34,7 +39,10 @@ const supportedExtensions = new Set([
   ".gif",
   ".apng",
 ]);
-const targetWidths = [480, 960, 1600, 2400];
+// The gallery grid keeps only compact WebP derivatives. Full-size viewing is
+// redirected to the NAS in the browser, so large originals never enter the
+// production image or consume application-server bandwidth.
+const targetWidths = [480, 960];
 
 async function collectFiles(directory, prefix = "") {
   const entries = await readdir(directory, { withFileTypes: true }).catch(() => []);
@@ -84,11 +92,11 @@ function manifestSource(images) {
     + `export type GallerySource = { src: string; width: number; type: "image/webp" };\n\n`
     + `export type GalleryImage = {\n`
     + `  id: string;\n  title: string;\n  alt: string;\n  width: number;\n  height: number;\n`
-    + `  animated: boolean;\n  poster: string;\n  sources: GallerySource[];\n};\n\n`
+    + `  animated: boolean;\n  poster: string;\n  original: string;\n  sources: GallerySource[];\n};\n\n`
     + `export const galleryImages: GalleryImage[] = ${JSON.stringify(images, null, 2)};\n`;
 }
 
-async function buildImage(file) {
+async function buildImage(file, remoteSources) {
   const input = await readFile(file.absolutePath);
   const hash = createHash("sha256").update(input).digest("hex").slice(0, 12);
   const probe = sharp(input, { animated: true, limitInputPixels: false });
@@ -110,13 +118,13 @@ async function buildImage(file) {
   for (const width of widths) {
     const outputName = `${slug}-${hash}-${width}w.webp`;
     const outputPath = path.join(outputDirectory, outputName);
-    const pipeline = sharp(input, { animated, limitInputPixels: false })
+    const pipeline = sharp(input, { page: 0, limitInputPixels: false })
       .rotate()
       .resize({ width, withoutEnlargement: true });
 
     await pipeline.webp({
-      quality: animated ? 82 : 84,
-      effort: animated ? 4 : 5,
+      quality: 82,
+      effort: 5,
       smartSubsample: true,
     }).toFile(outputPath);
     sources.push({
@@ -140,6 +148,7 @@ async function buildImage(file) {
     height: dimensions.height,
     animated,
     poster: `data:image/webp;base64,${placeholder.toString("base64")}`,
+    original: remoteSources.get(file.relativePath) || sources.at(-1)?.src || "",
     sources,
   };
 }
@@ -150,11 +159,17 @@ await rm(outputDirectory, { recursive: true, force: true });
 await mkdir(outputDirectory, { recursive: true });
 
 const files = await collectFiles(sourceDirectory);
+const remoteRecords = JSON.parse(
+  await readFile(remoteManifestPath, "utf8").catch(() => "[]"),
+);
+const remoteSources = new Map(
+  remoteRecords.map((record) => [record.relativePath, record.source]),
+);
 const images = [];
 
 for (const file of files) {
   try {
-    images.push(await buildImage(file));
+    images.push(await buildImage(file, remoteSources));
   } catch (error) {
     console.warn(`[gallery] Skipped ${file.relativePath}: ${error.message}`);
   }

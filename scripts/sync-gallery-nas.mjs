@@ -10,6 +10,11 @@ const outputDirectory = path.resolve(
   process.cwd(),
   process.env.GALLERY_NAS_OUTPUT_DIR || path.join("gallery", "source", "nas"),
 );
+const remoteManifestPath = path.resolve(
+  process.cwd(),
+  process.env.GALLERY_REMOTE_MANIFEST_PATH
+    || path.join("gallery", "source", "nas-manifest.json"),
+);
 const allowedStreamPath = "/ugreen/v5/photo/share/external/stream";
 const concurrency = 4;
 
@@ -120,9 +125,16 @@ try {
       const streamUrl = new URL(record.source, sourceUrl);
       if (streamUrl.origin !== expectedOrigin || streamUrl.pathname !== allowedStreamPath) continue;
       const fileType = streamUrl.searchParams.get("file_type");
+      const extension = path.extname(record.name).toLowerCase();
+      const browserNative = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif", ".apng", ".avif"]);
+      const originalSizeType = fileType === "3" || browserNative.has(extension) ? "0" : "3";
+      const id = streamUrl.searchParams.get("id") || `${record.index}`;
       streamUrl.searchParams.set("size_type", fileType === "3" ? "0" : "3");
-      records.set(streamUrl.searchParams.get("id") || `${record.index}`, {
+      records.set(id, {
         ...record,
+        id,
+        fileType: fileType || "0",
+        originalSizeType,
         source: streamUrl.toString(),
       });
     }
@@ -147,6 +159,7 @@ try {
   const photos = [...records.values()].sort((left, right) => left.index - right.index);
   if (photos.length === 0) throw new Error("No photos were discovered after NAS authentication.");
 
+  const remoteRecords = [];
   await mapWithConcurrency(photos, async (photo, index) => {
     const response = await fetch(photo.source, {
       headers: {
@@ -166,6 +179,10 @@ try {
     const originalStem = path.parse(photo.name).name;
     const fileName = `${String(index + 1).padStart(4, "0")}-${safeName(originalStem)}.${extensionFor(metadata.format)}`;
     await writeFile(path.join(stagingDirectory, fileName), buffer);
+    remoteRecords[index] = {
+      relativePath: path.posix.join("nas", fileName),
+      source: `/api/gallery/image?id=${encodeURIComponent(photo.id)}&fileType=${encodeURIComponent(photo.fileType)}&sizeType=${photo.originalSizeType}`,
+    };
   });
 
   const stagedFiles = await readdir(stagingDirectory);
@@ -175,6 +192,7 @@ try {
 
   await rm(outputDirectory, { recursive: true, force: true });
   await rename(stagingDirectory, outputDirectory);
+  await writeFile(remoteManifestPath, `${JSON.stringify(remoteRecords, null, 2)}\n`);
   console.log(`[gallery] Synchronized ${photos.length} NAS photos.`);
 } catch (error) {
   await rm(stagingDirectory, { recursive: true, force: true });
