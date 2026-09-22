@@ -186,6 +186,7 @@ test("server-renders a compact WebP gallery with NAS-hosted originals", async ()
   assert.match(imageRoute, /status: 307/);
   assert.match(imageRoute, /"Cache-Control": "private, no-store"/);
   assert.match(thumbnailRoute, /max-age=31536000, immutable/);
+  assert.match(thumbnailRoute, /\\u4e00-\\u9fff/);
   assert.match(runtimeGallery, /readGalleryImages/);
   assert.match(types, /capturedAt: string \| null/);
   assert.match(types, /camera: string \| null/);
@@ -199,9 +200,14 @@ test("server-renders a compact WebP gallery with NAS-hosted originals", async ()
   assert.match(grid, /pswpModule: \(\) => import\("photoswipe"\)/);
   assert.match(grid, /prefers-reduced-motion: reduce/);
   assert.match(grid, /href=\{image\.original \|\| largest\.src\}/);
+  assert.match(grid, /data-pswp-src=\{image\.original \|\| largest\.src\}/);
+  assert.match(grid, /galleryColumnCount/);
+  assert.match(grid, /columnHeights\[shortestColumn\]/);
   assert.match(navigation, /href: "\/gallery"/);
   assert.match(sitemap, /`\$\{SITE_URL\}\/gallery`/);
-  assert.match(css, /\.gallery-grid\s*\{[^}]*columns:\s*3 320px;/);
+  assert.match(css, /\.gallery-grid\s*\{[^}]*grid-template-columns:\s*repeat\(3/);
+  assert.match(css, /\.gallery-grid\[data-masonry-ready="true"\]/);
+  assert.doesNotMatch(css, /columns:\s*3 320px/);
   assert.match(css, /\.gallery-lightbox-meta/);
 
   const response = await render("/gallery");
