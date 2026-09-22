@@ -21,7 +21,8 @@ test("supports mouse dragging while keeping touch taps distinct", async () => {
   assert.match(navigation, /router\.push\(item\.href\)/);
   assert.match(navigation, /href: "\/tinkering"/);
   assert.match(navigation, /href: "\/radar"/);
-  assert.match(navigation, /type NavigationIndex = 0 \| 1 \| 2 \| 3/);
+  assert.match(navigation, /href: "\/gallery"/);
+  assert.match(navigation, /type NavigationIndex = 0 \| 1 \| 2 \| 3 \| 4/);
   assert.doesNotMatch(navigation, /href: "\/collections\/tinkering"/);
 });
 
@@ -84,9 +85,9 @@ test("uses a live backdrop lens without mirrored background copies", async () =>
   );
   assert.match(
     css,
-    /\[data-active-index="3"\]\s+\.liquid-navigation__refraction\s*\{[\s\S]*?left:\s*calc\(/,
+    /\[data-active-index="4"\]\s+\.liquid-navigation__refraction\s*\{[\s\S]*?left:\s*calc\(/,
   );
-  assert.match(css, /calc\(\(100vw - 52px\) \/ 4\)/);
+  assert.match(css, /calc\(\(100vw - 56px\) \/ 5\)/);
   assert.doesNotMatch(
     css,
     /\.liquid-navigation__refraction\s*\{[^}]*transform:/,

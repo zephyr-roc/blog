@@ -20,11 +20,12 @@ import {
 const navigationItems = [
   { href: "/", label: "主页", icon: "home" },
   { href: "/radar", label: "雷达", icon: "radar" },
+  { href: "/gallery", label: "画廊", icon: "gallery" },
   { href: "/tinkering", label: "折腾", icon: "tinkering" },
   { href: "/about", label: "关于我", icon: "profile" },
 ] as const;
 
-type NavigationIndex = 0 | 1 | 2 | 3;
+type NavigationIndex = 0 | 1 | 2 | 3 | 4;
 
 const navigationGlassOptics: Partial<GlassOptics> = {
   strength: .18,
@@ -240,12 +241,14 @@ export function LiquidGlassNavigation() {
   const pointerTravel = useRef(0);
   const suppressClickUntil = useRef(0);
   const activeIndex: NavigationIndex = pathname === "/about"
-    ? 3
+    ? 4
     : pathname.startsWith("/tinkering")
-      ? 2
-      : pathname.startsWith("/radar")
-        ? 1
-        : 0;
+      ? 3
+      : pathname.startsWith("/gallery")
+        ? 2
+        : pathname.startsWith("/radar")
+          ? 1
+          : 0;
   const navigationStyle: NavigationStyle = {
     "--active-index": String(activeIndex),
     "--drag-offset": "0px",

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "@fontsource-variable/jetbrains-mono";
+import "photoswipe/style.css";
 import { BackToTopButton } from "./components/BackToTopButton";
 import { GlassMotionController } from "./components/GlassMotionController";
 import { LiquidGlassNavigation } from "./components/LiquidGlassNavigation";
