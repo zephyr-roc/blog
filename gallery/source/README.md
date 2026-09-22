@@ -1,12 +1,14 @@
-# Gallery source
+# Gallery runtime data
 
-Drop original gallery media in this directory when developing locally. The build
-pipeline also uses this directory as the destination for files synchronized from
-the configured NAS share.
+Gallery media is no longer synchronized during the image build. The production
+container starts a background synchronizer after the web server becomes ready,
+then checks the NAS share every 30 minutes.
 
-Supported inputs: JPEG, PNG, WebP, AVIF, HEIC/HEIF, TIFF, GIF and APNG. Static
-images are converted to responsive WebP variants. Multi-frame inputs keep their
-animation when converted to WebP.
+Only 480px and 960px WebP thumbnails, a compact JSON manifest, and extracted
+EXIF fields are retained in the persistent `/data/gallery` volume. Full-size
+images remain on the NAS and are loaded by the visitor's browser through a
+short-lived redirect token.
 
-Files may be nested in folders. The relative path and file name determine the
-stable ordering and default title; use descriptive file names when possible.
+The synchronizer reuses entries by NAS photo ID, so periodic checks process only
+new photos. The manifest is sorted by EXIF `DateTimeOriginal` from newest to
+oldest, with NAS order used only when capture time is unavailable.

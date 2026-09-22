@@ -23,25 +23,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: pnpm
-
-      - name: Install gallery build dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Synchronize gallery from NAS
-        env:
-          GALLERY_NAS_URL: ${{ secrets.GALLERY_NAS_URL }}
-          GALLERY_NAS_PASSWORD: ${{ secrets.GALLERY_NAS_PASSWORD }}
-          GALLERY_CHROME_PATH: /usr/bin/google-chrome
-        run: pnpm gallery:sync
-
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v4
         with:

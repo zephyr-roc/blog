@@ -35,4 +35,4 @@ COPY --from=builder --chown=nextjs:nodejs /app/db/migrations ./db/migrations
 
 USER nextjs
 EXPOSE 3000
-CMD ["sh", "-c", "node scripts/migrate-likes.mjs && node server.js"]
+CMD ["node", "scripts/start-server.mjs"]
