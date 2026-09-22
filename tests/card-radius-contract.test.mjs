@@ -37,11 +37,11 @@ test("scales shared collection-card content from one proportional canvas", async
   assert.doesNotMatch(css, /collection-card--featured|collection-card--companion/);
 });
 
-test("curates eight homepage language collections with Swift, C#, React and without Nim", async () => {
+test("curates nine homepage collections with CS336, Swift, C#, React and without Nim", async () => {
   const page = await readFile(new URL("app/page.tsx", root), "utf8");
   const css = await readFile(new URL("app/globals.css", root), "utf8");
 
-  assert.match(page, /HOME_COLLECTION_ORDER\s*=\s*\["kotlin", "swift", "java", "rust", "csharp", "react", "ocaml", "zig"\]/);
+  assert.match(page, /HOME_COLLECTION_ORDER\s*=\s*\["kotlin", "swift", "java", "cs336", "rust", "csharp", "react", "ocaml", "zig"\]/);
   assert.match(page, /HOME_COLLECTIONS_HIDDEN\s*=\s*new Set\(\["tinkering", "deep-radar"\]\)/);
   assert.match(page, /postCountDifference\s*=\s*b\.postCount\s*-\s*a\.postCount/);
   assert.match(page, /collectionScores\s*=\s*collections\.map\(\(collection\)\s*=>\s*Math\.log2\(collection\.postCount\s*\+\s*1\)\)/);
@@ -84,10 +84,10 @@ test("uses vendored standard SVG marks for homepage language collections", async
     "utf8",
   );
 
-  assert.match(component, /\["kotlin", "swift", "java", "rust", "csharp", "react", "ocaml", "zig"\]/);
+  assert.match(component, /\["kotlin", "swift", "java", "rust", "csharp", "react", "ocaml", "zig", "cs336"\]/);
   assert.doesNotMatch(component, /java-steam|java-cup|>λ<|>R</);
 
-  for (const name of ["kotlin", "swift", "java", "rust", "csharp", "react", "ocaml", "zig"]) {
+  for (const name of ["kotlin", "swift", "java", "rust", "csharp", "react", "ocaml", "zig", "cs336"]) {
     const svg = await readFile(
       new URL(`public/language-logos/${name}.svg`, root),
       "utf8",
