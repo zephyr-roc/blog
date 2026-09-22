@@ -364,19 +364,30 @@ async function removeUnusedThumbnails(images: GalleryImage[]) {
   }));
 }
 
+function thumbnailFileNames(image: GalleryImage) {
+  return image.sources.map((source) => {
+    return new URL(source.src, "http://gallery.local").searchParams.get("file") || "";
+  });
+}
+
 export async function syncGalleryOnce() {
   if (syncPromise) return syncPromise;
   syncPromise = (async () => {
     await mkdir(galleryThumbnailDirectory(), { recursive: true });
     const existing = await readExistingManifest();
     const existingByRemoteId = new Map((existing?.images || []).map((image) => [image.remoteId, image]));
+    const availableThumbnails = new Set(
+      await readdir(galleryThumbnailDirectory()).catch(() => []),
+    );
     const { photos, sourceUrl } = await discoverPhotos();
     const nextImages = new Array<GalleryImage>(photos.length);
     const missing: Array<{ photo: RemotePhoto; index: number }> = [];
 
     photos.forEach((photo, index) => {
       const previous = existingByRemoteId.get(photo.id);
-      if (previous) {
+      const thumbnailsExist = previous && thumbnailFileNames(previous)
+        .every((fileName) => fileName && availableThumbnails.has(fileName));
+      if (previous && thumbnailsExist) {
         nextImages[index] = {
           ...previous,
           sourceIndex: photo.index,

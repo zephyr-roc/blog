@@ -166,6 +166,7 @@ test("server-renders a compact WebP gallery with NAS-hosted originals", async ()
   assert.match(syncService, /sortByCapturedTime/);
   assert.match(syncService, /rightTime - leftTime/);
   assert.match(syncService, /processed \$\{missing\.length\} new item/);
+  assert.match(syncService, /availableThumbnails\.has\(fileName\)/);
   assert.match(syncService, /\/api\/gallery\/image\?id=/);
   assert.match(syncService, /\/api\/gallery\/thumbnail\?file=/);
   assert.match(syncService, /data:image\/webp;base64/);
