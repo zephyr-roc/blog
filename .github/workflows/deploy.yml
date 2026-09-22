@@ -75,7 +75,10 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           envs: GALLERY_NAS_URL,GALLERY_NAS_PASSWORD
-          command_timeout: 8m
+          # The first release containing Chromium has a substantially larger
+          # immutable layer. Give low-bandwidth servers enough time to pull it;
+          # subsequent releases reuse the cached layer.
+          command_timeout: 20m
           script: |
             set -eu
 
@@ -106,8 +109,8 @@ jobs:
             pkill -f '[d]ocker pull ghcr.io/zephyr-roc/blog:' || true
 
             pull_attempt=1
-            while ! timeout 120 docker pull "$IMAGE"; do
-              if [ "$pull_attempt" -ge 3 ]; then
+            while ! timeout 600 docker pull "$IMAGE"; do
+              if [ "$pull_attempt" -ge 2 ]; then
                 echo "Unable to pull $IMAGE after $pull_attempt attempts"
                 exit 1
               fi
