@@ -23,6 +23,10 @@ export function galleryThumbnailCacheName(fileName: string) {
     : `${createHash("sha256").update(fileName).digest("hex")}.webp`;
 }
 
+export function galleryThumbnailETag(fileName: string) {
+  return `"${path.parse(galleryThumbnailCacheName(fileName)).name}"`;
+}
+
 export async function readGalleryImages(): Promise<GalleryImage[]> {
   try {
     const manifest = JSON.parse(
