@@ -13,6 +13,7 @@ export function galleryDetailsFromExif(
   exif: Record<string, unknown>,
   fileSize: number | null,
   contentType: string | null,
+  originalDimensions: { width: number; height: number } | null = null,
 ): GalleryDetails {
   const color = exif.ColorSpace;
   const colorSpace = color === 1 || color === "sRGB" ? "sRGB" : readableText(color);
@@ -22,6 +23,8 @@ export function galleryDetailsFromExif(
     : exif.WhiteBalance === 1 ? "手动" : readableText(exif.WhiteBalance);
 
   return {
+    width: originalDimensions?.width ?? numberValue(exif.ExifImageWidth ?? exif.ImageWidth),
+    height: originalDimensions?.height ?? numberValue(exif.ExifImageHeight ?? exif.ImageHeight),
     fileSize,
     format: contentType?.split(";")[0].split("/")[1]?.toUpperCase().replace("JPEG", "JPG") || null,
     colorSpace,
@@ -33,6 +36,28 @@ export function galleryDetailsFromExif(
     exposureBias: exposureBias === null ? null : `${exposureBias > 0 ? "+" : ""}${Number(exposureBias.toFixed(2))} EV`,
     whiteBalance,
   };
+}
+
+export function galleryJpegDimensions(bytes: Uint8Array): { width: number; height: number } | null {
+  if (bytes[0] !== 0xff || bytes[1] !== 0xd8) return null;
+  let offset = 2;
+  while (offset + 4 < bytes.length) {
+    if (bytes[offset++] !== 0xff) return null;
+    while (bytes[offset] === 0xff) offset += 1;
+    const marker = bytes[offset++];
+    if (marker === 0xda || marker === 0xd9) return null;
+    if (marker === 0x01 || marker >= 0xd0 && marker <= 0xd7) continue;
+    const segmentLength = bytes[offset] * 256 + bytes[offset + 1];
+    if (segmentLength < 2 || offset + segmentLength > bytes.length) return null;
+    if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) {
+      if (segmentLength < 7) return null;
+      const height = bytes[offset + 3] * 256 + bytes[offset + 4];
+      const width = bytes[offset + 5] * 256 + bytes[offset + 6];
+      return width && height ? { width, height } : null;
+    }
+    offset += segmentLength;
+  }
+  return null;
 }
 
 export function galleryOriginalSize(headers: Headers, status: number): number | null {

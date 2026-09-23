@@ -105,10 +105,10 @@ export function GalleryGrid({ images }: GalleryGridProps) {
       bgOpacity: .94,
       showHideAnimationType: reduceMotion ? "none" : "zoom",
       paddingFn: (viewportSize) => ({
-        top: viewportSize.x < 700 ? 12 : 36,
+        top: viewportSize.x < 700 ? 64 : 72,
         bottom: inspectorOpen && viewportSize.x < 860
           ? Math.min(viewportSize.y * .58, 460) + 16
-          : viewportSize.x < 700 ? 96 : 112,
+          : 16,
         left: viewportSize.x < 700 ? 12 : 36,
         right: inspectorOpen && viewportSize.x >= 860
           ? Math.min(388, Math.max(300, viewportSize.x * .34)) + 28
@@ -128,6 +128,7 @@ export function GalleryGrid({ images }: GalleryGridProps) {
       const update = () => {
         const image = images[pswp.currIndex];
         if (!image) return;
+        pswp.element?.classList.toggle("gallery-pswp--inspector-open", inspectorOpen);
         const url = new URL(window.location.href);
         url.searchParams.set("photo", image.remoteId);
         window.history.replaceState(window.history.state, "", url);
