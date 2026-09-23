@@ -335,6 +335,7 @@ async function buildGalleryImage(photo: RemotePhoto, sourceUrl: string): Promise
     remoteId: photo.id,
     sourceIndex: photo.index,
     title,
+    filename: photo.name,
     alt: title,
     width: dimensions.width,
     height: dimensions.height,
@@ -398,6 +399,7 @@ export async function syncGalleryOnce() {
       if (previous && thumbnailsExist) {
         nextImages[index] = {
           ...previous,
+          filename: photo.name,
           sourceIndex: photo.index,
           original: `/api/gallery/image?id=${encodeURIComponent(photo.id)}&fileType=${encodeURIComponent(photo.fileType)}&sizeType=${photo.originalSizeType}`,
         };

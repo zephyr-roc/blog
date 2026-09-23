@@ -15,11 +15,25 @@ export type GalleryMetadata = {
   format: string;
 };
 
+export type GalleryDetails = {
+  fileSize: number | null;
+  format: string | null;
+  colorSpace: string | null;
+  artist: string | null;
+  copyright: string | null;
+  software: string | null;
+  timeZone: string | null;
+  focalLength35mm: string | null;
+  exposureBias: string | null;
+  whiteBalance: string | null;
+};
+
 export type GalleryImage = {
   id: string;
   remoteId: string;
   sourceIndex: number;
   title: string;
+  filename?: string;
   alt: string;
   width: number;
   height: number;

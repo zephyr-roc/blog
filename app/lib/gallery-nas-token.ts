@@ -170,3 +170,46 @@ export function galleryNasStreamUrl(id: string, fileType: string, sizeType: stri
   url.searchParams.set("external_token", token);
   return url;
 }
+
+export function isGalleryNasTokenRejected(status: number, payload: unknown): boolean {
+  if (status === 401 || status === 403) return true;
+  if (!payload || typeof payload !== "object" || !("code" in payload)) return false;
+  return payload.code === 1013 || payload.code === "1013";
+}
+
+export async function fetchGalleryNasImage(
+  id: string,
+  fileType: string,
+  sizeType: string,
+  options: { range?: string; timeoutMs?: number } = {},
+) {
+  const { sourceUrl } = configuration();
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const token = await getGalleryNasToken();
+    const destination = galleryNasStreamUrl(id, fileType, sizeType, token);
+    const response = await fetch(destination, {
+      headers: {
+        referer: new URL(sourceUrl).href,
+        ...(options.range ? { Range: options.range } : {}),
+      },
+      signal: AbortSignal.timeout(options.timeoutMs ?? 90_000),
+    });
+    const contentType = response.headers.get("content-type") || "";
+    let payload: unknown = null;
+    if (contentType.includes("json")) {
+      payload = await response.json().catch(() => null);
+    }
+    const rejectedToken = isGalleryNasTokenRejected(response.status, payload);
+    if (rejectedToken && attempt === 0) {
+      await response.body?.cancel().catch(() => undefined);
+      await invalidateGalleryNasToken(token);
+      continue;
+    }
+    if (rejectedToken || !response.ok || contentType.includes("json")) {
+      await response.body?.cancel().catch(() => undefined);
+      throw new Error(`NAS image returned HTTP ${response.status} or an invalid token.`);
+    }
+    return { response, destination };
+  }
+  throw new Error("NAS image token was rejected.");
+}

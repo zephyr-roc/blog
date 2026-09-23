@@ -2,6 +2,8 @@
 
 import PhotoSwipeLightbox from "photoswipe/lightbox";
 import { useEffect, useLayoutEffect, useRef } from "react";
+import { createRoot } from "react-dom/client";
+import { GalleryLightboxInspector } from "./GalleryLightboxInspector";
 import type { GalleryImage } from "./gallery-types";
 
 type GalleryGridProps = {
@@ -94,6 +96,8 @@ export function GalleryGrid({ images }: GalleryGridProps) {
 
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let inspectorOpen = window.innerWidth >= 860;
+    let inspectorRoot: ReturnType<typeof createRoot> | null = null;
     const lightbox = new PhotoSwipeLightbox({
       gallery: "#gallery-grid",
       children: "a",
@@ -102,9 +106,13 @@ export function GalleryGrid({ images }: GalleryGridProps) {
       showHideAnimationType: reduceMotion ? "none" : "zoom",
       paddingFn: (viewportSize) => ({
         top: viewportSize.x < 700 ? 12 : 36,
-        bottom: viewportSize.x < 700 ? 96 : 112,
+        bottom: inspectorOpen && viewportSize.x < 860
+          ? Math.min(viewportSize.y * .58, 460) + 16
+          : viewportSize.x < 700 ? 96 : 112,
         left: viewportSize.x < 700 ? 12 : 36,
-        right: viewportSize.x < 700 ? 12 : 36,
+        right: inspectorOpen && viewportSize.x >= 860
+          ? Math.min(388, Math.max(300, viewportSize.x * .34)) + 28
+          : viewportSize.x < 700 ? 12 : 36,
       }),
     });
 
@@ -112,48 +120,50 @@ export function GalleryGrid({ images }: GalleryGridProps) {
       const pswp = lightbox.pswp;
       if (!pswp?.element) return;
 
-      const panel = document.createElement("aside");
-      panel.className = "gallery-lightbox-meta";
-      panel.setAttribute("aria-live", "polite");
-      pswp.element.append(panel);
+      const host = document.createElement("div");
+      host.className = "gallery-lightbox-inspector-host";
+      pswp.element.append(host);
+      inspectorRoot = createRoot(host);
 
       const update = () => {
         const image = images[pswp.currIndex];
         if (!image) return;
-        const details = [
-          image.metadata.capturedAt
-            ? new Intl.DateTimeFormat("zh-CN", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false,
-              }).format(new Date(image.metadata.capturedAt))
-            : null,
-          image.metadata.camera,
-          image.metadata.lens,
-          image.metadata.focalLength,
-          image.metadata.aperture,
-          image.metadata.shutterSpeed,
-          image.metadata.iso,
-          `${image.width} × ${image.height}`,
-          image.metadata.format,
-        ].filter((value): value is string => Boolean(value));
-
-        const title = document.createElement("strong");
-        title.textContent = image.title;
-        const list = document.createElement("span");
-        list.textContent = details.join("  ·  ");
-        panel.replaceChildren(title, list);
+        const url = new URL(window.location.href);
+        url.searchParams.set("photo", image.remoteId);
+        window.history.replaceState(window.history.state, "", url);
+        inspectorRoot?.render(<GalleryLightboxInspector
+          key={image.id}
+          image={image}
+          open={inspectorOpen}
+          onToggle={() => {
+            inspectorOpen = !inspectorOpen;
+            update();
+            pswp.updateSize(true);
+          }}
+        />);
       };
 
       pswp.on("change", update);
+      pswp.on("close", () => {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("photo");
+        window.history.replaceState(window.history.state, "", url);
+      });
+      pswp.on("destroy", () => {
+        inspectorRoot?.unmount();
+        inspectorRoot = null;
+      });
       update();
     });
 
     lightbox.init();
-    return () => lightbox.destroy();
+    const photoId = new URL(window.location.href).searchParams.get("photo");
+    const sharedIndex = images.findIndex((image) => image.remoteId === photoId);
+    if (sharedIndex >= 0) window.requestAnimationFrame(() => lightbox.loadAndOpen(sharedIndex));
+    return () => {
+      lightbox.destroy();
+      inspectorRoot?.unmount();
+    };
   }, [images]);
 
   return (
