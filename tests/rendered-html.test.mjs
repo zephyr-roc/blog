@@ -182,6 +182,9 @@ test("server-renders a compact WebP gallery with NAS-hosted originals", async ()
   assert.match(dockerfile, /CMD \["node", "scripts\/start-server\.mjs"\]/);
   assert.match(startServer, /\/api\/gallery\/bootstrap/);
   assert.match(tokenManager, /TOKEN_REFRESH_MARGIN_MS/);
+  assert.match(tokenManager, /nas-token\.json/);
+  assert.match(tokenManager, /mode: 0o600/);
+  assert.match(tokenManager, /restoreToken\(\)/);
   assert.match(tokenManager, /scheduleRenewal\(cachedToken\)/);
   assert.match(tokenManager, /renewalTimer\.unref\(\)/);
   assert.match(tokenManager, /external_token/);
