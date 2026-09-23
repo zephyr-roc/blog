@@ -10,6 +10,7 @@ import {
 import {
   galleryThumbnailCacheName,
   galleryThumbnailDirectory,
+  galleryThumbnailETag,
   readGalleryImages,
 } from "../../../lib/gallery-runtime";
 
@@ -23,7 +24,7 @@ function webpResponse(body: Buffer, fileName: string) {
     headers: {
       "Content-Type": "image/webp",
       "Cache-Control": "public, max-age=31536000, immutable",
-      ETag: `"${path.parse(fileName).name}"`,
+      ETag: galleryThumbnailETag(fileName),
     },
   });
 }
