@@ -168,7 +168,8 @@ export function GalleryLightboxInspector({ image, open, onToggle }: {
   const metadata = image.metadata;
   const capture = [metadata.focalLength, metadata.aperture, metadata.shutterSpeed, metadata.iso].filter(Boolean);
   const fileSize = details?.fileSize ? `${(details.fileSize / 1024 / 1024).toFixed(1)} MB` : null;
-  const megapixels = `${Number((image.width * image.height / 1_000_000).toFixed(1))} MP`;
+  const megapixels = details?.width && details?.height
+    ? `${Number((details.width * details.height / 1_000_000).toFixed(1))} MP` : null;
 
   return (
     <>
@@ -182,7 +183,14 @@ export function GalleryLightboxInspector({ image, open, onToggle }: {
         <span className="gallery-inspector__share-status" role="status">{shareStatus}</span>
       </div>
       {open && (
-        <aside className="gallery-inspector" id="gallery-inspector-panel" aria-label="照片信息">
+        <aside
+          className="gallery-inspector"
+          id="gallery-inspector-panel"
+          aria-label="照片信息"
+          onWheelCapture={(event) => event.stopPropagation()}
+          onPointerDownCapture={(event) => event.stopPropagation()}
+          onTouchStartCapture={(event) => event.stopPropagation()}
+        >
           <header className="gallery-inspector__header">
             <div><small>PHOTO DETAILS</small><h2>{image.title}</h2></div>
             <button type="button" onClick={onToggle} aria-label="收起照片信息">×</button>
@@ -193,7 +201,7 @@ export function GalleryLightboxInspector({ image, open, onToggle }: {
               <dl>
                 <InfoRow label="文件名" value={image.filename || image.title} />
                 <InfoRow label="格式" value={details?.format || image.filename?.split(".").at(-1)?.toUpperCase()} />
-                <InfoRow label="尺寸" value={`${image.width} × ${image.height}`} />
+                <InfoRow label="尺寸" value={details?.width && details?.height ? `${details.width} × ${details.height}` : null} />
                 <InfoRow label="文件大小" value={fileSize} />
                 <InfoRow label="像素" value={megapixels} />
                 <InfoRow label="色彩空间" value={details?.colorSpace} />

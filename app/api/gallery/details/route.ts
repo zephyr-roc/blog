@@ -3,7 +3,7 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import exifr from "exifr";
 import type { GalleryDetails, GalleryImage } from "../../../gallery/gallery-types";
-import { galleryDetailsFromExif, galleryOriginalSize } from "../../../lib/gallery-details";
+import { galleryDetailsFromExif, galleryJpegDimensions, galleryOriginalSize } from "../../../lib/gallery-details";
 import { fetchGalleryNasImage } from "../../../lib/gallery-nas-token";
 import { galleryDataDirectory, readGalleryImages } from "../../../lib/gallery-runtime";
 
@@ -46,7 +46,7 @@ async function loadDetails(image: GalleryImage): Promise<GalleryDetails> {
   const filePath = detailsPath(image);
   try {
     const cached = JSON.parse(await readFile(filePath, "utf8")) as { version: number; details: GalleryDetails };
-    if (cached.version === 1 && cached.details) return cached.details;
+    if (cached.version === 2 && cached.details) return cached.details;
   } catch {
     // Generate missing details when a photo is opened.
   }
@@ -62,11 +62,11 @@ async function loadDetails(image: GalleryImage): Promise<GalleryDetails> {
     iptc: false,
     icc: false,
   }).catch(() => null) as Record<string, unknown> | null;
-  const details = galleryDetailsFromExif(exif || {}, fileSize, contentType);
+  const details = galleryDetailsFromExif(exif || {}, fileSize, contentType, galleryJpegDimensions(bytes));
   const temporaryPath = `${filePath}.${process.pid}.tmp`;
   try {
     await mkdir(path.dirname(filePath), { recursive: true });
-    await writeFile(temporaryPath, JSON.stringify({ version: 1, details }));
+    await writeFile(temporaryPath, JSON.stringify({ version: 2, details }));
     await rename(temporaryPath, filePath);
   } catch {
     // Metadata still displays if the data volume temporarily cannot be written.

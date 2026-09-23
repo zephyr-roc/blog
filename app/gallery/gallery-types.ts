@@ -16,6 +16,8 @@ export type GalleryMetadata = {
 };
 
 export type GalleryDetails = {
+  width: number | null;
+  height: number | null;
   fileSize: number | null;
   format: string | null;
   colorSpace: string | null;

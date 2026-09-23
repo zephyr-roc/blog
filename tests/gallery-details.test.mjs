@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { galleryDetailsFromExif, galleryOriginalSize } from "../app/lib/gallery-details.ts";
+import { galleryDetailsFromExif, galleryJpegDimensions, galleryOriginalSize } from "../app/lib/gallery-details.ts";
 
 test("extracts source EXIF fields and original file size without inventing missing values", () => {
   const headers = new Headers({ "content-range": "bytes 0-2097151/9346046", "content-length": "2097152" });
@@ -19,4 +19,11 @@ test("extracts source EXIF fields and original file size without inventing missi
   assert.equal(details.whiteBalance, "自动");
   assert.equal(details.software, null);
   assert.equal(galleryOriginalSize(new Headers({ "content-length": "512" }), 206), null);
+});
+
+test("reads original JPEG dimensions from a partial file header", () => {
+  const bytes = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 4, 1, 2, 0xff, 0xc0, 0, 7, 8, 0x0f, 0xa0, 0x17, 0x70]);
+  const dimensions = galleryJpegDimensions(bytes);
+  assert.deepEqual(dimensions, { width: 6000, height: 4000 });
+  assert.equal(galleryDetailsFromExif({}, null, "image/jpeg", dimensions).width, 6000);
 });
