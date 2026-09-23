@@ -87,7 +87,7 @@ export async function GET(request: Request) {
       pending.set(image.id, task);
       void task.finally(() => pending.delete(image.id)).catch(() => undefined);
     }
-    return Response.json(await task, { headers: { "Cache-Control": "public, max-age=86400" } });
+    return Response.json(await task, { headers: { "Cache-Control": "private, no-store" } });
   } catch {
     console.error("[gallery] Unable to load photo details.");
     return new Response("Photo details are temporarily unavailable.", {
