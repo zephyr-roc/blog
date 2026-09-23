@@ -138,7 +138,7 @@ test("server-renders the collection cards before client hydration", async () => 
 });
 
 test("server-renders a compact WebP gallery with NAS-hosted originals", async () => {
-  const [syncService, runtimeGallery, workflow, dockerfile, startServer, tokenManager, imageRoute, thumbnailRoute, page, grid, types, packageJson, sitemap, navigation, css] = await Promise.all([
+  const [syncService, runtimeGallery, workflow, dockerfile, startServer, tokenManager, imageRoute, thumbnailRoute, detailsRoute, page, grid, inspector, types, packageJson, sitemap, navigation, css] = await Promise.all([
     readFile(new URL("app/lib/gallery-sync-service.ts", root), "utf8"),
     readFile(new URL("app/lib/gallery-runtime.ts", root), "utf8"),
     readFile(new URL(".github/workflows/deploy.yml", root), "utf8"),
@@ -147,8 +147,10 @@ test("server-renders a compact WebP gallery with NAS-hosted originals", async ()
     readFile(new URL("app/lib/gallery-nas-token.ts", root), "utf8"),
     readFile(new URL("app/api/gallery/image/route.ts", root), "utf8"),
     readFile(new URL("app/api/gallery/thumbnail/route.ts", root), "utf8"),
+    readFile(new URL("app/api/gallery/details/route.ts", root), "utf8"),
     readFile(new URL("app/gallery/page.tsx", root), "utf8"),
     readFile(new URL("app/gallery/GalleryGrid.tsx", root), "utf8"),
+    readFile(new URL("app/gallery/GalleryLightboxInspector.tsx", root), "utf8"),
     readFile(new URL("app/gallery/gallery-types.ts", root), "utf8"),
     readFile(new URL("package.json", root), "utf8"),
     readFile(new URL("app/sitemap.ts", root), "utf8"),
@@ -198,8 +200,9 @@ test("server-renders a compact WebP gallery with NAS-hosted originals", async ()
   assert.match(thumbnailRoute, /max-age=31536000, immutable/);
   assert.match(thumbnailRoute, /\\u4e00-\\u9fff/);
   assert.match(thumbnailRoute, /readGalleryImages\(\)/);
-  assert.match(thumbnailRoute, /getGalleryNasToken\(\)/);
-  assert.match(thumbnailRoute, /referer: galleryNasReferer\(process\.env\.GALLERY_NAS_URL/);
+  assert.match(thumbnailRoute, /fetchGalleryNasImage\(/);
+  assert.match(imageRoute, /fetchGalleryNasImage\(/);
+  assert.match(tokenManager, /isGalleryNasTokenRejected\(response\.status, payload\)/);
   assert.match(thumbnailRoute, /galleryThumbnailCacheName\(fileName\)/);
   assert.match(thumbnailRoute, /ETag: galleryThumbnailETag\(fileName\)/);
   assert.match(thumbnailRoute, /pending\.get\(fileName\)/);
@@ -212,8 +215,13 @@ test("server-renders a compact WebP gallery with NAS-hosted originals", async ()
   assert.match(page, /await readGalleryImages\(\)/);
   assert.match(page, /<GalleryGrid images=\{galleryImages\} \/>/);
   assert.match(grid, /new PhotoSwipeLightbox/);
-  assert.match(grid, /gallery-lightbox-meta/);
-  assert.match(grid, /image\.metadata\.capturedAt/);
+  assert.match(grid, /GalleryLightboxInspector/);
+  assert.match(grid, /loadAndOpen\(sharedIndex\)/);
+  assert.match(grid, /searchParams\.set\("photo", image\.remoteId\)/);
+  assert.match(inspector, /navigator\.share/);
+  assert.match(inspector, /gallery\/details\?id=/);
+  assert.match(inspector, /gallery-inspector__histogram/);
+  assert.match(detailsRoute, /galleryOriginalSize/);
   assert.match(grid, /pswpModule: \(\) => import\("photoswipe"\)/);
   assert.match(grid, /prefers-reduced-motion: reduce/);
   assert.match(grid, /href=\{image\.original \|\| largest\.src\}/);
@@ -225,7 +233,7 @@ test("server-renders a compact WebP gallery with NAS-hosted originals", async ()
   assert.match(css, /\.gallery-grid\s*\{[^}]*grid-template-columns:\s*repeat\(3/);
   assert.match(css, /\.gallery-grid\[data-masonry-ready="true"\]/);
   assert.doesNotMatch(css, /columns:\s*3 320px/);
-  assert.match(css, /\.gallery-lightbox-meta/);
+  assert.match(css, /\.gallery-inspector__histogram/);
 
   const response = await render("/gallery");
   assert.equal(response.status, 200);

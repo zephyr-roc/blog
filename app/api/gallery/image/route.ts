@@ -1,4 +1,4 @@
-import { galleryNasStreamUrl, getGalleryNasToken } from "../../../lib/gallery-nas-token";
+import { fetchGalleryNasImage } from "../../../lib/gallery-nas-token";
 
 const validId = /^[a-zA-Z0-9_-]{1,128}$/;
 const validType = /^\d{1,2}$/;
@@ -14,8 +14,11 @@ export async function GET(request: Request) {
   }
 
   try {
-    const token = await getGalleryNasToken();
-    const destination = galleryNasStreamUrl(id, fileType, sizeType, token);
+    const { response, destination } = await fetchGalleryNasImage(id, fileType, sizeType, {
+      range: "bytes=0-0",
+      timeoutMs: 45_000,
+    });
+    await response.body?.cancel().catch(() => undefined);
     return new Response(null, {
       status: 307,
       headers: {

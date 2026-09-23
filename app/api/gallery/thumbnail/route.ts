@@ -1,12 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
-import { galleryNasReferer } from "../../../lib/gallery-nas-referer";
-import {
-  galleryNasStreamUrl,
-  getGalleryNasToken,
-  invalidateGalleryNasToken,
-} from "../../../lib/gallery-nas-token";
+import { fetchGalleryNasImage } from "../../../lib/gallery-nas-token";
 import {
   galleryThumbnailCacheName,
   galleryThumbnailDirectory,
@@ -43,27 +38,11 @@ async function recoverThumbnail(fileName: string): Promise<Buffer> {
 
   const original = new URL(image.original, "http://gallery.local");
   const fileType = original.searchParams.get("fileType") || "0";
-  let response: Response | null = null;
-  for (let attempt = 0; attempt < 2; attempt += 1) {
-    const token = await getGalleryNasToken();
-    const preview = galleryNasStreamUrl(
-      image.remoteId,
-      fileType,
-      fileType === "3" ? "0" : "3",
-      token,
-    );
-    response = await fetch(preview, {
-      headers: { referer: galleryNasReferer(process.env.GALLERY_NAS_URL || preview.origin) },
-      signal: AbortSignal.timeout(90_000),
-    });
-    if (attempt === 0 && (response.status === 401 || response.status === 403)) {
-      await invalidateGalleryNasToken(token);
-      continue;
-    }
-    break;
-  }
-  if (!response) throw new Error("NAS preview was not fetched.");
-  if (!response.ok) throw new Error(`NAS preview returned HTTP ${response.status}.`);
+  const { response } = await fetchGalleryNasImage(
+    image.remoteId,
+    fileType,
+    fileType === "3" ? "0" : "3",
+  );
 
   const input = Buffer.from(await response.arrayBuffer());
   const output = await sharp(input, { page: 0, limitInputPixels: false })

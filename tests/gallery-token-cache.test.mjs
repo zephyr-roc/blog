@@ -4,6 +4,14 @@ import { mkdtemp, rm, stat, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { isGalleryNasTokenRejected } from "../app/lib/gallery-nas-token.ts";
+
+test("recognizes NAS invalid-token JSON despite HTTP 200", () => {
+  assert.equal(isGalleryNasTokenRejected(200, { code: 1013, msg: "Invalid Token!" }), true);
+  assert.equal(isGalleryNasTokenRejected(200, { code: "1013" }), true);
+  assert.equal(isGalleryNasTokenRejected(200, { code: 0 }), false);
+  assert.equal(isGalleryNasTokenRejected(403, null), true);
+});
 
 for (const tokenFormat of ["jwt", "opaque"]) test(`reuses a valid ${tokenFormat} NAS token from the persistent gallery volume`, async () => {
   const directory = await mkdtemp(path.join(os.tmpdir(), "blog-gallery-token-"));
