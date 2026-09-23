@@ -53,14 +53,14 @@ function enhanceImage(image: HTMLImageElement, signal: AbortSignal) {
 
     const frame = document.createElement("span");
     frame.className = "post-image-frame";
-    frame.dataset.background = "white";
+    frame.dataset.background = "transparent";
     frame.dataset.hasAlpha = "true";
 
     const toggle = document.createElement("button");
     toggle.className = "post-image-background-toggle";
     toggle.type = "button";
-    toggle.setAttribute("aria-pressed", "true");
-    toggle.setAttribute("aria-label", "关闭图片白色背景");
+    toggle.setAttribute("aria-pressed", "false");
+    toggle.setAttribute("aria-label", "开启图片白色背景");
     toggle.innerHTML = `
       <svg class="post-image-background-toggle__icon post-image-background-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="12" cy="12" r="3.75" />
