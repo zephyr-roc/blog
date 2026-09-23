@@ -5,15 +5,17 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-test("reuses a valid NAS token from the persistent gallery volume", async () => {
+for (const tokenFormat of ["jwt", "opaque"]) test(`reuses a valid ${tokenFormat} NAS token from the persistent gallery volume`, async () => {
   const directory = await mkdtemp(path.join(os.tmpdir(), "blog-gallery-token-"));
   const previousDirectory = process.env.GALLERY_DATA_DIR;
   const previousUrl = process.env.GALLERY_NAS_URL;
   const previousPassword = process.env.GALLERY_NAS_PASSWORD;
   const sourceUrl = "https://nas.example.test/share/gallery";
-  const expiresAt = (Math.floor(Date.now() / 1000) + 3600) * 1000;
+  const expiresAt = tokenFormat === "jwt"
+    ? (Math.floor(Date.now() / 1000) + 3600) * 1000
+    : Date.now() + 20 * 60 * 1000;
   const payload = Buffer.from(JSON.stringify({ exp: expiresAt / 1000 })).toString("base64url");
-  const value = `header.${payload}.signature`;
+  const value = tokenFormat === "jwt" ? `header.${payload}.signature` : "opaque-test-token";
   const filePath = path.join(directory, "nas-token.json");
 
   try {
@@ -27,7 +29,7 @@ test("reuses a valid NAS token from the persistent gallery volume", async () => 
     }), { mode: 0o600 });
 
     const { getGalleryNasToken, invalidateGalleryNasToken } = await import(
-      "../app/lib/gallery-nas-token.ts"
+      `../app/lib/gallery-nas-token.ts?${tokenFormat}`
     );
     assert.equal(await getGalleryNasToken(), value);
     await invalidateGalleryNasToken(value);

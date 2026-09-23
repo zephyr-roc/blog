@@ -32,14 +32,18 @@ function sourceFingerprint() {
   return createHash("sha256").update(sourceUrl).digest("hex");
 }
 
-function tokenExpiry(token: string): number {
+function jwtExpiry(token: string): number | null {
   try {
     const payload = JSON.parse(Buffer.from(token.split(".")[1], "base64url").toString("utf8"));
     if (typeof payload.exp === "number") return payload.exp * 1000;
   } catch {
-    // Fall back to a deliberately short cache when the NAS changes token format.
+    // The NAS may issue an opaque token instead of a JWT.
   }
-  return Date.now() + 30 * 60 * 1000;
+  return null;
+}
+
+function tokenExpiry(token: string): number {
+  return jwtExpiry(token) ?? Date.now() + 30 * 60 * 1000;
 }
 
 async function restoreToken() {
@@ -51,8 +55,10 @@ async function restoreToken() {
     };
     if (typeof stored.value !== "string" ||
         typeof stored.expiresAt !== "number" ||
-        stored.sourceFingerprint !== sourceFingerprint() ||
-        tokenExpiry(stored.value) !== stored.expiresAt ||
+        stored.sourceFingerprint !== sourceFingerprint()) return;
+    const embeddedExpiry = jwtExpiry(stored.value);
+    if ((embeddedExpiry !== null && embeddedExpiry !== stored.expiresAt) ||
+        (embeddedExpiry === null && stored.expiresAt > Date.now() + 30 * 60 * 1000) ||
         stored.expiresAt - TOKEN_REFRESH_MARGIN_MS <= Date.now()) return;
 
     cachedToken = { value: stored.value, expiresAt: stored.expiresAt };
