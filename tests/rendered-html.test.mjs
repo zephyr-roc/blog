@@ -484,7 +484,7 @@ test("keeps the about title on exactly two smaller lines", async () => {
   assert.match(css, /@media \(max-width:\s*640px\)[\s\S]*?\.about__intro h1\s*\{[^}]*font-size:\s*clamp\(36px,\s*10vw,\s*50px\);/);
 });
 
-test("gives transparent post images a default white background toggle", async () => {
+test("shows transparent post images without a white background until toggled", async () => {
   const [postContent, enhancer, css] = await Promise.all([
     readFile(new URL("app/components/PostContent.tsx", root), "utf8"),
     readFile(new URL("app/components/PostImageEnhancer.tsx", root), "utf8"),
@@ -495,8 +495,9 @@ test("gives transparent post images a default white background toggle", async ()
   assert.match(enhancer, /getImageData\(0, 0, width, height\)\.data/);
   assert.match(enhancer, /pixels\[index\] < TRANSPARENT_ALPHA_CUTOFF/);
   assert.match(enhancer, /if \(!hasAlpha \|\| signal\.aborted \|\| !image\.isConnected\) return/);
-  assert.match(enhancer, /frame\.dataset\.background = "white"/);
-  assert.match(enhancer, /toggle\.setAttribute\("aria-pressed", "true"\)/);
+  assert.match(enhancer, /frame\.dataset\.background = "transparent"/);
+  assert.match(enhancer, /toggle\.setAttribute\("aria-pressed", "false"\)/);
+  assert.match(enhancer, /const useWhite = frame\.dataset\.background !== "white"/);
   assert.match(enhancer, /关闭图片白色背景/);
   assert.match(enhancer, /开启图片白色背景/);
   assert.match(enhancer, /post-image-background-toggle__icon--sun/);
@@ -504,12 +505,12 @@ test("gives transparent post images a default white background toggle", async ()
   assert.doesNotMatch(enhancer, />白底</);
   assert.match(
     css,
-    /\.post-image-frame\s*\{[^}]*position:\s*relative;[^}]*margin:\s*1\.75rem auto;[^}]*overflow:\s*hidden;[^}]*padding:\s*48px 12px 12px;[^}]*border-radius:\s*16px;[^}]*background:\s*#fff;/,
+    /\.post-image-frame\s*\{[^}]*position:\s*relative;[^}]*margin:\s*1\.75rem auto;[^}]*overflow:\s*hidden;[^}]*padding:\s*48px 12px 12px;[^}]*background:\s*transparent;/,
   );
   assert.match(css, /\.post-content img\s*\{[^}]*border-radius:\s*0;/);
   assert.match(
     css,
-    /\.post-image-frame\[data-background="transparent"\]\s*\{[^}]*background:\s*transparent;/,
+    /\.post-image-frame\[data-background="white"\]\s*\{[^}]*background:\s*#fff;/,
   );
   assert.match(
     css,
