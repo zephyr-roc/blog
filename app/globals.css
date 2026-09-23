@@ -4204,6 +4204,28 @@ a {
   left: 5px;
 }
 
+.pswp__preloader {
+  width: 43px;
+  height: 43px;
+  margin: 12px auto 0 10px;
+}
+
+.pswp__img.gallery-original-loading {
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.pswp__img.gallery-original-loading.gallery-original-ready {
+  opacity: 1;
+}
+
+.gallery-original-fallback {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
 @media (min-width: 860px) {
   .gallery-pswp--inspector-open .pswp__button--arrow--next {
     right: calc(min(388px, 34vw) + 14px);

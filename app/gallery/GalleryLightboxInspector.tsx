@@ -136,7 +136,7 @@ export function GalleryLightboxInspector({ image, open, onToggle }: {
   useEffect(() => {
     if (!open) return;
     const controller = new AbortController();
-    fetch(`/api/gallery/details?id=${encodeURIComponent(image.remoteId)}`, { signal: controller.signal })
+    fetch(`/api/gallery/details?id=${encodeURIComponent(image.remoteId)}&v=2`, { signal: controller.signal })
       .then((response) => response.ok ? response.json() as Promise<GalleryDetails> : null)
       .then((value) => { if (!controller.signal.aborted) setDetails(value); })
       .catch(() => { if (!controller.signal.aborted) setDetails(null); });

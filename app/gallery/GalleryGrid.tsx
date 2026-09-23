@@ -98,12 +98,16 @@ export function GalleryGrid({ images }: GalleryGridProps) {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let inspectorOpen = window.innerWidth >= 860;
     let inspectorRoot: ReturnType<typeof createRoot> | null = null;
+    let currentIndex = -1;
+    const readyToPrefetch = new Set<number>();
     const lightbox = new PhotoSwipeLightbox({
       gallery: "#gallery-grid",
       children: "a",
       pswpModule: () => import("photoswipe"),
       bgOpacity: .94,
       showHideAnimationType: reduceMotion ? "none" : "zoom",
+      preloadFirstSlide: false,
+      preload: [0, 0],
       paddingFn: (viewportSize) => ({
         top: viewportSize.x < 700 ? 64 : 72,
         bottom: inspectorOpen && viewportSize.x < 860
@@ -114,6 +118,44 @@ export function GalleryGrid({ images }: GalleryGridProps) {
           ? Math.min(388, Math.max(300, viewportSize.x * .34)) + 28
           : viewportSize.x < 700 ? 12 : 36,
       }),
+    });
+
+    const previewFor = (index: number) => {
+      const image = images[index];
+      return image?.sources.find((source) => source.width >= 960)?.src
+        || image?.sources.at(-1)?.src || image?.poster || false;
+    };
+
+    lightbox.addFilter("placeholderSrc", (_default, content) => previewFor(content.index));
+    lightbox.addFilter("contentErrorElement", (errorElement, content) => {
+      const preview = previewFor(content.index);
+      if (!preview) return errorElement;
+      const fallback = document.createElement("img");
+      fallback.src = preview;
+      fallback.alt = images[content.index]?.alt || "照片预览";
+      fallback.className = "gallery-original-fallback";
+      return fallback;
+    });
+    lightbox.on("contentLoadImage", (event) => {
+      const pswp = lightbox.pswp;
+      if (pswp && event.content.index !== pswp.currIndex && !readyToPrefetch.has(event.content.index)) {
+        event.preventDefault();
+        return;
+      }
+      event.content.element?.classList.add("gallery-original-loading");
+    });
+    lightbox.on("loadComplete", ({ content, isError }) => {
+      content.element?.classList.add("gallery-original-ready");
+      const pswp = lightbox.pswp;
+      if (!pswp || pswp.currIndex !== content.index || isError) return;
+      for (const offset of [1, -1]) {
+        const index = (content.index + offset + images.length) % images.length;
+        if (index === content.index) continue;
+        readyToPrefetch.add(index);
+        const neighbor = pswp.contentLoader.getContentByIndex(index);
+        if (neighbor?.element && neighbor.state === "idle") neighbor.loadImage(true);
+        else if (!neighbor) pswp.contentLoader.loadSlideByIndex(index);
+      }
     });
 
     lightbox.on("afterInit", () => {
@@ -128,6 +170,19 @@ export function GalleryGrid({ images }: GalleryGridProps) {
       const update = () => {
         const image = images[pswp.currIndex];
         if (!image) return;
+        if (currentIndex !== pswp.currIndex) {
+          const previous = pswp.contentLoader.getContentByIndex(currentIndex);
+          if (previous?.state === "loading" && previous.element instanceof HTMLImageElement) {
+            previous.element.onload = null;
+            previous.element.onerror = null;
+            previous.element.removeAttribute("src");
+            previous.state = "idle";
+          }
+          currentIndex = pswp.currIndex;
+          readyToPrefetch.clear();
+          const current = pswp.currSlide?.content;
+          if (current?.element && current.state === "idle") current.loadImage(false);
+        }
         pswp.element?.classList.toggle("gallery-pswp--inspector-open", inspectorOpen);
         const url = new URL(window.location.href);
         url.searchParams.set("photo", image.remoteId);
