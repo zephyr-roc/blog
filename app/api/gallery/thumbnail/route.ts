@@ -1,20 +1,17 @@
-import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 import { galleryNasStreamUrl, getGalleryNasToken } from "../../../lib/gallery-nas-token";
-import { galleryThumbnailDirectory, readGalleryImages } from "../../../lib/gallery-runtime";
+import {
+  galleryThumbnailCacheName,
+  galleryThumbnailDirectory,
+  readGalleryImages,
+} from "../../../lib/gallery-runtime";
 
 // Generated thumbnail names retain CJK characters from the source photo name.
 // Keep the allow-list narrow while accepting those legitimate filenames.
 const validFileName = /^[a-z0-9\u4e00-\u9fff][a-z0-9\u4e00-\u9fff._-]{0,180}\.webp$/i;
 const pending = new Map<string, Promise<Buffer>>();
-
-function cacheName(fileName: string) {
-  return /^[\u0020-\u007e]+$/.test(fileName)
-    ? fileName
-    : `${createHash("sha256").update(fileName).digest("hex")}.webp`;
-}
 
 function webpResponse(body: Buffer, fileName: string) {
   return new Response(new Uint8Array(body), {
@@ -62,7 +59,7 @@ async function recoverThumbnail(fileName: string): Promise<Buffer> {
 
   // A filesystem failure must not turn a successfully recovered image into
   // another broken card. Retry caching on the next request in that case.
-  await writeFile(path.join(galleryThumbnailDirectory(), cacheName(fileName)), output)
+  await writeFile(path.join(galleryThumbnailDirectory(), galleryThumbnailCacheName(fileName)), output)
     .catch((error: unknown) => console.error("[gallery] Unable to cache recovered thumbnail.", error));
   return output;
 }
@@ -75,11 +72,11 @@ export async function GET(request: Request) {
 
   const directory = galleryThumbnailDirectory();
   try {
-    return webpResponse(await readFile(path.join(directory, cacheName(fileName))), fileName);
+    return webpResponse(await readFile(path.join(directory, galleryThumbnailCacheName(fileName))), fileName);
   } catch {
     // Before the switch to ASCII cache paths, some manifest entries used CJK
     // filenames. Honor those files if they really exist on disk.
-    if (cacheName(fileName) !== fileName) {
+    if (galleryThumbnailCacheName(fileName) !== fileName) {
       try {
         return webpResponse(await readFile(path.join(directory, fileName)), fileName);
       } catch {
