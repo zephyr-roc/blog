@@ -179,6 +179,9 @@ test("server-renders a compact WebP gallery with NAS-hosted originals", async ()
   assert.doesNotMatch(workflow, /schedule:/);
   assert.match(workflow, /envs: GALLERY_NAS_URL,GALLERY_NAS_PASSWORD/);
   assert.match(dockerfile, /apk add --no-cache chromium/);
+  const runnerDockerfile = dockerfile.split("FROM node:24-alpine AS runner")[1];
+  assert.ok(runnerDockerfile.indexOf("RUN apk add") < runnerDockerfile.indexOf("ARG NEXT_DEPLOYMENT_ID"));
+  assert.ok(dockerfile.indexOf("RUN pnpm install") < dockerfile.indexOf("ARG NEXT_DEPLOYMENT_ID"));
   assert.match(dockerfile, /CMD \["node", "scripts\/start-server\.mjs"\]/);
   assert.match(startServer, /\/api\/gallery\/bootstrap/);
   assert.match(tokenManager, /TOKEN_REFRESH_MARGIN_MS/);
