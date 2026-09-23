@@ -1,6 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
+import { galleryNasReferer } from "../../../lib/gallery-nas-referer";
 import {
   galleryNasStreamUrl,
   getGalleryNasToken,
@@ -51,7 +52,7 @@ async function recoverThumbnail(fileName: string): Promise<Buffer> {
       token,
     );
     response = await fetch(preview, {
-      headers: { referer: process.env.GALLERY_NAS_URL || preview.origin },
+      headers: { referer: galleryNasReferer(process.env.GALLERY_NAS_URL || preview.origin) },
       signal: AbortSignal.timeout(90_000),
     });
     if (attempt === 0 && (response.status === 401 || response.status === 403)) {

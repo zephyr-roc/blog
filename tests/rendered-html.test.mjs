@@ -166,6 +166,8 @@ test("server-renders a compact WebP gallery with NAS-hosted originals", async ()
   assert.match(syncService, /sortByCapturedTime/);
   assert.match(syncService, /rightTime - leftTime/);
   assert.match(syncService, /processed \$\{missing\.length\} new item/);
+  assert.match(syncService, /const referer = galleryNasReferer\(sourceUrl\)/);
+  assert.match(syncService, /fetchPrefix\(photo\.originalUrl, referer\)/);
   assert.match(syncService, /availableThumbnails\.has\(fileName\)/);
   assert.match(syncService, /Keep persisted filenames portable/);
   assert.match(syncService, /\/api\/gallery\/image\?id=/);
@@ -197,6 +199,7 @@ test("server-renders a compact WebP gallery with NAS-hosted originals", async ()
   assert.match(thumbnailRoute, /\\u4e00-\\u9fff/);
   assert.match(thumbnailRoute, /readGalleryImages\(\)/);
   assert.match(thumbnailRoute, /getGalleryNasToken\(\)/);
+  assert.match(thumbnailRoute, /referer: galleryNasReferer\(process\.env\.GALLERY_NAS_URL/);
   assert.match(thumbnailRoute, /galleryThumbnailCacheName\(fileName\)/);
   assert.match(thumbnailRoute, /pending\.get\(fileName\)/);
   assert.match(syncService, /referenced\.add\(galleryThumbnailCacheName\(fileName\)\)/);

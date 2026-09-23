@@ -4,6 +4,7 @@ import path from "node:path";
 import exifr from "exifr";
 import { chromium } from "playwright-core";
 import sharpModule from "sharp";
+import { galleryNasReferer } from "./gallery-nas-referer";
 import type { GalleryImage, GalleryManifest, GalleryMetadata } from "../gallery/gallery-types";
 import {
   GALLERY_MANIFEST_VERSION,
@@ -284,8 +285,9 @@ async function discoverPhotos(): Promise<{ photos: RemotePhoto[]; sourceUrl: str
 }
 
 async function buildGalleryImage(photo: RemotePhoto, sourceUrl: string): Promise<GalleryImage> {
+  const referer = galleryNasReferer(sourceUrl);
   const response = await fetch(photo.previewUrl, {
-    headers: { accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8", referer: sourceUrl },
+    headers: { accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8", referer },
     signal: AbortSignal.timeout(90_000),
   });
   if (!response.ok) throw new Error(`Photo ${photo.id} returned HTTP ${response.status}.`);
@@ -296,7 +298,7 @@ async function buildGalleryImage(photo: RemotePhoto, sourceUrl: string): Promise
     throw new Error(`Photo ${photo.id} did not return a supported image.`);
   }
 
-  const prefix = await fetchPrefix(photo.originalUrl, sourceUrl);
+  const prefix = await fetchPrefix(photo.originalUrl, referer);
   const originalExif = prefix.length ? await parseExif(prefix) : {};
   const exif = Object.keys(originalExif).length ? originalExif : await parseExif(input);
   const hash = createHash("sha256").update(input).digest("hex").slice(0, 12);
