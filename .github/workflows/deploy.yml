@@ -131,6 +131,14 @@ jobs:
             attempt=0
             while [ "$attempt" -lt 15 ]; do
               if docker exec blog node -e "fetch('http://127.0.0.1:3000/tinkering').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"; then
+                # Probe a historically broken CJK thumbnail without printing
+                # the NAS URL or its external_token into Actions logs.
+                if ! docker exec blog node -e 'fetch("http://127.0.0.1:3000/api/gallery/thumbnail?file=2594-dsc-3404-%E5%B7%B2%E5%A2%9E%E5%BC%BA-%E9%99%8D%E5%99%AA-728d508d8a4e-480w.webp", { signal: AbortSignal.timeout(100000) }).then(r => { console.log("Gallery thumbnail probe HTTP " + r.status); process.exit(r.ok ? 0 : 1); }).catch(() => { console.log("Gallery thumbnail probe timed out or failed"); process.exit(1); })'; then
+                  echo "::warning::Gallery thumbnail recovery failed; see sanitized error categories below."
+                  docker logs --since 3m blog 2>&1 \
+                    | grep -E '^\[gallery\] Unable to (recover thumbnail|renew the NAS image token)|^Error: (NAS preview returned HTTP [0-9]+|Thumbnail is not present|fetch failed|Input buffer contains unsupported image format)|^browserType\.launch:' \
+                    | tail -12 || true
+                fi
                 exit 0
               fi
               attempt=$((attempt + 1))
