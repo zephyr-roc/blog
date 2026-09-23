@@ -1,3 +1,6 @@
+import { createHash } from "node:crypto";
+import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import path from "node:path";
 import { chromium } from "playwright-core";
 
 const STREAM_PATH = "/ugreen/v5/photo/share/external/stream";
@@ -10,6 +13,7 @@ type CachedToken = {
 
 let cachedToken: CachedToken | null = null;
 let refreshPromise: Promise<CachedToken> | null = null;
+let loadPromise: Promise<void> | null = null;
 let renewalTimer: NodeJS.Timeout | null = null;
 
 function configuration() {
@@ -17,6 +21,15 @@ function configuration() {
   const password = process.env.GALLERY_NAS_PASSWORD;
   if (!sourceUrl || !password) throw new Error("Gallery NAS credentials are not configured.");
   return { sourceUrl, password, origin: new URL(sourceUrl).origin };
+}
+
+function tokenPath() {
+  return path.join(process.env.GALLERY_DATA_DIR || "/data/gallery", "nas-token.json");
+}
+
+function sourceFingerprint() {
+  const { sourceUrl } = configuration();
+  return createHash("sha256").update(sourceUrl).digest("hex");
 }
 
 function tokenExpiry(token: string): number {
@@ -27,6 +40,43 @@ function tokenExpiry(token: string): number {
     // Fall back to a deliberately short cache when the NAS changes token format.
   }
   return Date.now() + 30 * 60 * 1000;
+}
+
+async function restoreToken() {
+  try {
+    const stored = JSON.parse(await readFile(tokenPath(), "utf8")) as {
+      value?: unknown;
+      expiresAt?: unknown;
+      sourceFingerprint?: unknown;
+    };
+    if (typeof stored.value !== "string" ||
+        typeof stored.expiresAt !== "number" ||
+        stored.sourceFingerprint !== sourceFingerprint() ||
+        tokenExpiry(stored.value) !== stored.expiresAt ||
+        stored.expiresAt - TOKEN_REFRESH_MARGIN_MS <= Date.now()) return;
+
+    cachedToken = { value: stored.value, expiresAt: stored.expiresAt };
+    scheduleRenewal(cachedToken);
+  } catch {
+    // A missing or damaged cache should never prevent authenticating again.
+  }
+}
+
+async function persistToken(token: CachedToken) {
+  const filePath = tokenPath();
+  const temporaryPath = `${filePath}.${process.pid}.tmp`;
+  try {
+    await mkdir(path.dirname(filePath), { recursive: true });
+    await writeFile(temporaryPath, JSON.stringify({
+      ...token,
+      sourceFingerprint: sourceFingerprint(),
+    }), { mode: 0o600 });
+    await rename(temporaryPath, filePath);
+  } catch {
+    await rm(temporaryPath, { force: true }).catch(() => undefined);
+    // An unwritable volume degrades to the existing in-memory token cache.
+    console.error("[gallery] Unable to persist NAS token cache.");
+  }
 }
 
 async function renewToken(): Promise<CachedToken> {
@@ -81,6 +131,7 @@ async function refreshToken(): Promise<CachedToken> {
   refreshPromise ??= renewToken();
   try {
     cachedToken = await refreshPromise;
+    await persistToken(cachedToken);
     scheduleRenewal(cachedToken);
     return cachedToken;
   } finally {
@@ -89,10 +140,19 @@ async function refreshToken(): Promise<CachedToken> {
 }
 
 export async function getGalleryNasToken(): Promise<string> {
+  loadPromise ??= restoreToken();
+  await loadPromise;
   if (cachedToken && cachedToken.expiresAt - TOKEN_REFRESH_MARGIN_MS > Date.now()) {
     return cachedToken.value;
   }
   return (await refreshToken()).value;
+}
+
+export async function invalidateGalleryNasToken(token: string) {
+  if (cachedToken?.value !== token) return;
+  cachedToken = null;
+  if (renewalTimer) clearTimeout(renewalTimer);
+  await rm(tokenPath(), { force: true }).catch(() => undefined);
 }
 
 export function galleryNasStreamUrl(id: string, fileType: string, sizeType: string, token: string) {
