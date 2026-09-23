@@ -189,6 +189,11 @@ test("server-renders a compact WebP gallery with NAS-hosted originals", async ()
   assert.match(imageRoute, /"Cache-Control": "private, no-store"/);
   assert.match(thumbnailRoute, /max-age=31536000, immutable/);
   assert.match(thumbnailRoute, /\\u4e00-\\u9fff/);
+  assert.match(thumbnailRoute, /readGalleryImages\(\)/);
+  assert.match(thumbnailRoute, /getGalleryNasToken\(\)/);
+  assert.match(thumbnailRoute, /galleryThumbnailCacheName\(fileName\)/);
+  assert.match(thumbnailRoute, /pending\.get\(fileName\)/);
+  assert.match(syncService, /referenced\.add\(galleryThumbnailCacheName\(fileName\)\)/);
   assert.match(runtimeGallery, /readGalleryImages/);
   assert.match(types, /capturedAt: string \| null/);
   assert.match(types, /camera: string \| null/);

@@ -7,6 +7,7 @@ import sharpModule from "sharp";
 import type { GalleryImage, GalleryManifest, GalleryMetadata } from "../gallery/gallery-types";
 import {
   GALLERY_MANIFEST_VERSION,
+  galleryThumbnailCacheName,
   galleryManifestPath,
   galleryThumbnailDirectory,
 } from "./gallery-runtime";
@@ -360,6 +361,9 @@ async function removeUnusedThumbnails(images: GalleryImage[]) {
   const referenced = new Set(images.flatMap((image) => image.sources.map((source) => {
     return new URL(source.src, "http://gallery.local").searchParams.get("file") || "";
   })));
+  for (const fileName of [...referenced]) {
+    referenced.add(galleryThumbnailCacheName(fileName));
+  }
   const files = await readdir(galleryThumbnailDirectory()).catch(() => []);
   await Promise.all(files.filter((file) => !referenced.has(file)).map((file) => {
     return rm(path.join(galleryThumbnailDirectory(), file), { force: true });

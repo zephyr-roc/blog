@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { GalleryImage, GalleryManifest } from "../gallery/gallery-types";
@@ -14,6 +15,12 @@ export function galleryManifestPath() {
 
 export function galleryThumbnailDirectory() {
   return path.join(galleryDataDirectory(), "thumbnails");
+}
+
+export function galleryThumbnailCacheName(fileName: string) {
+  return /^[\u0020-\u007e]+$/.test(fileName)
+    ? fileName
+    : `${createHash("sha256").update(fileName).digest("hex")}.webp`;
 }
 
 export async function readGalleryImages(): Promise<GalleryImage[]> {
