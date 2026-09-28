@@ -42,7 +42,7 @@ const selectLabels = (points) => {
   const selected = [];
   for (const point of candidates) {
     const previous = selected.at(-1);
-    if (!previous || point.x - previous.x >= 64) {
+    if (!previous || point.x - previous.x >= 88) {
       selected.push(point);
     } else if (point === points.at(-1)) {
       selected[selected.length - 1] = point;
