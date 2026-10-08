@@ -1,5 +1,6 @@
 "use client";
 
+import PhotoSwipeLightbox from "photoswipe/lightbox";
 import { useEffect } from "react";
 
 const SAMPLE_SIZE = 128;
@@ -48,6 +49,13 @@ function enhanceImage(image: HTMLImageElement, signal: AbortSignal) {
   if (image.dataset.alphaBackgroundChecked === "true") return;
   image.dataset.alphaBackgroundChecked = "true";
 
+  const existingFrame = image.closest<HTMLElement>(".post-image-frame");
+  if (existingFrame) {
+    const existingToggle = existingFrame.querySelector<HTMLButtonElement>(".post-image-background-toggle");
+    if (existingToggle) bindBackgroundToggle(existingFrame, existingToggle, signal);
+    return;
+  }
+
   void hasTransparentPixels(image).then((hasAlpha) => {
     if (!hasAlpha || signal.aborted || !image.isConnected) return;
 
@@ -74,20 +82,17 @@ function enhanceImage(image: HTMLImageElement, signal: AbortSignal) {
     image.before(frame);
     frame.append(image, toggle);
 
-    toggle.addEventListener(
-      "click",
-      () => {
-        const useWhite = frame.dataset.background !== "white";
-        frame.dataset.background = useWhite ? "white" : "transparent";
-        toggle.setAttribute("aria-pressed", String(useWhite));
-        toggle.setAttribute(
-          "aria-label",
-          useWhite ? "关闭图片白色背景" : "开启图片白色背景",
-        );
-      },
-      { signal },
-    );
+    bindBackgroundToggle(frame, toggle, signal);
   });
+}
+
+function bindBackgroundToggle(frame: HTMLElement, toggle: HTMLButtonElement, signal: AbortSignal) {
+  toggle.addEventListener("click", () => {
+    const useWhite = frame.dataset.background !== "white";
+    frame.dataset.background = useWhite ? "white" : "transparent";
+    toggle.setAttribute("aria-pressed", String(useWhite));
+    toggle.setAttribute("aria-label", useWhite ? "关闭图片白色背景" : "开启图片白色背景");
+  }, { signal });
 }
 
 export function PostImageEnhancer() {
@@ -96,11 +101,86 @@ export function PostImageEnhancer() {
     if (!root) return;
 
     const controller = new AbortController();
-    root.querySelectorAll<HTMLImageElement>("img").forEach((image) => {
-      enhanceImage(image, controller.signal);
+    const images = Array.from(root.querySelectorAll<HTMLImageElement>("img"));
+    const lightbox = new PhotoSwipeLightbox({
+      pswpModule: () => import("photoswipe"),
+      bgOpacity: .94,
+      preload: [0, 0],
+      showHideAnimationType: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "none" : "zoom",
     });
 
-    return () => controller.abort();
+    lightbox.on("uiRegister", () => {
+      lightbox.pswp?.ui?.registerElement({
+        name: "postWhiteBackground",
+        className: "pswp__button--post-background",
+        title: "开启图片白色背景",
+        ariaLabel: "开启图片白色背景",
+        html: "白底",
+        order: 8,
+        onInit: (button, pswp) => {
+          const update = () => {
+            const frame = images[pswp.currIndex]?.closest<HTMLElement>(".post-image-frame");
+            const hasAlpha = frame?.dataset.hasAlpha === "true";
+            const white = hasAlpha && frame.dataset.background === "white";
+            button.hidden = !hasAlpha;
+            button.setAttribute("aria-pressed", String(Boolean(white)));
+            button.setAttribute("aria-label", white ? "关闭图片白色背景" : "开启图片白色背景");
+            if (pswp.element) pswp.element.dataset.postBackground = white ? "white" : "transparent";
+          };
+          pswp.on("change", update);
+          update();
+        },
+        onClick: (_event, _button, pswp) => {
+          const frame = images[pswp.currIndex]?.closest<HTMLElement>(".post-image-frame");
+          frame?.querySelector<HTMLButtonElement>(".post-image-background-toggle")?.click();
+          const white = frame?.dataset.background === "white";
+          if (pswp.element) pswp.element.dataset.postBackground = white ? "white" : "transparent";
+          const button = pswp.element?.querySelector<HTMLButtonElement>(".pswp__button--post-background");
+          button?.setAttribute("aria-pressed", String(white));
+          button?.setAttribute("aria-label", white ? "关闭图片白色背景" : "开启图片白色背景");
+        },
+      });
+    });
+    lightbox.on("afterInit", () => lightbox.pswp?.element?.classList.add("post-image-lightbox"));
+    lightbox.init();
+
+    const openImage = (index: number) => {
+      const dataSource = images.map((image) => ({
+        src: image.src,
+        msrc: image.currentSrc || image.src,
+        width: image.naturalWidth || image.width || 1,
+        height: image.naturalHeight || image.height || 1,
+        alt: image.alt,
+      }));
+      lightbox.loadAndOpen(index, dataSource);
+    };
+
+    images.forEach((image, index) => {
+      enhanceImage(image, controller.signal);
+      image.tabIndex = 0;
+      image.setAttribute("role", "button");
+      image.setAttribute("aria-label", image.alt ? `放大图片：${image.alt}` : "放大图片");
+      image.addEventListener("click", (event) => {
+        event.preventDefault();
+        openImage(index);
+      }, { signal: controller.signal });
+      image.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        openImage(index);
+      }, { signal: controller.signal });
+    });
+
+    return () => {
+      controller.abort();
+      lightbox.destroy();
+      images.forEach((image) => {
+        delete image.dataset.alphaBackgroundChecked;
+        image.removeAttribute("role");
+        image.removeAttribute("aria-label");
+        image.removeAttribute("tabindex");
+      });
+    };
   }, []);
 
   return null;
