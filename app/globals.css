@@ -2772,6 +2772,32 @@ a {
   margin: 1.75rem auto;
   border-radius: 0;
   object-fit: contain;
+  cursor: zoom-in;
+}
+
+.post-content img:focus-visible {
+  outline: 2px solid #b8a7ff;
+  outline-offset: 4px;
+}
+
+.post-image-lightbox[data-post-background="white"] .pswp__img {
+  background: #fff;
+}
+
+.pswp__top-bar .pswp__button--post-background {
+  width: auto;
+  min-width: 56px;
+  padding: 0 10px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.pswp__button--post-background[hidden] {
+  display: none;
+}
+
+.pswp__button--post-background[aria-pressed="true"] {
+  background: rgba(127, 82, 255, .9);
 }
 
 .post-image-frame {
