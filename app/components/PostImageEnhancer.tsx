@@ -113,6 +113,7 @@ export function PostImageEnhancer() {
       lightbox.pswp?.ui?.registerElement({
         name: "postWhiteBackground",
         className: "pswp__button--post-background",
+        isButton: true,
         title: "开启图片白色背景",
         ariaLabel: "开启图片白色背景",
         html: "白底",
