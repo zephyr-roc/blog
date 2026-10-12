@@ -65,9 +65,10 @@ jobs:
 
             IMAGE="ghcr.io/zephyr-roc/blog:${{ env.DEPLOYMENT_ID }}"
             PREVIOUS_IMAGE="$(docker inspect --format='{{.Config.Image}}' blog 2>/dev/null || true)"
-            # Each release gets a bounded asset volume. The new and immediately
-            # previous releases cover pages opened across a deployment.
-            STATIC_VOLUME="blog-static-assets-${{ env.DEPLOYMENT_ID }}"
+            # Keep hashed assets for pages that remain open across releases.
+            # This volume is small compared with the old Docker images.
+            STATIC_VOLUME="blog-static-assets"
+            PREVIOUS_STATIC_VOLUME="$(docker inspect --format='{{range .Mounts}}{{if eq .Destination "/app/dist/client/_next/static"}}{{.Name}}{{end}}{{end}}' blog 2>/dev/null || true)"
 
             report_disk_usage() {
               echo "Blog deployment disk usage:"
@@ -125,6 +126,17 @@ jobs:
                 sh -c 'cp -a /app/dist/client/_next/static/. /retained-static/'
             }
 
+            migrate_static_assets() {
+              if [ -n "$PREVIOUS_STATIC_VOLUME" ] && [ "$PREVIOUS_STATIC_VOLUME" != "$STATIC_VOLUME" ]; then
+                docker run --rm \
+                  --user 0:0 \
+                  -v "$PREVIOUS_STATIC_VOLUME:/prior-static:ro" \
+                  -v "$STATIC_VOLUME:/retained-static" \
+                  "$IMAGE" \
+                  sh -c 'cp -a /prior-static/. /retained-static/'
+              fi
+            }
+
             pkill -f '[d]ocker pull ghcr.io/zephyr-roc/blog:' || true
 
             report_disk_usage
@@ -143,9 +155,9 @@ jobs:
               sleep 5
             done
 
-            # Preserve the new and previous hashes for pages opened around a
-            # deployment, without copying every historic release indefinitely.
+            # Preserve hashes from the live release before replacing its mount.
             docker volume create "$STATIC_VOLUME" >/dev/null
+            migrate_static_assets
             seed_static_assets "$IMAGE"
             if [ -n "$PREVIOUS_IMAGE" ] && docker image inspect "$PREVIOUS_IMAGE" >/dev/null 2>&1; then
               seed_static_assets "$PREVIOUS_IMAGE"
