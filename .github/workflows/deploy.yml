@@ -79,7 +79,7 @@ jobs:
               if [ -n "$LOG_PATH" ]; then du -h "$LOG_PATH" 2>/dev/null || true; fi
             }
 
-            cleanup_old_releases() {
+            cleanup_old_images() {
               # Never remove the running image or the immediately previous
               # image, which remains available for a manual rollback.
               docker image ls --format '{{.Repository}}:{{.Tag}}' ghcr.io/zephyr-roc/blog \
@@ -89,6 +89,10 @@ jobs:
                       docker image rm "$cached_image" || true
                     fi
                   done
+            }
+
+            cleanup_old_releases() {
+              cleanup_old_images
               docker volume ls --format '{{.Name}}' \
                 | grep -E '^blog-static-assets(-[0-9a-f]{40}(-[0-9]+)?)?$' \
                 | while IFS= read -r old_volume; do
@@ -123,6 +127,10 @@ jobs:
 
             pkill -f '[d]ocker pull ghcr.io/zephyr-roc/blog:' || true
 
+            report_disk_usage
+            # The disk may be too full to unpack the next image. Release old
+            # blog images before pulling, while preserving the live container.
+            cleanup_old_images
             report_disk_usage
 
             pull_attempt=1
