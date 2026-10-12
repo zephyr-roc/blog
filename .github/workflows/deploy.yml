@@ -65,12 +65,46 @@ jobs:
 
             IMAGE="ghcr.io/zephyr-roc/blog:${{ env.DEPLOYMENT_ID }}"
             PREVIOUS_IMAGE="$(docker inspect --format='{{.Config.Image}}' blog 2>/dev/null || true)"
-            STATIC_VOLUME="blog-static-assets"
+            # Each release gets a bounded asset volume. The new and immediately
+            # previous releases cover pages opened across a deployment.
+            STATIC_VOLUME="blog-static-assets-${{ env.DEPLOYMENT_ID }}"
+
+            report_disk_usage() {
+              echo "Blog deployment disk usage:"
+              df -h /
+              docker system df
+              echo "Versioned blog images: $(docker image ls --format '{{.Repository}}:{{.Tag}}' ghcr.io/zephyr-roc/blog | grep -Ec '^ghcr\.io/zephyr-roc/blog:[0-9a-f]{40}(-[0-9]+)?$' || true)"
+              echo "Blog static volumes: $(docker volume ls --format '{{.Name}}' | grep -Ec '^blog-static-assets(-[0-9a-f]{40}(-[0-9]+)?)?$' || true)"
+              LOG_PATH="$(docker inspect --format='{{.LogPath}}' blog 2>/dev/null || true)"
+              if [ -n "$LOG_PATH" ]; then du -h "$LOG_PATH" 2>/dev/null || true; fi
+            }
+
+            cleanup_old_releases() {
+              # Never remove the running image or the immediately previous
+              # image, which remains available for a manual rollback.
+              docker image ls --format '{{.Repository}}:{{.Tag}}' ghcr.io/zephyr-roc/blog \
+                | grep -E '^ghcr\.io/zephyr-roc/blog:[0-9a-f]{40}(-[0-9]+)?$' \
+                | while IFS= read -r cached_image; do
+                    if [ "$cached_image" != "$IMAGE" ] && [ "$cached_image" != "$PREVIOUS_IMAGE" ]; then
+                      docker image rm "$cached_image" || true
+                    fi
+                  done
+              docker volume ls --format '{{.Name}}' \
+                | grep -E '^blog-static-assets(-[0-9a-f]{40}(-[0-9]+)?)?$' \
+                | while IFS= read -r old_volume; do
+                    if [ "$old_volume" != "$STATIC_VOLUME" ]; then
+                      docker volume rm "$old_volume" || true
+                    fi
+                  done
+            }
 
             start_blog() {
               docker run -d \
                 --name blog \
                 --restart unless-stopped \
+                --log-driver local \
+                --log-opt max-size=10m \
+                --log-opt max-file=3 \
                 -p 127.0.0.1:3100:3000 \
                 -e GALLERY_NAS_URL \
                 -e GALLERY_NAS_PASSWORD \
@@ -89,6 +123,8 @@ jobs:
 
             pkill -f '[d]ocker pull ghcr.io/zephyr-roc/blog:' || true
 
+            report_disk_usage
+
             pull_attempt=1
             while ! timeout 600 docker pull "$IMAGE"; do
               if [ "$pull_attempt" -ge 2 ]; then
@@ -99,24 +135,13 @@ jobs:
               sleep 5
             done
 
-            # Content-hashed chunks are immutable, but pages opened before a
-            # deployment may still reference the previous hashes. Seed a
-            # persistent volume from the new image and every locally cached
-            # releases before replacing the container so those requests keep
-            # resolving during a version transition.
+            # Preserve the new and previous hashes for pages opened around a
+            # deployment, without copying every historic release indefinitely.
             docker volume create "$STATIC_VOLUME" >/dev/null
             seed_static_assets "$IMAGE"
-            if [ -n "$PREVIOUS_IMAGE" ]; then
+            if [ -n "$PREVIOUS_IMAGE" ] && docker image inspect "$PREVIOUS_IMAGE" >/dev/null 2>&1; then
               seed_static_assets "$PREVIOUS_IMAGE"
             fi
-            for cached_image in $(
-              docker image ls \
-                --format '{{.Repository}}:{{.Tag}}' \
-                ghcr.io/zephyr-roc/blog \
-                | grep -E '^ghcr\.io/zephyr-roc/blog:[0-9a-f]{40}(-[0-9]+)?$' \
-            ); do
-              seed_static_assets "$cached_image"
-            done
 
             docker stop blog || true
             docker rm blog || true
@@ -139,6 +164,8 @@ jobs:
                     | grep -E '^\[gallery\] Unable to (recover thumbnail|renew the NAS image token)|^Error: (NAS preview returned HTTP [0-9]+|Thumbnail is not present|fetch failed|Input buffer contains unsupported image format)|^browserType\.launch:' \
                     | tail -12 || true
                 fi
+                cleanup_old_releases
+                report_disk_usage
                 exit 0
               fi
               attempt=$((attempt + 1))
