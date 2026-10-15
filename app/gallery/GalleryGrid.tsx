@@ -185,7 +185,7 @@ export function GalleryGrid({ images }: GalleryGridProps) {
         }
         pswp.element?.classList.toggle("gallery-pswp--inspector-open", inspectorOpen);
         const url = new URL(window.location.href);
-        url.searchParams.set("photo", image.remoteId);
+        url.searchParams.set("photo", image.id);
         window.history.replaceState(window.history.state, "", url);
         inspectorRoot?.render(<GalleryLightboxInspector
           key={image.id}
@@ -214,7 +214,7 @@ export function GalleryGrid({ images }: GalleryGridProps) {
 
     lightbox.init();
     const photoId = new URL(window.location.href).searchParams.get("photo");
-    const sharedIndex = images.findIndex((image) => image.remoteId === photoId);
+    const sharedIndex = images.findIndex((image) => image.id === photoId);
     if (sharedIndex >= 0) window.requestAnimationFrame(() => lightbox.loadAndOpen(sharedIndex));
     return () => {
       lightbox.destroy();

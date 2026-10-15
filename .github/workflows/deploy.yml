@@ -49,19 +49,19 @@ jobs:
       - name: Deploy to server
         uses: appleboy/ssh-action@v1
         env:
-          GALLERY_NAS_URL: ${{ secrets.GALLERY_NAS_URL }}
-          GALLERY_NAS_PASSWORD: ${{ secrets.GALLERY_NAS_PASSWORD }}
+          GALLERY_GITHUB_CLIENT_ID: ${{ secrets.GALLERY_GITHUB_CLIENT_ID }}
+          GALLERY_GITHUB_CLIENT_SECRET: ${{ secrets.GALLERY_GITHUB_CLIENT_SECRET }}
         with:
           host: 101.34.21.42
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          envs: GALLERY_NAS_URL,GALLERY_NAS_PASSWORD
-          # The first release containing Chromium has a substantially larger
-          # immutable layer. Give low-bandwidth servers enough time to pull it;
-          # subsequent releases reuse the cached layer.
+          envs: GALLERY_GITHUB_CLIENT_ID,GALLERY_GITHUB_CLIENT_SECRET
           command_timeout: 20m
           script: |
             set -eu
+
+            : "${GALLERY_GITHUB_CLIENT_ID:?Configure the gallery GitHub OAuth client ID secret}"
+            : "${GALLERY_GITHUB_CLIENT_SECRET:?Configure the gallery GitHub OAuth client secret}"
 
             IMAGE="ghcr.io/zephyr-roc/blog:${{ env.DEPLOYMENT_ID }}"
             PREVIOUS_IMAGE="$(docker inspect --format='{{.Config.Image}}' blog 2>/dev/null || true)"
@@ -111,8 +111,10 @@ jobs:
                 --log-opt max-size=10m \
                 --log-opt max-file=3 \
                 -p 127.0.0.1:3100:3000 \
-                -e GALLERY_NAS_URL \
-                -e GALLERY_NAS_PASSWORD \
+                -e GALLERY_GITHUB_CLIENT_ID \
+                -e GALLERY_GITHUB_CLIENT_SECRET \
+                -e GALLERY_ADMIN_GITHUB_ID=94433344 \
+                -e GALLERY_PUBLIC_ORIGIN=https://ready-jump.top \
                 -v blog-data:/data \
                 -v "$STATIC_VOLUME:/app/dist/client/_next/static:ro" \
                 "$1"
@@ -176,14 +178,8 @@ jobs:
             attempt=0
             while [ "$attempt" -lt 15 ]; do
               if docker exec blog node -e "fetch('http://127.0.0.1:3000/tinkering').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"; then
-                # Probe a historically broken CJK thumbnail without printing
-                # the NAS URL or its external_token into Actions logs.
-                if ! docker exec blog node -e 'fetch("http://127.0.0.1:3000/api/gallery/thumbnail?file=2594-dsc-3404-%E5%B7%B2%E5%A2%9E%E5%BC%BA-%E9%99%8D%E5%99%AA-728d508d8a4e-480w.webp", { signal: AbortSignal.timeout(100000) }).then(r => { console.log("Gallery thumbnail probe HTTP " + r.status); process.exit(r.ok ? 0 : 1); }).catch(() => { console.log("Gallery thumbnail probe timed out or failed"); process.exit(1); })'; then
-                  echo "::warning::Gallery thumbnail recovery failed; see sanitized error categories below."
-                  docker logs --since 3m blog 2>&1 \
-                    | grep -E '^\[gallery\] Unable to (recover thumbnail|renew the NAS image token)|^Error: (NAS preview returned HTTP [0-9]+|Thumbnail is not present|fetch failed|Input buffer contains unsupported image format)|^browserType\.launch:' \
-                    | tail -12 || true
-                fi
+                docker exec blog node -e "fetch('http://127.0.0.1:3000/api/gallery/manage').then(r => process.exit(r.status === 401 ? 0 : 1)).catch(() => process.exit(1))"
+                docker exec blog node scripts/cleanup-gallery-legacy.mjs
                 cleanup_old_releases
                 report_disk_usage
                 exit 0

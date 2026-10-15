@@ -1,9 +1,8 @@
-import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { GalleryImage, GalleryManifest } from "../gallery/gallery-types";
 
-export const GALLERY_MANIFEST_VERSION = 2;
+export const GALLERY_MANIFEST_VERSION = 3;
 
 export function galleryDataDirectory() {
   return path.resolve(process.env.GALLERY_DATA_DIR || "/data/gallery");
@@ -17,14 +16,8 @@ export function galleryThumbnailDirectory() {
   return path.join(galleryDataDirectory(), "thumbnails");
 }
 
-export function galleryThumbnailCacheName(fileName: string) {
-  return /^[\u0020-\u007e]+$/.test(fileName)
-    ? fileName
-    : `${createHash("sha256").update(fileName).digest("hex")}.webp`;
-}
-
-export function galleryThumbnailETag(fileName: string) {
-  return `"${path.parse(galleryThumbnailCacheName(fileName)).name}"`;
+export function galleryOriginalDirectory() {
+  return path.join(galleryDataDirectory(), "originals");
 }
 
 export async function readGalleryImages(): Promise<GalleryImage[]> {
@@ -35,7 +28,11 @@ export async function readGalleryImages(): Promise<GalleryImage[]> {
     if (manifest.version !== GALLERY_MANIFEST_VERSION || !Array.isArray(manifest.images)) {
       return [];
     }
-    return manifest.images;
+    return manifest.images.sort((left, right) => {
+      const a = Date.parse(left.metadata.capturedAt || "") || 0;
+      const b = Date.parse(right.metadata.capturedAt || "") || 0;
+      return b - a || right.id.localeCompare(left.id);
+    });
   } catch {
     return [];
   }

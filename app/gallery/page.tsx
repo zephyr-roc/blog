@@ -3,6 +3,7 @@ import { SiteHeader } from "../components/SiteHeader";
 import { readGalleryImages } from "../lib/gallery-runtime";
 import { SITE_NAME } from "../lib/seo";
 import { GalleryGrid } from "./GalleryGrid";
+import { galleryAdminConfigured, isGalleryAdmin } from "../lib/gallery-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,8 @@ export const metadata: Metadata = {
 
 export default async function GalleryPage() {
   const galleryImages = await readGalleryImages();
+  const { cookies } = await import("next/headers");
+  const admin = isGalleryAdmin((await cookies()).get("gallery_session")?.value);
   return (
     <main className="experience-shell gallery-shell">
       <div className="ambient ambient--violet gallery-shell__violet" aria-hidden="true" />
@@ -45,6 +48,8 @@ export default async function GalleryPage() {
             <span>{String(galleryImages.length).padStart(2, "0")}</span>
             <small>FRAMES</small>
           </p>
+          {admin ? <a className="gallery-admin-link" href="/gallery/manage">管理照片</a>
+            : galleryAdminConfigured() ? <a className="gallery-admin-link" href="/api/gallery/auth/login">GitHub 登录</a> : null}
         </header>
 
         {galleryImages.length > 0 ? (
@@ -53,7 +58,7 @@ export default async function GalleryPage() {
           <div className="gallery-empty">
             <span className="gallery-empty__frame" aria-hidden="true" />
             <strong>照片尚未挂墙</strong>
-            <p>影像同步完成后，会在这里自动生成响应式画廊。</p>
+            <p>上传第一张照片后，它会出现在这里。</p>
           </div>
         )}
       </section>

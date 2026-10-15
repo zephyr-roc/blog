@@ -28,10 +28,9 @@ export default defineConfig(async () => {
   return {
     build: {
       rolldownOptions: {
-        // Chromium and Sharp are Node-only runtime dependencies used by the
-        // NAS gallery worker. Keep their packages external so standalone
-        // output retains Playwright adapters and Sharp's native binaries.
-        external: [/^playwright-core(?:\/|$)/, /^sharp(?:\/|$)/, /^exifr(?:\/|$)/],
+        // Sharp and exifr run on the server; keep native binaries in the
+        // standalone output for photo uploads and EXIF extraction.
+        external: [/^sharp(?:\/|$)/, /^exifr(?:\/|$)/],
       },
     },
     server: isCodexSeatbeltSandbox

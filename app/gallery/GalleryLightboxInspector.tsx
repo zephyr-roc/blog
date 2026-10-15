@@ -136,16 +136,16 @@ export function GalleryLightboxInspector({ image, open, onToggle }: {
   useEffect(() => {
     if (!open) return;
     const controller = new AbortController();
-    fetch(`/api/gallery/details?id=${encodeURIComponent(image.remoteId)}&v=2`, { signal: controller.signal })
+    fetch(`/api/gallery/details?id=${encodeURIComponent(image.id)}`, { signal: controller.signal })
       .then((response) => response.ok ? response.json() as Promise<GalleryDetails> : null)
       .then((value) => { if (!controller.signal.aborted) setDetails(value); })
       .catch(() => { if (!controller.signal.aborted) setDetails(null); });
     return () => controller.abort();
-  }, [image.remoteId, open]);
+  }, [image.id, open]);
 
   const share = async () => {
     const url = new URL("/gallery", window.location.origin);
-    url.searchParams.set("photo", image.remoteId);
+    url.searchParams.set("photo", image.id);
     try {
       if (navigator.share) {
         await navigator.share({ title: image.title, url: url.toString() });

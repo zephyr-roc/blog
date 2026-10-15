@@ -19,27 +19,6 @@ const server = spawn(process.execPath, ["server.js"], {
   env: process.env,
 });
 
-async function startGallerySynchronization() {
-  for (let attempt = 0; attempt < 60; attempt += 1) {
-    try {
-      const response = await fetch("http://127.0.0.1:3000/api/gallery/bootstrap", {
-        method: "POST",
-        signal: AbortSignal.timeout(2_000),
-      });
-      if (response.ok) {
-        console.log("[gallery] Runtime synchronization scheduled.");
-        return;
-      }
-    } catch {
-      // The application is still starting.
-    }
-    await new Promise((resolve) => setTimeout(resolve, 1_000));
-  }
-  console.error("[gallery] Unable to start runtime synchronization during startup.");
-}
-
-void startGallerySynchronization();
-
 for (const signal of ["SIGINT", "SIGTERM"]) {
   process.on(signal, () => server.kill(signal));
 }
