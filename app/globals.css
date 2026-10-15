@@ -4530,3 +4530,67 @@ a {
     transition: none;
   }
 }
+
+.gallery-admin-link,
+.gallery-manager__actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  color: var(--text-primary, #f4f1f7);
+  background: rgba(255, 255, 255, .09);
+  border: 1px solid rgba(255, 255, 255, .22);
+  border-radius: 999px;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.gallery-manager__body { margin: 36px 0; }
+.gallery-manager__upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 36px 20px;
+  border: 1px dashed rgba(255, 255, 255, .35);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, .045);
+  cursor: pointer;
+}
+.gallery-manager__upload span { font-size: 1.25rem; font-weight: 600; }
+.gallery-manager__upload small,
+.gallery-manager__status,
+.gallery-manager__fields small { color: #aca9b8; }
+.gallery-manager__upload input { max-width: 100%; }
+.gallery-manager__status { margin: 20px 0; }
+.gallery-manager__list { display: grid; gap: 14px; }
+.gallery-manager__item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .045);
+}
+.gallery-manager__item img { width: 112px; height: 112px; object-fit: cover; border-radius: 10px; }
+.gallery-manager__fields { display: grid; flex: 1; gap: 8px; min-width: 0; }
+.gallery-manager__fields label { display: grid; gap: 4px; }
+.gallery-manager__fields input {
+  width: 100%;
+  max-width: 360px;
+  padding: 8px 10px;
+  color: inherit;
+  background: rgba(255, 255, 255, .09);
+  border: 1px solid rgba(255, 255, 255, .22);
+  border-radius: 9px;
+  color-scheme: dark;
+}
+.gallery-manager__actions { display: flex; gap: 8px; }
+.gallery-manager__actions button:disabled { opacity: .5; cursor: wait; }
+@media (max-width: 680px) {
+  .gallery-manager__item { flex-wrap: wrap; }
+  .gallery-manager__fields { flex-basis: calc(100% - 132px); }
+  .gallery-manager__actions { width: 100%; justify-content: flex-end; }
+}

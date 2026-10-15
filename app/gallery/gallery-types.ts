@@ -32,8 +32,6 @@ export type GalleryDetails = {
 
 export type GalleryImage = {
   id: string;
-  remoteId: string;
-  sourceIndex: number;
   title: string;
   filename?: string;
   alt: string;
@@ -48,6 +46,6 @@ export type GalleryImage = {
 
 export type GalleryManifest = {
   version: number;
-  syncedAt: string;
+  updatedAt: string;
   images: GalleryImage[];
 };

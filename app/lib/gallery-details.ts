@@ -37,32 +37,3 @@ export function galleryDetailsFromExif(
     whiteBalance,
   };
 }
-
-export function galleryJpegDimensions(bytes: Uint8Array): { width: number; height: number } | null {
-  if (bytes[0] !== 0xff || bytes[1] !== 0xd8) return null;
-  let offset = 2;
-  while (offset + 4 < bytes.length) {
-    if (bytes[offset++] !== 0xff) return null;
-    while (bytes[offset] === 0xff) offset += 1;
-    const marker = bytes[offset++];
-    if (marker === 0xda || marker === 0xd9) return null;
-    if (marker === 0x01 || marker >= 0xd0 && marker <= 0xd7) continue;
-    const segmentLength = bytes[offset] * 256 + bytes[offset + 1];
-    if (segmentLength < 2 || offset + segmentLength > bytes.length) return null;
-    if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) {
-      if (segmentLength < 7) return null;
-      const height = bytes[offset + 3] * 256 + bytes[offset + 4];
-      const width = bytes[offset + 5] * 256 + bytes[offset + 6];
-      return width && height ? { width, height } : null;
-    }
-    offset += segmentLength;
-  }
-  return null;
-}
-
-export function galleryOriginalSize(headers: Headers, status: number): number | null {
-  const rangeSize = Number(headers.get("content-range")?.match(/\/(\d+)$/)?.[1]);
-  if (Number.isSafeInteger(rangeSize) && rangeSize > 0) return rangeSize;
-  const length = Number(headers.get("content-length"));
-  return status === 200 && Number.isSafeInteger(length) && length > 0 ? length : null;
-}
