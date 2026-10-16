@@ -90,6 +90,7 @@ export function ArticleEngagement({
   const [githubAvailability, setGitHubAvailability] = useState<GitHubAvailability>("checking");
   const [shareStatus, setShareStatus] = useState<"idle" | "copied" | "failed">("idle");
   const shareResetTimer = useRef<number | null>(null);
+  const footerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -98,7 +99,7 @@ export function ArticleEngagement({
         setLiked(window.localStorage.getItem(storageKey) === "1");
       }
     });
-    fetch(endpoint, { cache: "no-store", signal: controller.signal })
+    const loadCount = () => fetch(endpoint, { signal: controller.signal })
       .then((response) => {
         if (!response.ok) throw new Error("Unable to load like count");
         return response.json() as Promise<{ count: number }>;
@@ -107,7 +108,21 @@ export function ArticleEngagement({
       .catch(() => undefined)
       .finally(() => setLoading(false));
 
-    return () => controller.abort();
+    // Reading an article should not invoke a Worker unless its action footer
+    // is approached. Browser/edge caching also avoids repeated D1 reads.
+    let observer: IntersectionObserver | undefined;
+    if (footerRef.current && "IntersectionObserver" in window) {
+      observer = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          observer?.disconnect();
+          void loadCount();
+        }
+      }, { rootMargin: "200px" });
+      observer.observe(footerRef.current);
+    } else {
+      void loadCount();
+    }
+    return () => { observer?.disconnect(); controller.abort(); };
   }, [endpoint, storageKey]);
 
   useEffect(() => () => {
@@ -212,7 +227,7 @@ export function ArticleEngagement({
       : "分享";
 
   return (
-    <footer className="article-engagement">
+    <footer className="article-engagement" ref={footerRef}>
       <div
         className="article-engagement__actions"
         aria-label="文章操作"

@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "../components/SiteHeader";
-import { readGalleryImages } from "../lib/gallery-runtime";
 import { SITE_NAME } from "../lib/seo";
-import { GalleryGrid } from "./GalleryGrid";
-import { galleryAdminConfigured, isGalleryAdmin } from "../lib/gallery-auth";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 
 const GALLERY_DESCRIPTION = "积雨云的影像画廊：收集旅途、日常与偶然遇见的光。";
 
@@ -23,10 +20,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function GalleryPage() {
-  const galleryImages = await readGalleryImages();
-  const { cookies } = await import("next/headers");
-  const admin = isGalleryAdmin((await cookies()).get("gallery_session")?.value);
+export default function GalleryPage() {
   return (
     <main className="experience-shell gallery-shell">
       <div className="ambient ambient--violet gallery-shell__violet" aria-hidden="true" />
@@ -35,32 +29,13 @@ export default async function GalleryPage() {
 
       <SiteHeader edition="GALLERY · 画廊" />
 
-      <section className="gallery" aria-labelledby="gallery-title">
-        <header className="gallery-hero">
-          <div>
-            <p className="hero__kicker" data-nosnippet>LIGHT / MEMORY / MOMENTS</p>
-            <h1 id="gallery-title">画廊</h1>
-            <p className="gallery-hero__lede">
-              收集旅途、日常，以及偶然遇见的光。
-            </p>
-          </div>
-          <p className="gallery-hero__count" aria-label={`${galleryImages.length} 张影像`}>
-            <span>{String(galleryImages.length).padStart(2, "0")}</span>
-            <small>FRAMES</small>
-          </p>
-          {admin ? <a className="gallery-admin-link" href="/gallery/manage">管理照片</a>
-            : galleryAdminConfigured() ? <a className="gallery-admin-link" href="/api/gallery/auth/login">GitHub 登录</a> : null}
+      <section className="gallery-embed" aria-labelledby="gallery-title">
+        <header className="gallery-embed__toolbar">
+          <h1 id="gallery-title">画廊</h1>
+          <a className="gallery-admin-link" href="https://zephyr.afilmory.art/" target="_blank" rel="noopener noreferrer">独立打开</a>
         </header>
-
-        {galleryImages.length > 0 ? (
-          <GalleryGrid images={galleryImages} />
-        ) : (
-          <div className="gallery-empty">
-            <span className="gallery-empty__frame" aria-hidden="true" />
-            <strong>照片尚未挂墙</strong>
-            <p>上传第一张照片后，它会出现在这里。</p>
-          </div>
-        )}
+        <iframe className="gallery-embed__frame" src="https://zephyr.afilmory.art/" title="积雨云的 Afilmory 摄影画廊" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
+        <p className="gallery-embed__fallback">如内嵌画廊无法显示，可<a href="https://zephyr.afilmory.art/" target="_blank" rel="noopener noreferrer">独立打开画廊</a>。</p>
       </section>
     </main>
   );

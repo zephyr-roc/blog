@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "@fontsource-variable/jetbrains-mono";
-import "photoswipe/style.css";
 import { BackToTopButton } from "./components/BackToTopButton";
 import { GlassMotionController } from "./components/GlassMotionController";
 import { LiquidGlassNavigation } from "./components/LiquidGlassNavigation";
@@ -12,6 +11,7 @@ import {
   websiteJsonLd,
 } from "./lib/seo";
 import "./globals.css";
+import "photoswipe/style.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

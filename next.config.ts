@@ -8,7 +8,8 @@ const immutableCache = [
 ];
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  output: process.env.CLOUDFLARE_STATIC === "1" ? "export" : "standalone",
+  images: { unoptimized: true },
   expireTime: 120,
   async headers() {
     return [

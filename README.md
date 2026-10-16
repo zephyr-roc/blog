@@ -16,7 +16,9 @@ npm run dev
 npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+Production uses Cloudflare Workers Builds with `pnpm build` and `pnpm exec wrangler deploy`.
+`wrangler.static.jsonc` serves static pages without runtime SSR and only invokes the Worker for likes.
+The gallery embeds Afilmory. See [Cloudflare migration](docs/cloudflare-free.md).
 
 ## Included Shape
 
