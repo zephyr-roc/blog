@@ -3,7 +3,7 @@ import { SiteHeader } from "../components/SiteHeader";
 import { readGalleryImages } from "../lib/gallery-runtime";
 import { SITE_NAME } from "../lib/seo";
 import { GalleryGrid } from "./GalleryGrid";
-import { galleryAdminConfigured, isGalleryAdmin } from "../lib/gallery-auth";
+import { galleryAdminConfigured, galleryOrigin, isGalleryAdmin } from "../lib/gallery-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +49,7 @@ export default async function GalleryPage() {
             <small>FRAMES</small>
           </p>
           {admin ? <a className="gallery-admin-link" href="/gallery/manage">管理照片</a>
-            : galleryAdminConfigured() ? <a className="gallery-admin-link" href="/api/gallery/auth/login">GitHub 登录</a> : null}
+            : galleryAdminConfigured() ? <a className="gallery-admin-link" href={`${galleryOrigin()}/api/gallery/auth/login`}>GitHub 登录</a> : null}
         </header>
 
         {galleryImages.length > 0 ? (
