@@ -107,7 +107,7 @@ test("exports pages and metadata as deployable static assets", async () => {
   }
 });
 test("prevents the about document cache from serving a stale build for a year", async () => {
-  const config = await readFile(new URL("next.config.ts", root), "utf8");
+  const config = await readFile(new URL("vinext.config.ts", root), "utf8");
 
   assert.match(config, /expireTime:\s*120/);
 });

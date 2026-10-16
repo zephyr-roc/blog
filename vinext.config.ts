@@ -7,6 +7,8 @@ const immutableCache = [
   },
 ];
 
+// Imported explicitly by vite.config.ts. Keeping this under a non-Next.js
+// filename prevents EdgeOne from loading its OpenNext server adapter.
 const nextConfig: NextConfig = {
   output: process.env.CLOUDFLARE_STATIC === "1" ? "export" : "standalone",
   images: { unoptimized: true },
