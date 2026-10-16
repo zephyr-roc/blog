@@ -22,7 +22,7 @@ test("likes preserve counts atomically, cache reads, reject cross-site writes an
   } };
   let queries = 0;
   const env = {
-    DB: { exec: async sql => db.exec(sql), prepare: sql => ({ bind: (...params) => ({ first: async () => {
+    DB: { exec: async sql => { assert.ok(!sql.includes("\n"), "D1 exec requires one statement per line"); return db.exec(sql); }, prepare: sql => ({ bind: (...params) => ({ first: async () => {
       queries++;
       return db.prepare(sql).get(...params) ?? null;
     } }) }) },
