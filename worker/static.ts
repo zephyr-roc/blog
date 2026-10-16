@@ -11,11 +11,9 @@ const initialized = new WeakMap<Database, Promise<unknown>>();
 function ensureSchema(db: Database) {
   let ready = initialized.get(db);
   if (!ready) {
-    ready = db.exec(`CREATE TABLE IF NOT EXISTS post_likes (
-      post_key TEXT PRIMARY KEY,
-      count INTEGER NOT NULL DEFAULT 0 CHECK (count >= 0),
-      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-    )`).catch(error => { initialized.delete(db); throw error; });
+    // D1 exec treats each line as a statement, so keep CREATE on one line.
+    ready = db.exec("CREATE TABLE IF NOT EXISTS post_likes (post_key TEXT PRIMARY KEY, count INTEGER NOT NULL DEFAULT 0 CHECK (count >= 0), updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)")
+      .catch(error => { initialized.delete(db); throw error; });
     initialized.set(db, ready);
   }
   return ready;
