@@ -17,7 +17,7 @@ export default async function ManageGalleryPage() {
       <header className="gallery-hero"><div><p className="hero__kicker">GALLERY / STUDIO</p>
         <h1 id="manage-title">管理画廊</h1>
         <p className="gallery-hero__lede">上传照片、修改名称与拍摄时间，公开画廊会立即更新。</p></div>
-        <a className="gallery-admin-link" href="/gallery">查看画廊 ↗</a>
+        <a className="gallery-admin-link" href="/gallery">查看画廊</a>
       </header>
       <GalleryManager initialImages={await readGalleryImages()} />
       <form action="/api/gallery/auth/logout" method="post"><button className="gallery-admin-link" type="submit">退出登录</button></form>
