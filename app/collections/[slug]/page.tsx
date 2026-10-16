@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import Link from "next/link";
+import Link from "../../components/SiteLink";
 import type { Metadata } from "next";
 import { getAllCollections, getCollection, getPostsInCollection } from "../../lib/content";
 import { PostListItem } from "../../components/PostListItem";
@@ -14,7 +14,9 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
   const collections = await getAllCollections();
-  return collections.map((c) => ({ slug: c.slug }));
+  return collections
+    .filter((c) => process.env.NEXT_PUBLIC_STATIC_EXPORT !== "1" || !["tinkering", "deep-radar"].includes(c.slug))
+    .map((c) => ({ slug: c.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

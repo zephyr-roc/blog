@@ -3,13 +3,23 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const root = new URL("../", import.meta.url);
+const localFont = await readFile(new URL(".vinext/NotoSansCJKsc-Regular.otf", root));
+globalThis.__BLOG_SOCIAL_FONT__ = localFont.buffer.slice(localFont.byteOffset, localFont.byteOffset + localFont.byteLength);
+// Rendering tests must not send article text to external font services.
+globalThis.fetch = async input => {
+  const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
+  if (!["ready-jump.top", "www.ready-jump.top"].includes(url.hostname)) throw new Error("External rendering request blocked");
+  return new Response(await readFile(new URL(`public${url.pathname}`, root)), {
+    headers: { "Content-Type": url.pathname.endsWith(".svg") ? "image/svg+xml" : "image/png" },
+  });
+};
 
 async function render(pathname = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}-${pathname}`);
   const { default: worker } = await import(workerUrl.href);
 
-  return worker.fetch(
+  return (typeof worker === "function" ? worker : worker.fetch)(
     new Request(new URL(pathname, "http://localhost"), {
       headers: { accept: "text/html" },
     }),
@@ -89,32 +99,13 @@ test("shows a glass back-to-top button only when the navigation leaves enough ro
   assert.doesNotMatch(css, /scroll-cat/);
 });
 
-test("retains content-hashed client assets across container deployments", async () => {
-  const [workflow, restoredMotionTilt] = await Promise.all([
-    readFile(new URL(".github/workflows/deploy.yml", root), "utf8"),
-    readFile(
-      new URL(
-        "public/_next/static/chunks/motionTilt-Bi1dNn-M.js",
-        root,
-      ),
-      "utf8",
-    ),
-  ]);
-
-  assert.match(workflow, /STATIC_VOLUME="blog-static-assets"/);
-  assert.match(
-    workflow,
-    /cp -a \/app\/dist\/client\/_next\/static\/\. \/retained-static\//,
-  );
-  assert.match(
-    workflow,
-    /-v "\$STATIC_VOLUME:\/app\/dist\/client\/_next\/static:ro"/,
-  );
-  assert.doesNotMatch(workflow, /head -n \d+/);
-  assert.match(restoredMotionTilt, /glass-card:motion-tilt/);
-  assert.match(restoredMotionTilt, /glass-card:motion-reset/);
+test("exports pages and metadata as deployable static assets", async () => {
+  const headers = await readFile(new URL("dist/client/_headers", root), "utf8");
+  assert.match(headers, /max-age=31536000, immutable/);
+  for (const file of ["index.html", "gallery.html", "404.html", "robots.txt", "sitemap.xml", "radar/feed.xml"]) {
+    assert.ok((await readFile(new URL(`dist/client/${file}`, root))).length > 0, file);
+  }
 });
-
 test("prevents the about document cache from serving a stale build for a year", async () => {
   const config = await readFile(new URL("next.config.ts", root), "utf8");
 
@@ -137,34 +128,14 @@ test("server-renders the collection cards before client hydration", async () => 
   assert.doesNotMatch(html, />0<!-- --> 篇文章</);
 });
 
-test("server-renders an upload-managed gallery without NAS synchronization", async () => {
-  const [runtime, workflow, dockerfile, startServer, storage, auth, page, manager, grid, inspector, packageJson] = await Promise.all([
-    "app/lib/gallery-runtime.ts", ".github/workflows/deploy.yml", "Dockerfile",
-    "scripts/start-server.mjs", "app/lib/gallery-storage.ts", "app/lib/gallery-auth.ts",
-    "app/gallery/page.tsx", "app/gallery/manage/GalleryManager.tsx",
-    "app/gallery/GalleryGrid.tsx", "app/gallery/GalleryLightboxInspector.tsx", "package.json",
-  ].map((file) => readFile(new URL(file, root), "utf8")));
-  assert.match(storage, /addGalleryPhoto/);
-  assert.match(storage, /saveManifest/);
-  assert.match(storage, /MAX_GALLERY_UPLOAD_BYTES/);
-  assert.match(runtime, /GALLERY_MANIFEST_VERSION = 3/);
-  assert.match(auth, /timingSafeEqual/);
-  assert.match(auth, /GALLERY_ADMIN_GITHUB_ID/);
-  assert.match(manager, /type="file"/);
-  assert.match(page, /await readGalleryImages\(\)/);
-  assert.match(grid, /new PhotoSwipeLightbox/);
-  assert.match(inspector, /navigator\.share/);
-  assert.match(workflow, /GALLERY_GITHUB_CLIENT_ID/);
-  assert.doesNotMatch(workflow, /GALLERY_NAS_/);
-  assert.doesNotMatch(dockerfile, /chromium/);
-  assert.doesNotMatch(startServer, /gallery\/bootstrap/);
-  assert.doesNotMatch(packageJson, /playwright-core/);
-
+test("renders the external gallery without local storage or OAuth", async () => {
   const response = await render("/gallery");
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /<h1 id="gallery-title">画廊<\/h1>/);
-  assert.match(html, /照片尚未挂墙/);
+  assert.match(html, /<iframe[^>]+src="https:\/\/zephyr\.afilmory\.art\/"/);
+  assert.match(html, /独立打开/);
+  assert.doesNotMatch(html, /GitHub 登录|照片尚未挂墙/);
 });
 
 test("publishes generated Open Graph and Twitter images for every article type", async () => {

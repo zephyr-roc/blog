@@ -26,12 +26,8 @@ export default defineConfig(async () => {
   }
 
   return {
-    build: {
-      rolldownOptions: {
-        // Sharp and exifr run on the server; keep native binaries in the
-        // standalone output for photo uploads and EXIF extraction.
-        external: [/^sharp(?:\/|$)/, /^exifr(?:\/|$)/],
-      },
+    define: {
+      "process.env.NEXT_PUBLIC_STATIC_EXPORT": JSON.stringify(process.env.CLOUDFLARE_STATIC === "1" ? "1" : "0"),
     },
     server: isCodexSeatbeltSandbox
       ? { watch: { useFsEvents: false, usePolling: true } }

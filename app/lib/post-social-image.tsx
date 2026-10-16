@@ -40,6 +40,7 @@ export function createPostSocialImage(
   post: PostMeta,
   collection: CollectionMeta,
 ) {
+  const localFont = (globalThis as typeof globalThis & { __BLOG_SOCIAL_FONT__?: ArrayBuffer }).__BLOG_SOCIAL_FONT__;
   const title = shortenTitle(post.title);
   const iconUrl = languageIcons.has(collection.icon)
     ? `${SITE_URL}/language-logos/${collection.icon}.svg`
@@ -171,6 +172,7 @@ export function createPostSocialImage(
     ),
     {
       ...postSocialImageSize,
+      ...(localFont ? { fonts: [{ name: "sans-serif", data: localFont, weight: 400 as const, style: "normal" as const }] } : {}),
       headers: {
         "Cache-Control":
           "public, max-age=0, s-maxage=60, stale-while-revalidate=60, must-revalidate",

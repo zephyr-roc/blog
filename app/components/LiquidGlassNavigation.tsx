@@ -5,7 +5,7 @@ import {
   type GlassOptics,
   useLiquidGlassSupport,
 } from "./liquid-glass";
-import Link from "next/link";
+import Link from "./SiteLink";
 import { usePathname, useRouter } from "next/navigation";
 import {
   type CSSProperties,
@@ -232,6 +232,10 @@ type NavigationStyle = CSSProperties & Record<`--${string}`, string>;
 export function LiquidGlassNavigation() {
   const pathname = usePathname();
   const router = useRouter();
+  const navigate = (href: string) => {
+    if (process.env.NEXT_PUBLIC_STATIC_EXPORT === "1") window.location.assign(href);
+    else router.push(href);
+  };
   const supportsLiquidGlass = useLiquidGlassSupport();
   const backdropClipId = `navigation-backdrop-${useId().replace(/:/g, "")}`;
   const surfaceRef = useRef<HTMLDivElement>(null);
@@ -350,7 +354,7 @@ export function LiquidGlassNavigation() {
       suppressGeneratedClick();
       setDragOffset(0);
       if (start.targetIndex !== activeIndex) {
-        router.push(navigationItems[start.targetIndex].href);
+        navigate(navigationItems[start.targetIndex].href);
       }
     } else if (shouldSwitch) {
       suppressGeneratedClick();
@@ -362,7 +366,7 @@ export function LiquidGlassNavigation() {
       ) as NavigationIndex;
       const targetTravel = (targetIndex - activeIndex) * travel;
       setDragOffset(targetTravel);
-      router.push(navigationItems[targetIndex].href);
+      navigate(navigationItems[targetIndex].href);
     } else {
       setDragOffset(0);
       if (!cancelled && wasDrag) suppressGeneratedClick();
@@ -537,7 +541,7 @@ export function LiquidGlassNavigation() {
               Math.floor(fraction * navigationItems.length),
             ) as NavigationIndex;
             if (targetIndex !== activeIndex) {
-              router.push(navigationItems[targetIndex].href);
+              navigate(navigationItems[targetIndex].href);
             }
           }}
         >
@@ -586,7 +590,7 @@ export function LiquidGlassNavigation() {
                   if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
                   event.preventDefault();
                   if (isGeneratedClick()) return;
-                  if (!isActive) router.push(item.href);
+                  if (!isActive) navigate(item.href);
                 }}
               >
                 <span
