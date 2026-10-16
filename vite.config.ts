@@ -1,12 +1,13 @@
 import vinext from "vinext";
 import { defineConfig } from "vite";
+import nextConfig from "./vinext.config";
 
 // macOS Seatbelt blocks FSEvents, so Codex previews need polling for HMR.
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 const isNodeDeploy = process.env.NODE_DEPLOY === "1";
 
 export default defineConfig(async () => {
-  const plugins = [vinext()];
+  const plugins = [vinext({ nextConfig })];
 
   if (!isNodeDeploy) {
     process.env.WRANGLER_WRITE_LOGS ??= "false";
