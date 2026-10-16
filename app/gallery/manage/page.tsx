@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { SiteHeader } from "../../components/SiteHeader";
-import { isGalleryAdmin } from "../../lib/gallery-auth";
+import { galleryOrigin, isGalleryAdmin } from "../../lib/gallery-auth";
 import { readGalleryImages } from "../../lib/gallery-runtime";
 import { GalleryManager } from "./GalleryManager";
 
@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "管理画廊", robots: { index: false, follow: false } };
 
 export default async function ManageGalleryPage() {
-  if (!isGalleryAdmin((await cookies()).get("gallery_session")?.value)) redirect("/api/gallery/auth/login");
+  if (!isGalleryAdmin((await cookies()).get("gallery_session")?.value)) redirect(`${galleryOrigin()}/api/gallery/auth/login`);
   return <main className="experience-shell gallery-shell">
     <div className="ambient ambient--violet gallery-shell__violet" aria-hidden="true" />
     <SiteHeader edition="GALLERY · MANAGE" />
