@@ -133,7 +133,7 @@ test("renders the external gallery without local storage or OAuth", async () => 
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /<h1 id="gallery-title">画廊<\/h1>/);
-  assert.match(html, /<iframe[^>]+src="https:\/\/zephyr\.afilmory\.art\/"/);
+  assert.match(html, /<iframe[^>]+src="https:\/\/afilmory\.ready-jump\.top\/"/);
   assert.match(html, /独立打开/);
   assert.doesNotMatch(html, /GitHub 登录|照片尚未挂墙/);
 });
