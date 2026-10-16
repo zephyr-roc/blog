@@ -3934,6 +3934,20 @@ a {
   margin: 0 auto clamp(42px, 6vw, 84px);
 }
 
+.gallery-hero > div:first-child {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.gallery-hero > .gallery-admin-link,
+.gallery-hero > form {
+  flex-shrink: 0;
+}
+
+.gallery-hero .gallery-admin-link {
+  white-space: nowrap;
+}
+
 .gallery-hero h1 {
   margin: 0;
   font-size: clamp(54px, 9vw, 132px);
@@ -4482,8 +4496,19 @@ a {
   }
 
   .gallery-hero {
+    flex-wrap: wrap;
     align-items: flex-start;
+    gap: 24px;
     margin-bottom: 38px;
+  }
+
+  .gallery-hero > div:first-child {
+    flex: 1 0 100%;
+  }
+
+  .gallery-hero__count {
+    justify-items: start;
+    margin-right: auto;
   }
 
   .gallery-hero h1 {
