@@ -18,7 +18,12 @@ test("supports mouse dragging while keeping touch taps distinct", async () => {
   assert.match(navigation, /wasTouchTap/);
   assert.match(navigation, /event\.pointerType !== "mouse"/);
   assert.match(navigation, /onClick=\{\(event: MouseEvent<HTMLAnchorElement>\)/);
-  assert.match(navigation, /router\.push\(item\.href\)/);
+  assert.match(
+    navigation,
+    /if \(process\.env\.NEXT_PUBLIC_STATIC_EXPORT === "1"\) window\.location\.assign\(href\)/,
+  );
+  assert.match(navigation, /else router\.push\(href\)/);
+  assert.match(navigation, /if \(!isActive\) navigate\(item\.href\)/);
   assert.match(navigation, /href: "\/tinkering"/);
   assert.match(navigation, /href: "\/radar"/);
   assert.match(navigation, /href: "\/gallery"/);
