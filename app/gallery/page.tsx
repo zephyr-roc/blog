@@ -32,10 +32,10 @@ export default function GalleryPage() {
       <section className="gallery-embed" aria-labelledby="gallery-title">
         <header className="gallery-embed__toolbar">
           <h1 id="gallery-title">画廊</h1>
-          <a className="gallery-admin-link" href="https://afilmory.ready-jump.top/" target="_blank" rel="noopener noreferrer">独立打开</a>
+          <a className="gallery-admin-link" href="https://nas.afilmory.ready-jump.top/" target="_blank" rel="noopener noreferrer">独立打开</a>
         </header>
-        <iframe className="gallery-embed__frame" src="https://afilmory.ready-jump.top/" title="积雨云的 Afilmory 摄影画廊" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
-        <p className="gallery-embed__fallback">如内嵌画廊无法显示，可<a href="https://afilmory.ready-jump.top/" target="_blank" rel="noopener noreferrer">独立打开画廊</a>。</p>
+        <iframe className="gallery-embed__frame" src="https://nas.afilmory.ready-jump.top/" title="积雨云的 Afilmory 摄影画廊" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
+        <p className="gallery-embed__fallback">如内嵌画廊无法显示，可<a href="https://nas.afilmory.ready-jump.top/" target="_blank" rel="noopener noreferrer">独立打开画廊</a>。</p>
       </section>
     </main>
   );

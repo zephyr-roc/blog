@@ -12,7 +12,7 @@
 
 所有文章、页面、CSS、JS、RSS、robots、sitemap、分享卡片和文章图片由 Workers Static Assets 提供。只有 `/api/*` 运行 `worker/static.ts`。静态模式使用普通文档跳转，不依赖运行时 RSC 接口；文章灯箱、目录、底部导航等交互仍会水合。
 
-画廊内嵌 https://afilmory.ready-jump.top/ ，照片管理在 Afilmory 完成。博客不再上传、保存或转换画廊照片，也不再使用 GitHub OAuth。原服务器的照片数据不受源码删除影响。
+画廊内嵌 https://nas.afilmory.ready-jump.top/ ，照片管理在 Afilmory 完成。博客不再上传、保存或转换画廊照片，也不再使用 GitHub OAuth。原服务器的照片数据不受源码删除影响。
 
 ## 尽量保持零费用
 
