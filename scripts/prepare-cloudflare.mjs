@@ -94,7 +94,7 @@ for (const key of postKeys) {
 }
 if (pages < postKeys.length) throw new Error("Static page export is incomplete.");
 await writeFile(path.join(assets, "_redirects"), [
-  "/gallery/manage https://afilmory.ready-jump.top/ 302",
+  "/gallery/manage https://nas.afilmory.ready-jump.top/ 302",
   "/tinkering/notes /tinkering 301",
   "/collections/tinkering /tinkering 301",
   "/collections/deep-radar /radar 301",
