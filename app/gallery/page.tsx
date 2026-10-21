@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SITE_NAME } from "../lib/seo";
+import { GalleryViewport } from "../components/GalleryViewport";
 import { GalleryOpenButton } from "../components/GalleryOpenButton";
 
 export const dynamic = "force-static";
@@ -23,6 +24,7 @@ export const metadata: Metadata = {
 export default function GalleryPage() {
   return (
     <main className="experience-shell gallery-shell">
+      <GalleryViewport />
       <div className="ambient ambient--violet gallery-shell__violet" aria-hidden="true" />
       <div className="ambient ambient--orange gallery-shell__orange" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
