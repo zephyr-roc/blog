@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "../components/SiteHeader";
 import { SITE_NAME } from "../lib/seo";
+import { GalleryOpenButton } from "../components/GalleryOpenButton";
 
 export const dynamic = "force-static";
 
@@ -27,16 +28,12 @@ export default function GalleryPage() {
       <div className="ambient ambient--orange gallery-shell__orange" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
 
-      <SiteHeader edition="GALLERY · 画廊" />
+      <SiteHeader edition="" />
 
-      <section className="gallery-embed" aria-labelledby="gallery-title">
-        <header className="gallery-embed__toolbar">
-          <h1 id="gallery-title">画廊</h1>
-          <a className="gallery-admin-link" href="https://nas.afilmory.ready-jump.top/" target="_blank" rel="noopener noreferrer">独立打开</a>
-        </header>
+      <section className="gallery-embed" aria-label="摄影画廊">
         <iframe className="gallery-embed__frame" src="https://nas.afilmory.ready-jump.top/" title="积雨云的 Afilmory 摄影画廊" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
-        <p className="gallery-embed__fallback">如内嵌画廊无法显示，可<a href="https://nas.afilmory.ready-jump.top/" target="_blank" rel="noopener noreferrer">独立打开画廊</a>。</p>
       </section>
+      <GalleryOpenButton />
     </main>
   );
 }
