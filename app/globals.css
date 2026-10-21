@@ -4621,7 +4621,7 @@ a {
   .gallery-manager__actions { width: 100%; justify-content: flex-end; }
 }
 
-/* Afilmory owns scrolling; the blog supplies only its header and floating controls. */
+/* Afilmory owns scrolling; the blog supplies only floating controls. */
 html:has(.gallery-shell),
 body:has(.gallery-shell) {
   height: 100%;
@@ -4638,7 +4638,9 @@ body:has(.gallery-shell) > .back-to-top-button {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  height: 100dvh;
+  /* Keep painting beneath Safari's expanded toolbar. Floating controls still
+     use fixed positioning and safe-area insets within the visible viewport. */
+  height: 100lvh;
   min-height: 0;
   padding: 0;
 }

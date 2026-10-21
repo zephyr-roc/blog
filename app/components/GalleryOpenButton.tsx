@@ -1,8 +1,20 @@
 "use client";
 
+import { useEffect } from "react";
 import { Glass } from "./liquid-glass";
 
 export function GalleryOpenButton() {
+  useEffect(() => {
+    // Vinext currently omits viewportFit when serializing viewport metadata.
+    // Update the existing tag only for this edge-to-edge route, and restore it
+    // when leaving so other pages retain their normal safe-area layout.
+    const viewport = document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
+    if (!viewport) return;
+    const original = viewport.content;
+    viewport.content = `${original.replace(/,?\s*viewport-fit=[^,]+/g, "")}, viewport-fit=cover`;
+    return () => { viewport.content = original; };
+  }, []);
+
   return (
     <div className="back-to-top-button gallery-open-button" data-visible="true">
       <Glass
