@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { SiteHeader } from "../components/SiteHeader";
 import { SITE_NAME } from "../lib/seo";
 import { GalleryOpenButton } from "../components/GalleryOpenButton";
 
@@ -27,8 +26,6 @@ export default function GalleryPage() {
       <div className="ambient ambient--violet gallery-shell__violet" aria-hidden="true" />
       <div className="ambient ambient--orange gallery-shell__orange" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
-
-      <SiteHeader edition="" />
 
       <section className="gallery-embed" aria-label="摄影画廊">
         <iframe className="gallery-embed__frame" src="https://nas.afilmory.ready-jump.top/" title="积雨云的 Afilmory 摄影画廊" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
