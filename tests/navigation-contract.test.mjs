@@ -162,3 +162,16 @@ test("gives collection copy more tilt depth than its subdued logo", async () => 
     /\.collection-card__icon\s*\{[^}]*width:\s*clamp\(34px,\s*15\.5cqmin,\s*76px\);[^}]*filter:\s*saturate\(\.84\) brightness\(\.96\);/,
   );
 });
+
+test("keeps transition backdrop roots off glass ancestors", async () => {
+  const css = await readFile(new URL("app/globals.css", root), "utf8");
+  const namedSelectors = [...css.matchAll(/([^{}]+)\{([^{}]*view-transition-name:[^{}]*)\}/g)]
+    .map(match => match[1].replace(/\/\*[\s\S]*?\*\//g, "").trim());
+  assert.ok(namedSelectors.includes(".liquid-navigation__backdrop"));
+  assert.ok(namedSelectors.includes(".liquid-navigation__refraction"));
+  assert.ok(namedSelectors.includes('.back-to-top-button[data-visible="true"] > .back-to-top-button__glass'));
+  // A name on any of these ancestors cuts their child filters off from the page.
+  for (const selector of [".liquid-navigation", ".liquid-navigation__surface", ".back-to-top-button", '.back-to-top-button[data-visible="true"]']) {
+    assert.ok(!namedSelectors.includes(selector), `Glass ancestor must not become a backdrop root: ${selector}`);
+  }
+});

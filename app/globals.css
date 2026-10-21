@@ -4739,18 +4739,33 @@ body:has(.gallery-shell) > .back-to-top-button {
     navigation: auto;
   }
 
-  .liquid-navigation {
+  /* A named element creates a backdrop root. Name the filter layer itself,
+     never its wrapper: descendant glass must keep sampling the live page. */
+  .liquid-navigation__backdrop {
     view-transition-name: bottom-navigation;
   }
 
-  /* Only one of these controls is visible at a time. Hidden back-to-top
-     controls do not participate in snapshot capture on the gallery route. */
-  .back-to-top-button[data-visible="true"] {
+  .liquid-navigation__refraction {
+    view-transition-name: bottom-navigation-lens;
+  }
+
+  .liquid-navigation__indicator {
+    view-transition-name: bottom-navigation-indicator;
+  }
+
+  .back-to-top-button[data-visible="true"] > .back-to-top-button__glass {
     view-transition-name: bottom-control;
   }
 
+  .back-to-top-button[data-visible="true"] > .back-to-top-button__control {
+    view-transition-name: bottom-control-icon;
+  }
+
   ::view-transition-group(bottom-navigation),
-  ::view-transition-group(bottom-control) {
+  ::view-transition-group(bottom-navigation-lens),
+  ::view-transition-group(bottom-navigation-indicator),
+  ::view-transition-group(bottom-control),
+  ::view-transition-group(bottom-control-icon) {
     animation-duration: 360ms;
     animation-timing-function: cubic-bezier(.2, .8, .2, 1);
   }
@@ -4760,11 +4775,13 @@ body:has(.gallery-shell) > .back-to-top-button {
     height: 100%;
   }
 
-  ::view-transition-new(bottom-control):only-child {
+  ::view-transition-new(bottom-control):only-child,
+  ::view-transition-new(bottom-control-icon):only-child {
     animation: bottom-control-enter 360ms cubic-bezier(.2, .8, .2, 1) both;
   }
 
-  ::view-transition-old(bottom-control):only-child {
+  ::view-transition-old(bottom-control):only-child,
+  ::view-transition-old(bottom-control-icon):only-child {
     animation: bottom-control-exit 280ms ease both;
   }
 }
