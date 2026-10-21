@@ -28,6 +28,7 @@ export default defineConfig(async () => {
 
   return {
     define: {
+      "process.env.NEXT_PUBLIC_SHOW_ICP": JSON.stringify(process.env.SHOW_ICP ?? (process.env.CLOUDFLARE_STATIC === "1" ? "0" : "1")),
       "process.env.NEXT_PUBLIC_STATIC_EXPORT": JSON.stringify(process.env.CLOUDFLARE_STATIC === "1" ? "1" : "0"),
     },
     server: isCodexSeatbeltSandbox

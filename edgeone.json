@@ -1,4 +1,4 @@
 {
-  "buildCommand": "pnpm build",
+  "buildCommand": "SHOW_ICP=1 pnpm build",
   "outputDirectory": "dist/client"
 }
