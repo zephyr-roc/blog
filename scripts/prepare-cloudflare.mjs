@@ -4,6 +4,20 @@ import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const assets = path.join(root, "dist/client");
+// Vinext beta omits viewportFit from its viewport serializer. Put cover in
+// the initial static document so Safari applies safe-area layout before the
+// iframe is created, rather than waiting for a client-side effect.
+const galleryFile = path.join(assets, "gallery.html");
+const galleryHtml = await readFile(galleryFile, "utf8");
+const viewportTags = galleryHtml.match(/<meta\b[^>]*\bname="viewport"[^>]*>/g) ?? [];
+if (viewportTags.length !== 1 || !/content="[^"]*"/.test(viewportTags[0])) {
+  throw new Error("Gallery must have exactly one viewport meta tag with content");
+}
+const galleryViewport = viewportTags[0].replace(/content="([^"]*)"/, (_, content) =>
+  `content="${content.replace(/,?\s*viewport-fit=[^,]+/g, "")}, viewport-fit=cover"`,
+);
+await writeFile(galleryFile, galleryHtml.replace(viewportTags[0], galleryViewport));
+
 const fontFile = path.join(root, ".vinext/NotoSansCJKsc-Regular.otf");
 await mkdir(path.dirname(fontFile), { recursive: true });
 try { await access(fontFile); }
