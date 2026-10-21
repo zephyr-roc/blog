@@ -4627,7 +4627,7 @@ body:has(.gallery-shell) {
   /* The ancestors must cover the same large viewport as the iframe. A 100%
      root with overflow:hidden clips its larger child at Safari's toolbar. */
   height: 100vh;
-  height: 100lvh;
+  height: max(100lvh, var(--gallery-paint-height, 0px));
   overflow: hidden;
   overscroll-behavior: none;
 }
@@ -4643,7 +4643,7 @@ body:has(.gallery-shell) > .back-to-top-button {
   height: 100vh;
   /* Keep painting beneath Safari's expanded toolbar. Floating controls still
      use fixed positioning and safe-area insets within the visible viewport. */
-  height: 100lvh;
+  height: max(100lvh, var(--gallery-paint-height, 0px));
   min-height: 0;
   padding: 0;
 }
@@ -4724,4 +4724,13 @@ body:has(.gallery-shell) > .back-to-top-button {
     clip-path: inset(50%);
     white-space: nowrap;
   }
+}
+
+.gallery-viewport-probe {
+  position: absolute;
+  width: 0;
+  height: 0;
+  padding-top: env(safe-area-inset-top, 0px);
+  visibility: hidden;
+  pointer-events: none;
 }
