@@ -132,9 +132,11 @@ test("renders the external gallery without local storage or OAuth", async () => 
   const response = await render("/gallery");
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /<h1 id="gallery-title">画廊<\/h1>/);
+  assert.doesNotMatch(html, /gallery-embed__toolbar|gallery-embed__fallback|<h1/);
   assert.match(html, /<iframe[^>]+src="https:\/\/nas\.afilmory\.ready-jump\.top\/"/);
-  assert.match(html, /独立打开/);
+  assert.match(html, /class="back-to-top-button gallery-open-button"/);
+  assert.match(html, /aria-label="在新窗口打开画廊"/);
+  assert.doesNotMatch(html, /独立打开/);
   assert.doesNotMatch(html, /GitHub 登录|照片尚未挂墙/);
 });
 
