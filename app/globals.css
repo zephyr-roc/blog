@@ -4624,7 +4624,10 @@ a {
 /* Afilmory owns scrolling; the blog supplies only floating controls. */
 html:has(.gallery-shell),
 body:has(.gallery-shell) {
-  height: 100%;
+  /* The ancestors must cover the same large viewport as the iframe. A 100%
+     root with overflow:hidden clips its larger child at Safari's toolbar. */
+  height: 100vh;
+  height: 100lvh;
   overflow: hidden;
   overscroll-behavior: none;
 }

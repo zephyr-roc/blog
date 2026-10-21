@@ -128,6 +128,15 @@ test("server-renders the collection cards before client hydration", async () => 
   assert.doesNotMatch(html, />0<!-- --> 篇文章</);
 });
 
+test("exports gallery safe-area settings before hydration without changing other pages", async () => {
+  const gallery = await readFile(new URL("dist/client/gallery.html", root), "utf8");
+  const home = await readFile(new URL("dist/client/index.html", root), "utf8");
+  const tags = gallery.match(/<meta\b[^>]*\bname="viewport"[^>]*>/g) ?? [];
+  assert.equal(tags.length, 1);
+  assert.match(tags[0], /viewport-fit=cover/);
+  assert.doesNotMatch(home, /viewport-fit=cover/);
+});
+
 test("renders the external gallery without local storage or OAuth", async () => {
   const response = await render("/gallery");
   assert.equal(response.status, 200);
