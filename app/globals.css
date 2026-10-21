@@ -789,7 +789,7 @@ a {
   bottom: max(20px, env(safe-area-inset-bottom));
   width: max-content;
   transform: translateX(-50%);
-  transition: transform 220ms cubic-bezier(.2, .8, .2, 1);
+  transition: transform 360ms cubic-bezier(.2, .8, .2, 1);
 }
 
 .liquid-navigation {
@@ -812,11 +812,11 @@ a {
   cursor: pointer;
   transform: translateY(8px) scale(.9);
   transition:
-    opacity 180ms ease,
-    transform 180ms ease,
-    visibility 180ms,
-    right 220ms cubic-bezier(.2, .8, .2, 1),
-    bottom 220ms cubic-bezier(.2, .8, .2, 1);
+    opacity 280ms ease,
+    transform 360ms cubic-bezier(.2, .8, .2, 1),
+    visibility 280ms,
+    right 360ms cubic-bezier(.2, .8, .2, 1),
+    bottom 360ms cubic-bezier(.2, .8, .2, 1);
 }
 
 .liquid-navigation[data-grouped="true"] {
@@ -868,8 +868,7 @@ a {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, .24),
     inset 0 -1px 0 rgba(255, 255, 255, .04),
-    0 0 0 1px rgba(0, 0, 0, .2),
-    0 14px 28px rgba(0, 0, 0, .34);
+    0 0 0 1px rgba(0, 0, 0, .2);
   pointer-events: none;
   transition: background 180ms ease, box-shadow 180ms ease;
 }
@@ -914,8 +913,7 @@ a {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, .3),
     inset 0 -1px 0 rgba(255, 255, 255, .055),
-    0 0 0 1px rgba(0, 0, 0, .2),
-    0 16px 30px rgba(0, 0, 0, .36);
+    0 0 0 1px rgba(0, 0, 0, .2);
 }
 
 .back-to-top-button__control:focus-visible {
@@ -4732,4 +4730,57 @@ body:has(.gallery-shell) > .back-to-top-button {
   padding-top: env(safe-area-inset-top, 0px);
   visibility: hidden;
   pointer-events: none;
+}
+
+/* Production uses same-origin document navigation. Preserve the bottom dock's
+   identity across those navigations so its width/position can interpolate. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+
+  .liquid-navigation {
+    view-transition-name: bottom-navigation;
+  }
+
+  /* Only one of these controls is visible at a time. Hidden back-to-top
+     controls do not participate in snapshot capture on the gallery route. */
+  .back-to-top-button[data-visible="true"] {
+    view-transition-name: bottom-control;
+  }
+
+  ::view-transition-group(bottom-navigation),
+  ::view-transition-group(bottom-control) {
+    animation-duration: 360ms;
+    animation-timing-function: cubic-bezier(.2, .8, .2, 1);
+  }
+
+  ::view-transition-old(bottom-navigation),
+  ::view-transition-new(bottom-navigation) {
+    height: 100%;
+  }
+
+  ::view-transition-new(bottom-control):only-child {
+    animation: bottom-control-enter 360ms cubic-bezier(.2, .8, .2, 1) both;
+  }
+
+  ::view-transition-old(bottom-control):only-child {
+    animation: bottom-control-exit 280ms ease both;
+  }
+}
+
+@keyframes bottom-control-enter {
+  from { opacity: 0; transform: translateX(16px) scale(.88); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes bottom-control-exit {
+  from { opacity: 1; transform: translateX(0) scale(1); }
+  to { opacity: 0; transform: translateX(16px) scale(.88); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid-navigation {
+    transition: none;
+  }
 }
