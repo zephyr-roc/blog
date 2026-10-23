@@ -6,7 +6,7 @@ import {
   useLiquidGlassSupport,
 } from "./liquid-glass";
 import Link from "./SiteLink";
-import { isArticlePath, verticalNavigationAction } from "../lib/navigation-context.mjs";
+import { createNavigationScrollTracker, isArticlePath, verticalNavigationAction } from "../lib/navigation-context.mjs";
 import { usePathname, useRouter } from "next/navigation";
 import {
   type CSSProperties,
@@ -237,6 +237,30 @@ export function LiquidGlassNavigation() {
   const router = useRouter();
   const isArticle = isArticlePath(pathname);
   const [compactPage, setCompactPage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isArticle) return;
+
+    const maxScrollY = () => Math.max(0,
+      document.documentElement.scrollHeight - document.documentElement.clientHeight);
+    const trackScroll = createNavigationScrollTracker(window.scrollY, maxScrollY());
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const action = trackScroll(window.scrollY, maxScrollY());
+      if (action) setCompactPage(action === "collapse" ? pathname : null);
+    };
+    const onScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(update);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.cancelAnimationFrame(frame);
+    };
+  }, [isArticle, pathname]);
+
   const navigate = (href: string) => {
     if (process.env.NEXT_PUBLIC_STATIC_EXPORT === "1") window.location.assign(href);
     else router.push(href);

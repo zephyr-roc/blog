@@ -10,6 +10,36 @@ export function verticalNavigationAction(dx, dy) {
   return dy < 0 ? "collapse" : "expand";
 }
 
+// Track real page movement, not wheel/touch input: keyboard and momentum
+// scrolling should behave the same, and Safari's elastic overscroll is ignored.
+export function createNavigationScrollTracker(initialY, initialMaxY) {
+  const clamp = (y, maxY) => Math.max(0, Math.min(y, Math.max(0, maxY)));
+  let previousY = clamp(initialY, initialMaxY);
+  let travel = 0;
+
+  return (rawY, maxY) => {
+    const y = clamp(rawY, maxY);
+    const delta = y - previousY;
+    previousY = y;
+
+    if (y <= 48) {
+      travel = 0;
+      return "expand";
+    }
+    if (delta === 0) return null;
+    travel = Math.sign(delta) === Math.sign(travel) ? travel + delta : delta;
+    if (travel >= 32) {
+      travel = 0;
+      return "collapse";
+    }
+    if (travel <= -20) {
+      travel = 0;
+      return "expand";
+    }
+    return null;
+  };
+}
+
 export function readGalleryViewerMessage(event, frameWindow) {
   if (!frameWindow || event.source !== frameWindow || event.origin !== GALLERY_ORIGIN) return null;
   const data = event.data;
