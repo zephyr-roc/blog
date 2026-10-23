@@ -1656,7 +1656,7 @@ a {
     bottom: max(12px, env(safe-area-inset-bottom));
   }
 
-  .back-to-top-button[data-grouped="true"] {
+  .back-to-top-button {
     bottom: max(12px, env(safe-area-inset-bottom));
   }
 
