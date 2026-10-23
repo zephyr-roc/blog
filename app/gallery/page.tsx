@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SITE_NAME } from "../lib/seo";
+import { GalleryEmbed } from "../components/GalleryEmbed";
 import { GalleryViewport } from "../components/GalleryViewport";
 import { GalleryOpenButton } from "../components/GalleryOpenButton";
 
@@ -30,7 +31,7 @@ export default function GalleryPage() {
       <div className="grain" aria-hidden="true" />
 
       <section className="gallery-embed" aria-label="摄影画廊">
-        <iframe className="gallery-embed__frame" src="https://nas.afilmory.ready-jump.top/" title="积雨云的 Afilmory 摄影画廊" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
+        <GalleryEmbed />
       </section>
       <GalleryOpenButton />
     </main>

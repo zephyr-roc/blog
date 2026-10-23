@@ -6,6 +6,7 @@ import {
   useLiquidGlassSupport,
 } from "./liquid-glass";
 import Link from "./SiteLink";
+import { isArticlePath, verticalNavigationAction } from "../lib/navigation-context.mjs";
 import { usePathname, useRouter } from "next/navigation";
 import {
   type CSSProperties,
@@ -15,6 +16,7 @@ import {
   useId,
   useLayoutEffect,
   useRef,
+  useState,
 } from "react";
 
 const navigationItems = [
@@ -225,6 +227,7 @@ type GestureStart = {
   x: number;
   y: number;
   targetIndex: NavigationIndex;
+  vertical?: boolean;
 };
 
 type NavigationStyle = CSSProperties & Record<`--${string}`, string>;
@@ -232,6 +235,8 @@ type NavigationStyle = CSSProperties & Record<`--${string}`, string>;
 export function LiquidGlassNavigation() {
   const pathname = usePathname();
   const router = useRouter();
+  const isArticle = isArticlePath(pathname);
+  const [compactPage, setCompactPage] = useState<string | null>(null);
   const navigate = (href: string) => {
     if (process.env.NEXT_PUBLIC_STATIC_EXPORT === "1") window.location.assign(href);
     else router.push(href);
@@ -335,6 +340,19 @@ export function LiquidGlassNavigation() {
 
     if (surface.hasPointerCapture(event.pointerId)) {
       surface.releasePointerCapture(event.pointerId);
+    }
+
+    if (start.vertical) {
+      if (!cancelled) {
+        const action = verticalNavigationAction(event.clientX - start.x, event.clientY - start.y);
+        if (action) setCompactPage(action === "collapse" ? pathname : null);
+      }
+      dragStart.current = null;
+      pointerTravel.current = 0;
+      surface.dataset.dragging = "false";
+      setDragOffset(0);
+      suppressGeneratedClick();
+      return;
     }
 
     const offset = dragOffset.current;
@@ -478,9 +496,21 @@ export function LiquidGlassNavigation() {
         <div
           ref={surfaceRef}
           className="liquid-navigation__surface"
+          role="toolbar"
+          tabIndex={isArticle ? 0 : -1}
+          aria-label={isArticle ? "页面导航，上划收起文字，下划展开文字，也可使用上下方向键" : "页面导航"}
+          onKeyDown={event => {
+            if (!isArticle || event.target !== event.currentTarget) return;
+            if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+              event.preventDefault();
+              setCompactPage(event.key === "ArrowUp" ? pathname : null);
+            }
+          }}
           style={navigationStyle}
           data-dragging="false"
           data-active-index={activeIndex}
+          data-article-page={isArticle}
+          data-compact={isArticle && compactPage === pathname}
           data-liquid-glass-supported={supportsLiquidGlass ? "true" : "false"}
           onPointerDown={(event) => {
             if (event.button !== 0) return;
@@ -509,6 +539,16 @@ export function LiquidGlassNavigation() {
               pointerTravel.current,
               Math.hypot(rawOffset, rawVerticalOffset),
             );
+            if (isArticle && (start.vertical || (Math.abs(rawVerticalOffset) >= DRAG_ACTIVATION_DISTANCE
+              && Math.abs(rawVerticalOffset) > Math.abs(rawOffset) * 1.25))) {
+              start.vertical = true;
+              event.preventDefault();
+              if (!event.currentTarget.hasPointerCapture(event.pointerId)) {
+                event.currentTarget.setPointerCapture(event.pointerId);
+              }
+              setDragOffset(0);
+              return;
+            }
             const minOffset = -activeIndex * travel;
             const maxOffset = (navigationItems.length - 1 - activeIndex) * travel;
             const boundedOffset = Math.max(

@@ -995,7 +995,7 @@ a {
   border-radius: 999px;
   clip-path: inset(0 round 999px);
   background: rgba(255, 255, 255, .008);
-  transition: left 360ms cubic-bezier(.2,.9,.2,1);
+  transition: left 360ms cubic-bezier(.2,.9,.2,1), width 360ms cubic-bezier(.2,.8,.2,1);
   will-change: left;
   pointer-events: none;
 }
@@ -1052,6 +1052,7 @@ a {
     translate3d(calc(var(--active-index) * (100% + 4px) + var(--drag-offset)), 0, 0)
     scaleX(calc(1 + var(--drag-strength) * .006));
   transition:
+    width 360ms cubic-bezier(.2,.8,.2,1),
     transform 360ms cubic-bezier(.2,.9,.2,1),
     box-shadow 220ms ease;
   transform-origin: center;
@@ -1107,7 +1108,7 @@ a {
   align-items: center;
   justify-content: center;
   gap: 9px;
-  min-width: 124px;
+  min-width: var(--segment-width);
   height: 52px;
   padding: 0 22px;
   border-radius: 999px;
@@ -1118,6 +1119,9 @@ a {
   text-decoration: none;
   cursor: pointer;
   transition:
+    min-width 360ms cubic-bezier(.2, .8, .2, 1),
+    padding 360ms cubic-bezier(.2, .8, .2, 1),
+    gap 360ms cubic-bezier(.2, .8, .2, 1),
     color 220ms ease,
     background 220ms ease,
     box-shadow 220ms ease,
@@ -4799,5 +4803,80 @@ body:has(.gallery-shell) > .back-to-top-button {
 @media (prefers-reduced-motion: reduce) {
   .liquid-navigation {
     transition: none;
+  }
+}
+
+/* Vertical gestures belong to article navigation; horizontal tab dragging stays
+   available, and pinch zoom is left to the browser. */
+.liquid-navigation__surface[data-article-page="true"] {
+  touch-action: pinch-zoom;
+}
+
+.liquid-navigation__label {
+  max-width: 72px;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 360ms cubic-bezier(.2,.8,.2,1), opacity 200ms ease;
+}
+
+.liquid-navigation__surface[data-compact="true"] {
+  --segment-width: 56px;
+}
+
+.liquid-navigation__surface[data-compact="true"] .liquid-navigation__item {
+  min-width: var(--segment-width);
+  padding-inline: 10px;
+  gap: 0;
+}
+
+.liquid-navigation__surface[data-compact="true"] .liquid-navigation__label {
+  max-width: 0;
+  opacity: 0;
+}
+
+body[data-gallery-viewer-open="true"] .liquid-navigation,
+body[data-gallery-viewer-open="true"] .gallery-open-button {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(24px) scale(.96);
+}
+
+body[data-gallery-viewer-open] .liquid-navigation {
+  transition: opacity 220ms ease, visibility 220ms ease, transform 280ms cubic-bezier(.2,.8,.2,1);
+}
+
+@media (max-width: 640px) {
+  .liquid-navigation__surface[data-compact="true"] {
+    --segment-width: 44px;
+  }
+
+  .liquid-navigation__surface[data-compact="true"] .liquid-navigation__item {
+    padding-inline: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid-navigation__item,
+  .liquid-navigation__label,
+  .liquid-navigation__refraction,
+  .liquid-navigation__indicator,
+  body[data-gallery-viewer-open] .liquid-navigation {
+    transition: none;
+  }
+}
+
+body[data-gallery-viewer-open="true"] .liquid-navigation {
+  transform: translate(-50%, 24px) scale(.96);
+}
+
+.liquid-navigation__surface:focus-visible {
+  outline: 2px solid rgba(255, 226, 241, .92);
+  outline-offset: 4px;
+}
+
+@media (max-width: 900px) {
+  body[data-gallery-viewer-open="true"] .liquid-navigation {
+    transform: translateY(24px) scale(.96);
   }
 }
