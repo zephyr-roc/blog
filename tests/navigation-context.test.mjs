@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
 import vm from "node:vm";
-import { GALLERY_ORIGIN, isArticlePath, verticalNavigationAction, readGalleryViewerMessage } from "../app/lib/navigation-context.mjs";
+import { GALLERY_ORIGIN, createNavigationScrollTracker, isArticlePath, verticalNavigationAction, readGalleryViewerMessage } from "../app/lib/navigation-context.mjs";
 
 test("only article routes enable vertical navigation gestures", () => {
   for (const path of ["/collections/kotlin/intro", "/radar/2026-10-23", "/tinkering/setup/"]) assert.equal(isArticlePath(path), true);
@@ -14,6 +14,31 @@ test("up/down gestures collapse/expand without treating horizontal drags or taps
   assert.equal(verticalNavigationAction(-4, 48), "expand");
   assert.equal(verticalNavigationAction(60, -20), null);
   assert.equal(verticalNavigationAction(2, 10), null);
+});
+
+test("article scrolling collapses downward and expands upward after deliberate movement", () => {
+  const track = createNavigationScrollTracker(100, 1000);
+  assert.equal(track(115, 1000), null);
+  assert.equal(track(132, 1000), "collapse");
+  assert.equal(track(128, 1000), null);
+  assert.equal(track(112, 1000), "expand");
+  // A direction change starts a new distance; it cannot accumulate jitter.
+  assert.equal(track(120, 1000), null);
+  assert.equal(track(115, 1000), null);
+  assert.equal(track(130, 1000), null);
+  assert.equal(track(147, 1000), "collapse");
+});
+
+test("Safari overscroll cannot toggle navigation; returning to the top restores labels", () => {
+  const track = createNavigationScrollTracker(960, 1000);
+  assert.equal(track(1000, 1000), "collapse");
+  assert.equal(track(1080, 1000), null);
+  assert.equal(track(1000, 1000), null);
+  assert.equal(track(980, 1000), "expand");
+  assert.equal(track(48, 1000), "expand");
+  assert.equal(track(-80, 1000), "expand");
+  assert.equal(track(0, 1000), "expand");
+  assert.equal(track(25, 1000), "expand");
 });
 
 test("gallery state accepts only a boolean from the expected frame and origin", () => {
