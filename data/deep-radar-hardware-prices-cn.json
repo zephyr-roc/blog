@@ -294,6 +294,13 @@
           "kind": "采集时公开最低报价",
           "merchant": "京东",
           "source": "https://wiki.smzdm.com/p/0yrx3g4/"
+        },
+        {
+          "date": "2026-10-25",
+          "price": 2591.1,
+          "kind": "采集时公开最低报价",
+          "merchant": "京东",
+          "source": "https://wiki.smzdm.com/p/0yrx3g4/"
         }
       ]
     },
@@ -796,6 +803,13 @@
           "kind": "当前规格全网比价",
           "merchant": "天猫精选",
           "source": "https://wiki.smzdm.com/p/yd4y5ow/"
+        },
+        {
+          "date": "2026-10-25",
+          "price": 1349,
+          "kind": "当前规格全网比价",
+          "merchant": "天猫精选",
+          "source": "https://wiki.smzdm.com/p/yd4y5ow/"
         }
       ]
     },
@@ -1088,6 +1102,13 @@
           "kind": "当前规格全网比价",
           "merchant": "京东",
           "source": "https://wiki.smzdm.com/p/zm98npm/"
+        },
+        {
+          "date": "2026-10-25",
+          "price": 3550,
+          "kind": "当前规格全网比价",
+          "merchant": "京东",
+          "source": "https://wiki.smzdm.com/p/zm98npm/"
         }
       ]
     },
@@ -1287,6 +1308,13 @@
         {
           "date": "2026-10-19",
           "price": 1699,
+          "kind": "2TB 规格全网比价",
+          "merchant": "京东",
+          "source": "https://wiki.smzdm.com/p/zm5r4qm/"
+        },
+        {
+          "date": "2026-10-25",
+          "price": 1797,
           "kind": "2TB 规格全网比价",
           "merchant": "京东",
           "source": "https://wiki.smzdm.com/p/zm5r4qm/"

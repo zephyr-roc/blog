@@ -98,6 +98,7 @@ const panels = data.series.map((series, index) => {
     <line x1="${x + 24}" y1="${y + 214}" x2="${x + panelWidth - 24}" y2="${y + 214}" class="axis"/>
     <g clip-path="url(#plot-${index})">${line}${circles}</g>
     ${marks}
+    ${points.length === 0 ? `<text x="${x + panelWidth / 2}" y="${y + 154}" text-anchor="middle" class="sparse">30 日内无同 SKU 可比报价</text>` : ""}
     ${points.length === 1 ? `<text x="${x + panelWidth - 24}" y="${y + 34}" text-anchor="end" class="sparse">仅 1 个真实点</text>` : ""}
   </g>`;
 }).join("\n");
