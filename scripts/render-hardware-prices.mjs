@@ -26,6 +26,7 @@ const end = Date.parse(`${reportDate}T00:00:00Z`);
 const start = end - 29 * 24 * 60 * 60 * 1000;
 const startDate = new Date(start).toISOString().slice(0, 10);
 const colors = ["#7dd3fc", "#c4b5fd", "#86efac", "#f9a8d4", "#fcd34d", "#fdba74"];
+const categoryLabels = { "主板": "Motherboard" };
 
 const esc = (value) => String(value).replace(/[&<>\"]/g, (char) => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;"
@@ -89,23 +90,23 @@ const panels = data.series.map((series, index) => {
     const showValue = pointIndex === points.length - 1 || !points.slice(pointIndex + 1).some((later) => later.price === point.price);
     return `${showValue ? `<text x="${labelX.toFixed(1)}" y="${valueY.toFixed(1)}" text-anchor="${anchor}" class="value">${money(point.price)}</text>` : ""}
       <text x="${point.x.toFixed(1)}" y="${y + 237}" text-anchor="end" transform="rotate(-38 ${point.x.toFixed(1)} ${y + 237})" class="date">${dateLabel}</text>
-      ${pointIndex === points.length - 1 ? `<text x="${x + 24}" y="${y + 264}" class="kind">最新：${esc(point.kind)} · ${esc(point.merchant)}</text>` : ""}`;
+      ${pointIndex === points.length - 1 ? `<text x="${x + 24}" y="${y + 264}" class="kind">Latest observed: ${esc(point.date)}</text>` : ""}`;
   }).join("\n");
   return `<g>
     <rect x="${x}" y="${y}" width="${panelWidth}" height="${panelHeight}" rx="24" class="panel"/>
-    <text x="${x + 24}" y="${y + 34}" class="category">${esc(series.category)}</text>
+    <text x="${x + 24}" y="${y + 34}" class="category">${esc(categoryLabels[series.category] ?? series.category)}</text>
     <text x="${x + 24}" y="${y + 60}" class="product">${esc(series.product)}</text>
     <line x1="${x + 24}" y1="${y + 214}" x2="${x + panelWidth - 24}" y2="${y + 214}" class="axis"/>
     <g clip-path="url(#plot-${index})">${line}${circles}</g>
     ${marks}
-    ${points.length === 0 ? `<text x="${x + panelWidth / 2}" y="${y + 154}" text-anchor="middle" class="sparse">30 日内无同 SKU 可比报价</text>` : ""}
-    ${points.length === 1 ? `<text x="${x + panelWidth - 24}" y="${y + 34}" text-anchor="end" class="sparse">仅 1 个真实点</text>` : ""}
+    ${points.length === 0 ? `<text x="${x + panelWidth / 2}" y="${y + 154}" text-anchor="middle" class="sparse">No same-SKU quote in 30 days</text>` : ""}
+    ${points.length === 1 ? `<text x="${x + panelWidth - 24}" y="${y + 34}" text-anchor="end" class="sparse">1 observed point</text>` : ""}
   </g>`;
 }).join("\n");
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="title desc">
-  <title id="title">中国大陆六类 PC 硬件公开价格事件</title>
-  <desc id="desc">${startDate} 至 ${reportDate} CPU、GPU、主板、DRAM、HDD 与 SSD 的可复核报价。只连接真实日期点，单点品类不生成趋势线。</desc>
+  <title id="title">Mainland China PC hardware price observations</title>
+  <desc id="desc">Verifiable same-SKU CPU, GPU, motherboard, DRAM, HDD and SSD quotes from ${startDate} to ${reportDate}. Only observed dates are connected; missing quotes are not carried forward.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#07101f"/><stop offset="1" stop-color="#130d24"/></linearGradient>
     ${data.series.map((_, index) => {
@@ -122,10 +123,10 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${
     .date{fill:#8290a7;font-size:10px}.kind{fill:#8290a7;font-size:10px}.sparse{fill:#fbbf24;font-size:10px}
   </style>
   <rect width="${width}" height="${height}" rx="32" fill="url(#bg)"/>
-  <text x="30" y="45" class="title">中国大陆 PC 硬件价格观察</text>
-  <text x="30" y="75" class="subtitle">${startDate}—${reportDate} · 公开可复核价格事件 · 单位：人民币 · 不插值</text>
+  <text x="30" y="45" class="title">Mainland China PC Hardware Price Watch</text>
+  <text x="30" y="75" class="subtitle">${startDate}—${reportDate} · Verifiable price events · CNY · No interpolation</text>
   ${panels}
-  <text x="30" y="739" class="subtitle">数据由 data/deep-radar-hardware-prices-cn.json 生成；单点表示当前公开样本不足以判断趋势。</text>
+  <text x="30" y="739" class="subtitle">Source: data/deep-radar-hardware-prices-cn.json · Same-SKU observations only; missing quotes are not carried forward.</text>
 </svg>\n`;
 
 await writeFile(outputPath, svg, "utf8");
