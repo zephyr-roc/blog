@@ -31,17 +31,30 @@ export function GalleryViewport() {
 
       const visualViewport = window.visualViewport;
       const safeBottom = Number.parseFloat(getComputedStyle(probe).paddingBottom) || 0;
+      const visualHeight = visualViewport?.height ?? window.innerHeight;
+      const visualWidth = visualViewport?.width ?? window.innerWidth;
+      const visualOffsetTop = visualViewport?.offsetTop ?? 0;
+      const visualOffsetLeft = visualViewport?.offsetLeft ?? 0;
+
       root.style.setProperty("--gallery-safe-bottom", `${safeBottom}px`);
+      root.style.setProperty("--gallery-visual-height", `${Math.floor(visualHeight)}px`);
+      root.style.setProperty("--gallery-visual-width", `${Math.floor(visualWidth)}px`);
+      root.style.setProperty("--gallery-visual-top", `${Math.floor(visualOffsetTop)}px`);
+      root.style.setProperty("--gallery-visual-left", `${Math.floor(visualOffsetLeft)}px`);
+
       window.dispatchEvent(new CustomEvent("blog:gallery-viewport-change", {
         detail: {
           safeBottom,
-          visualHeight: visualViewport?.height ?? window.innerHeight,
-          visualOffsetTop: visualViewport?.offsetTop ?? 0,
+          visualHeight,
+          visualWidth,
+          visualOffsetTop,
+          visualOffsetLeft,
         },
       }));
+
       const interactiveHeight = galleryInteractiveHeight({
-        visualHeight: visualViewport?.height,
-        visualOffsetTop: visualViewport?.offsetTop ?? 0,
+        visualHeight,
+        visualOffsetTop: 0,
         layoutHeight: window.innerHeight,
       });
       if (interactiveHeight === null) root.style.removeProperty("--gallery-interactive-height");
@@ -55,15 +68,21 @@ export function GalleryViewport() {
     window.addEventListener("orientationchange", schedule);
     window.addEventListener("pageshow", schedule);
     window.visualViewport?.addEventListener("resize", schedule);
+    window.visualViewport?.addEventListener("scroll", schedule);
     return () => {
       window.removeEventListener("resize", schedule);
       window.removeEventListener("orientationchange", schedule);
       window.removeEventListener("pageshow", schedule);
       window.visualViewport?.removeEventListener("resize", schedule);
+      window.visualViewport?.removeEventListener("scroll", schedule);
       if (frame) cancelAnimationFrame(frame);
       root.style.removeProperty("--gallery-paint-height");
       root.style.removeProperty("--gallery-interactive-height");
       root.style.removeProperty("--gallery-safe-bottom");
+      root.style.removeProperty("--gallery-visual-height");
+      root.style.removeProperty("--gallery-visual-width");
+      root.style.removeProperty("--gallery-visual-top");
+      root.style.removeProperty("--gallery-visual-left");
     };
   }, []);
 
