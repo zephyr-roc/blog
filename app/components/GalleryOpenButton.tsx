@@ -1,9 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Glass } from "./liquid-glass";
 
 export function GalleryOpenButton() {
+  const [liteGlass, setLiteGlass] = useState(false);
+
+  useEffect(() => {
+    const match = navigator.userAgent.match(/(?:Chrome|Chromium|Edg)\/(\d+)/);
+    setLiteGlass(match ? Number(match[1]) < 120 : false);
+  }, []);
+
   useEffect(() => {
     // Vinext currently omits viewportFit when serializing viewport metadata.
     // Update the existing tag only for this edge-to-edge route, and restore it
@@ -17,14 +24,20 @@ export function GalleryOpenButton() {
 
   return (
     <div className="back-to-top-button gallery-open-button" data-visible="true">
-      <Glass
-        className="back-to-top-button__glass"
-        radius={999}
-        optics={{ strength: .2, scaleX: .22, scaleY: .18, depth: .92, curvature: .72, bend: .88, bendWidth: .28, dispersion: 0, frost: 1, saturate: 1.35, specular: 0, sheen: 0, sheenWidth: 2.5, glow: 0 }}
-        aria-hidden="true"
-      >
-        <span className="back-to-top-button__glass-tint" />
-      </Glass>
+      {liteGlass ? (
+        <span className="back-to-top-button__glass back-to-top-button__glass--lite" aria-hidden="true">
+          <span className="back-to-top-button__glass-tint" />
+        </span>
+      ) : (
+        <Glass
+          className="back-to-top-button__glass"
+          radius={999}
+          optics={{ strength: .2, scaleX: .22, scaleY: .18, depth: .92, curvature: .72, bend: .88, bendWidth: .28, dispersion: 0, frost: 1, saturate: 1.35, specular: 0, sheen: 0, sheenWidth: 2.5, glow: 0 }}
+          aria-hidden="true"
+        >
+          <span className="back-to-top-button__glass-tint" />
+        </Glass>
+      )
       <a
         className="back-to-top-button__control"
         href="https://nas.afilmory.ready-jump.top/"
