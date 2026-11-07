@@ -29,26 +29,23 @@ test("ignores unusable screen and safe-area measurements", () => {
 });
 
 
-test("keeps iframe controls inside the visual viewport and parent safe area", () => {
+test("keeps the iframe aligned with the visual viewport without double-subtracting safe area", () => {
   assert.equal(galleryInteractiveHeight({
     visualHeight: 738,
     visualOffsetTop: 0,
     layoutHeight: 852,
-    safeBottom: 34,
-  }), 704);
+  }), 738);
 
   assert.equal(galleryInteractiveHeight({
     visualHeight: 738,
     visualOffsetTop: 12,
     layoutHeight: 852,
-    safeBottom: 34,
-  }), 716);
+  }), 750);
 });
 
 test("falls back to the layout viewport when visualViewport is unavailable", () => {
   assert.equal(galleryInteractiveHeight({
     visualHeight: undefined,
     layoutHeight: 800,
-    safeBottom: 20,
-  }), 780);
+  }), 800);
 });
