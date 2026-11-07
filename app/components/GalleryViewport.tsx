@@ -30,11 +30,19 @@ export function GalleryViewport() {
       else root.style.setProperty("--gallery-paint-height", `${height}px`);
 
       const visualViewport = window.visualViewport;
+      const safeBottom = Number.parseFloat(getComputedStyle(probe).paddingBottom) || 0;
+      root.style.setProperty("--gallery-safe-bottom", `${safeBottom}px`);
+      window.dispatchEvent(new CustomEvent("blog:gallery-viewport-change", {
+        detail: {
+          safeBottom,
+          visualHeight: visualViewport?.height ?? window.innerHeight,
+          visualOffsetTop: visualViewport?.offsetTop ?? 0,
+        },
+      }));
       const interactiveHeight = galleryInteractiveHeight({
         visualHeight: visualViewport?.height,
         visualOffsetTop: visualViewport?.offsetTop ?? 0,
         layoutHeight: window.innerHeight,
-        safeBottom: Number.parseFloat(getComputedStyle(probe).paddingBottom) || 0,
       });
       if (interactiveHeight === null) root.style.removeProperty("--gallery-interactive-height");
       else root.style.setProperty("--gallery-interactive-height", `${interactiveHeight}px`);
@@ -55,6 +63,7 @@ export function GalleryViewport() {
       if (frame) cancelAnimationFrame(frame);
       root.style.removeProperty("--gallery-paint-height");
       root.style.removeProperty("--gallery-interactive-height");
+      root.style.removeProperty("--gallery-safe-bottom");
     };
   }, []);
 
