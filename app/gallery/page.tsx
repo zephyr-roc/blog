@@ -26,10 +26,6 @@ export default function GalleryPage() {
   return (
     <main className="experience-shell gallery-shell">
       <GalleryViewport />
-      <div className="ambient ambient--violet gallery-shell__violet" aria-hidden="true" />
-      <div className="ambient ambient--orange gallery-shell__orange" aria-hidden="true" />
-      <div className="grain" aria-hidden="true" />
-
       <section className="gallery-embed" aria-label="摄影画廊">
         <GalleryEmbed />
       </section>
