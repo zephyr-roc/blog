@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
-import { galleryPaintHeight } from "../lib/gallery-viewport.mjs";
+import { galleryInteractiveHeight, galleryPaintHeight } from "../lib/gallery-viewport.mjs";
 
 export function GalleryViewport() {
   const probeRef = useRef<HTMLSpanElement>(null);
@@ -28,6 +28,16 @@ export function GalleryViewport() {
       });
       if (height === null) root.style.removeProperty("--gallery-paint-height");
       else root.style.setProperty("--gallery-paint-height", `${height}px`);
+
+      const visualViewport = window.visualViewport;
+      const interactiveHeight = galleryInteractiveHeight({
+        visualHeight: visualViewport?.height,
+        visualOffsetTop: visualViewport?.offsetTop ?? 0,
+        layoutHeight: window.innerHeight,
+        safeBottom: Number.parseFloat(getComputedStyle(probe).paddingBottom) || 0,
+      });
+      if (interactiveHeight === null) root.style.removeProperty("--gallery-interactive-height");
+      else root.style.setProperty("--gallery-interactive-height", `${interactiveHeight}px`);
     };
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(update);
@@ -44,6 +54,7 @@ export function GalleryViewport() {
       window.visualViewport?.removeEventListener("resize", schedule);
       if (frame) cancelAnimationFrame(frame);
       root.style.removeProperty("--gallery-paint-height");
+      root.style.removeProperty("--gallery-interactive-height");
     };
   }, []);
 
