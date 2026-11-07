@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { galleryPaintHeight } from "../app/lib/gallery-viewport.mjs";
+import { galleryInteractiveHeight, galleryPaintHeight } from "../app/lib/gallery-viewport.mjs";
 
 const phone = {
   isPhone: true, standalone: false, scale: 1,
@@ -26,4 +26,29 @@ test("ignores unusable screen and safe-area measurements", () => {
   for (const patch of [{ screenHeight: 0 }, { width: NaN }, { scale: NaN }, { safeTop: -1 }, { safeTop: 852 }]) {
     assert.equal(galleryPaintHeight({ ...phone, ...patch }), null);
   }
+});
+
+
+test("keeps iframe controls inside the visual viewport and parent safe area", () => {
+  assert.equal(galleryInteractiveHeight({
+    visualHeight: 738,
+    visualOffsetTop: 0,
+    layoutHeight: 852,
+    safeBottom: 34,
+  }), 704);
+
+  assert.equal(galleryInteractiveHeight({
+    visualHeight: 738,
+    visualOffsetTop: 12,
+    layoutHeight: 852,
+    safeBottom: 34,
+  }), 716);
+});
+
+test("falls back to the layout viewport when visualViewport is unavailable", () => {
+  assert.equal(galleryInteractiveHeight({
+    visualHeight: undefined,
+    layoutHeight: 800,
+    safeBottom: 20,
+  }), 780);
 });
