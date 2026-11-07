@@ -23,7 +23,6 @@ export function galleryInteractiveHeight({
   visualHeight,
   visualOffsetTop = 0,
   layoutHeight,
-  safeBottom = 0,
 }) {
   const height = Number.isFinite(visualHeight) && visualHeight > 0
     ? visualHeight
@@ -33,9 +32,9 @@ export function galleryInteractiveHeight({
   const offsetTop = Number.isFinite(visualOffsetTop) && visualOffsetTop > 0
     ? visualOffsetTop
     : 0;
-  const bottomInset = Number.isFinite(safeBottom) && safeBottom > 0
-    ? Math.min(safeBottom, height / 3)
-    : 0;
 
-  return Math.max(1, Math.floor(offsetTop + height - bottomInset));
+  // Do not subtract the iOS safe area here. The iframe should fill the real
+  // visual viewport; the parent forwards the safe inset to Afilmory so its own
+  // bottom chrome can pad itself exactly once.
+  return Math.max(1, Math.floor(offsetTop + height));
 }
