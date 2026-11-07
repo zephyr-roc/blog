@@ -4675,9 +4675,11 @@ body:has(.gallery-shell) > .back-to-top-button {
 .gallery-embed {
   position: relative;
   z-index: 2;
-  flex: 1 1 0;
+  flex: 0 0 auto;
   min-height: 0;
   width: 100%;
+  height: var(--gallery-interactive-height, 100dvh);
+  max-height: 100%;
   contain: layout paint style;
   isolation: isolate;
 }
@@ -4752,6 +4754,7 @@ body:has(.gallery-shell) > .back-to-top-button {
   width: 0;
   height: 0;
   padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   visibility: hidden;
   pointer-events: none;
 }
