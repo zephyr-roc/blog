@@ -32,6 +32,7 @@ export function GalleryEmbed() {
     const receive = (event: MessageEvent) => {
       if (event.source !== frameRef.current?.contentWindow || event.origin !== GALLERY_ORIGIN) return;
       if (event.data?.type === "afilmory:bridge-ready" && event.data.version === 1) {
+        document.body.dataset.galleryBridgeReady = "true";
         requestState();
         publishViewport();
         return;
@@ -42,6 +43,7 @@ export function GalleryEmbed() {
     const viewportChange = (event: Event) => {
       publishViewport((event as CustomEvent).detail);
     };
+    document.body.dataset.galleryBridgeReady = "false";
     window.addEventListener("message", receive);
     window.addEventListener("blog:gallery-viewport-change", viewportChange);
     requestState();
@@ -49,6 +51,7 @@ export function GalleryEmbed() {
     return () => {
       window.removeEventListener("message", receive);
       window.removeEventListener("blog:gallery-viewport-change", viewportChange);
+      delete document.body.dataset.galleryBridgeReady;
     };
   }, []);
 
