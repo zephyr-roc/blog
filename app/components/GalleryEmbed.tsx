@@ -9,15 +9,47 @@ export function GalleryEmbed() {
   const requestState = () => {
     frameRef.current?.contentWindow?.postMessage({ type: "blog:request-viewer-state", version: 1 }, GALLERY_ORIGIN);
   };
+  const publishViewport = (detail?: {
+    safeBottom?: number;
+    visualHeight?: number;
+    visualOffsetTop?: number;
+  }) => {
+    const rootStyle = getComputedStyle(document.documentElement);
+    const visualViewport = window.visualViewport;
+    const safeBottom = detail?.safeBottom
+      ?? Number.parseFloat(rootStyle.getPropertyValue("--gallery-safe-bottom"))
+      ?? 0;
+    frameRef.current?.contentWindow?.postMessage({
+      type: "blog:viewport",
+      version: 1,
+      safeBottom: Number.isFinite(safeBottom) ? safeBottom : 0,
+      visualHeight: detail?.visualHeight ?? visualViewport?.height ?? window.innerHeight,
+      visualOffsetTop: detail?.visualOffsetTop ?? visualViewport?.offsetTop ?? 0,
+    }, GALLERY_ORIGIN);
+  };
 
   useEffect(() => {
     const receive = (event: MessageEvent) => {
+      if (event.source !== frameRef.current?.contentWindow || event.origin !== GALLERY_ORIGIN) return;
+      if (event.data?.type === "afilmory:bridge-ready" && event.data.version === 1) {
+        requestState();
+        publishViewport();
+        return;
+      }
       const open = readGalleryViewerMessage(event, frameRef.current?.contentWindow);
       if (open !== null) setViewerOpen(open);
     };
+    const viewportChange = (event: Event) => {
+      publishViewport((event as CustomEvent).detail);
+    };
     window.addEventListener("message", receive);
+    window.addEventListener("blog:gallery-viewport-change", viewportChange);
     requestState();
-    return () => window.removeEventListener("message", receive);
+    publishViewport();
+    return () => {
+      window.removeEventListener("message", receive);
+      window.removeEventListener("blog:gallery-viewport-change", viewportChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -39,7 +71,7 @@ export function GalleryEmbed() {
       title="积雨云的 Afilmory 摄影画廊"
       allowFullScreen
       referrerPolicy="strict-origin-when-cross-origin"
-      onLoad={() => { setViewerOpen(false); requestState(); }}
+      onLoad={() => { setViewerOpen(false); requestState(); publishViewport(); }}
     />
   );
 }
