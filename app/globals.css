@@ -4673,13 +4673,15 @@ body:has(.gallery-shell) > .back-to-top-button {
 }
 
 .gallery-embed {
-  position: relative;
+  position: fixed;
   z-index: 2;
-  flex: 0 0 auto;
+  top: var(--gallery-visual-top, 0px);
+  left: var(--gallery-visual-left, 0px);
+  flex: none;
   min-height: 0;
-  width: 100%;
-  height: var(--gallery-interactive-height, 100dvh);
-  max-height: 100%;
+  width: var(--gallery-visual-width, 100vw);
+  height: var(--gallery-visual-height, 100dvh);
+  max-height: none;
   contain: layout paint style;
   isolation: isolate;
 }
