@@ -236,7 +236,19 @@ export function LiquidGlassNavigation() {
   const pathname = usePathname();
   const router = useRouter();
   const isArticle = isArticlePath(pathname);
+  const isGallery = pathname.startsWith("/gallery");
   const [compactPage, setCompactPage] = useState<string | null>(null);
+  const [galleryLiteGlass, setGalleryLiteGlass] = useState(isGallery);
+
+  useEffect(() => {
+    if (!isGallery) {
+      setGalleryLiteGlass(false);
+      return;
+    }
+
+    const match = navigator.userAgent.match(/(?:Chrome|Chromium|Edg)\/(\d+)/);
+    setGalleryLiteGlass(match ? Number(match[1]) < 120 : false);
+  }, [isGallery]);
 
   useEffect(() => {
     if (!isArticle) return;
@@ -288,11 +300,16 @@ export function LiquidGlassNavigation() {
     "--drag-strength": "0",
   };
   const backdropFilter = `blur(${supportsLiquidGlass ? 1 : 1.4}px) saturate(112%)`;
-  const navigationBackdropStyle: CSSProperties = {
-    backdropFilter,
-    WebkitBackdropFilter: backdropFilter,
-    ...(supportsLiquidGlass ? { clipPath: `url(#${backdropClipId})` } : null),
-  };
+  const navigationBackdropStyle: CSSProperties = galleryLiteGlass
+    ? {
+        backdropFilter: "none",
+        WebkitBackdropFilter: "none",
+      }
+    : {
+        backdropFilter,
+        WebkitBackdropFilter: backdropFilter,
+        ...(supportsLiquidGlass ? { clipPath: `url(#${backdropClipId})` } : null),
+      };
 
   const getSegmentTravel = () => {
     const surface = surfaceRef.current;
@@ -436,6 +453,8 @@ export function LiquidGlassNavigation() {
   }, [pathname, supportsLiquidGlass]);
 
   useEffect(() => {
+    if (isGallery) return;
+
     const surface = surfaceRef.current;
     if (!surface) return;
 
@@ -513,7 +532,7 @@ export function LiquidGlassNavigation() {
       if (animationFrame) window.cancelAnimationFrame(animationFrame);
       if (timer) window.clearTimeout(timer);
     };
-  }, [pathname]);
+  }, [pathname, isGallery]);
 
   return (
     <nav className="liquid-navigation" aria-label="页面导航">
@@ -630,14 +649,23 @@ export function LiquidGlassNavigation() {
             style={navigationBackdropStyle}
             aria-hidden="true"
           />
-          <Glass
-            className="liquid-navigation__refraction"
-            radius={999}
-            optics={navigationGlassOptics}
-            aria-hidden="true"
-          >
-            <span className="liquid-navigation__refraction-content" />
-          </Glass>
+          {galleryLiteGlass ? (
+            <span
+              className="liquid-navigation__refraction liquid-navigation__refraction--lite"
+              aria-hidden="true"
+            >
+              <span className="liquid-navigation__refraction-content" />
+            </span>
+          ) : (
+            <Glass
+              className="liquid-navigation__refraction"
+              radius={999}
+              optics={navigationGlassOptics}
+              aria-hidden="true"
+            >
+              <span className="liquid-navigation__refraction-content" />
+            </Glass>
+          )}
           <span className="liquid-navigation__indicator" aria-hidden="true" />
           <span className="sr-only">可拖动活动玻璃块切换页面</span>
           {navigationItems.map((item, index) => {
