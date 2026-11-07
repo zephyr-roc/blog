@@ -4680,7 +4680,7 @@ body:has(.gallery-shell) > .back-to-top-button {
   flex: none;
   min-height: 0;
   width: var(--gallery-visual-width, 100vw);
-  height: var(--gallery-visual-height, 100dvh);
+  height: calc(var(--gallery-visual-height, 100dvh) - var(--gallery-controls-reserve, 0px));
   max-height: none;
   contain: layout paint style;
   isolation: isolate;
@@ -4698,6 +4698,15 @@ body:has(.gallery-shell) > .back-to-top-button {
 @media (max-width: 900px) {
   body:has(.gallery-shell) {
     --liquid-navigation-height: 64px;
+    /* Keep Afilmory's own bottom chrome above the parent navigation. This also
+       protects Safari when the cross-origin viewer bridge is unavailable. */
+    --gallery-controls-reserve: calc(
+      var(--liquid-navigation-height) + max(12px, env(safe-area-inset-bottom, 0px)) + 12px
+    );
+  }
+
+  body[data-gallery-viewer-open="true"]:has(.gallery-shell) {
+    --gallery-controls-reserve: 0px;
   }
 
   body:has(.gallery-shell) .liquid-navigation {
