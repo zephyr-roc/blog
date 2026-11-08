@@ -37,7 +37,7 @@ export function GalleryOpenButton() {
         >
           <span className="back-to-top-button__glass-tint" />
         </Glass>
-      )
+      )}
       <a
         className="back-to-top-button__control"
         href="https://nas.afilmory.ready-jump.top/"
