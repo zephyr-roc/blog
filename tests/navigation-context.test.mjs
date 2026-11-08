@@ -4,6 +4,19 @@ import { readFile } from "node:fs/promises";
 import vm from "node:vm";
 import { GALLERY_ORIGIN, createNavigationScrollTracker, isArticlePath, verticalNavigationAction, readGalleryViewerMessage } from "../app/lib/navigation-context.mjs";
 
+function createBridgeDocument(referrer) {
+  return {
+    referrer,
+    visibilityState: "visible",
+    createElement: () => ({ dataset: {}, textContent: "" }),
+    head: { append() {} },
+    documentElement: {
+      dataset: {},
+      style: { setProperty() {} },
+    },
+  };
+}
+
 test("only article routes enable vertical navigation gestures", () => {
   for (const path of ["/collections/kotlin/intro", "/radar/2026-10-23", "/tinkering/setup/"]) assert.equal(isArticlePath(path), true);
   for (const path of ["/", "/gallery", "/collections/kotlin", "/radar", "/about"]) assert.equal(isArticlePath(path), false);
@@ -56,9 +69,9 @@ test("Afilmory bridge tracks opening, switching and closing photos including bro
   const messages = [];
   const handlers = {};
   const parent = { postMessage: (data, origin) => messages.push({ data, origin }) };
-  const window = { parent, location: { pathname: "/" }, addEventListener: (type, fn) => { handlers[type] = fn; } };
+  const window = { parent, location: { pathname: "/" }, addEventListener: (type, fn) => { handlers[type] = fn; }, setInterval: () => 1, clearInterval() {} };
   window.history = Object.fromEntries(["pushState", "replaceState"].map(method => [method, function (_state, _unused, url) { window.location.pathname = new URL(url, GALLERY_ORIGIN).pathname; }]));
-  vm.runInNewContext(script, { window, document: { referrer: "https://www.ready-jump.top/gallery" }, URL });
+  vm.runInNewContext(script, { window, document: createBridgeDocument("https://www.ready-jump.top/gallery"), URL, queueMicrotask: callback => callback() });
   assert.equal(messages.at(-1).data.open, false);
   window.history.pushState(null, "", "/photos/photo-1");
   assert.equal(messages.at(-1).data.open, true);
@@ -78,8 +91,8 @@ test("bridge can handshake without a referrer and synchronize a directly opened 
   const messages = [];
   const handlers = {};
   const parent = { postMessage: (data, origin) => messages.push({ data, origin }) };
-  const window = { parent, location: { pathname: "/photos/direct" }, history: { pushState() {}, replaceState() {} }, addEventListener: (type, fn) => { handlers[type] = fn; } };
-  vm.runInNewContext(script, { window, document: { referrer: "" }, URL });
+  const window = { parent, location: { pathname: "/photos/direct" }, history: { pushState() {}, replaceState() {} }, addEventListener: (type, fn) => { handlers[type] = fn; }, setInterval: () => 1, clearInterval() {} };
+  vm.runInNewContext(script, { window, document: createBridgeDocument(""), URL, queueMicrotask: callback => callback() });
   assert.equal(messages.length, 0);
   handlers.message({ source: parent, origin: "https://ready-jump.top", data: { type: "blog:request-viewer-state", version: 1 } });
   assert.equal(messages.at(-1).data.open, true);
