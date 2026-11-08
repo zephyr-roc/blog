@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Mainland China PC hardware price observations</title>
+  <desc id="desc">Verifiable same-SKU CPU, GPU, motherboard, DRAM, HDD and SSD quotes from 2026-10-10 to 2026-11-08. Only observed dates are connected; missing quotes are not carried forward.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#07101f"/><stop offset="1" stop-color="#130d24"/></linearGradient>
+    <clipPath id="plot-0"><rect x="58" y="184" width="314" height="136"/></clipPath>
+<clipPath id="plot-1"><rect x="458" y="184" width="314" height="136"/></clipPath>
+<clipPath id="plot-2"><rect x="858" y="184" width="314" height="136"/></clipPath>
+<clipPath id="plot-3"><rect x="58" y="503" width="314" height="136"/></clipPath>
+<clipPath id="plot-4"><rect x="458" y="503" width="314" height="136"/></clipPath>
+<clipPath id="plot-5"><rect x="858" y="503" width="314" height="136"/></clipPath>
+  </defs>
+  <style>
+    text{font-family:ui-sans-serif,system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+    .title{fill:#f8fafc;font-size:28px;font-weight:700}.subtitle{fill:#94a3b8;font-size:14px}
+    .panel{fill:#ffffff0a;stroke:#ffffff1f}.category{fill:#f8fafc;font-size:20px;font-weight:700}
+    .product{fill:#a7b2c5;font-size:12px}.axis{stroke:#ffffff24}.value{fill:#f8fafc;font-size:12px;font-weight:650}
+    .date{fill:#8290a7;font-size:10px}.kind{fill:#8290a7;font-size:10px}.sparse{fill:#fbbf24;font-size:10px}
+  </style>
+  <rect width="1200" height="760" rx="32" fill="url(#bg)"/>
+  <text x="30" y="45" class="title">Mainland China PC Hardware Price Watch</text>
+  <text x="30" y="75" class="subtitle">2026-10-10—2026-11-08 · Verifiable price events · CNY · No interpolation</text>
+  <g>
+    <rect x="30" y="108" width="370" height="285" rx="24" class="panel"/>
+    <text x="54" y="142" class="category">CPU</text>
+    <text x="54" y="168" class="product">AMD Ryzen 7 9800X3D</text>
+    <line x1="54" y1="322" x2="376" y2="322" class="axis"/>
+    <g clip-path="url(#plot-0)"><polyline points="64.0,258.0 74.4,258.0 84.8,258.0 95.2,258.0 105.7,258.0 116.1,258.0 126.5,258.0 136.9,258.0 147.3,258.0 157.7,258.0 220.2,267.1 293.1,278.3 366.0,233.7" fill="none" stroke="#7dd3fc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="64.0" cy="258.0" r="4" fill="#7dd3fc"/><circle cx="74.4" cy="258.0" r="4" fill="#7dd3fc"/><circle cx="84.8" cy="258.0" r="4" fill="#7dd3fc"/><circle cx="95.2" cy="258.0" r="4" fill="#7dd3fc"/><circle cx="105.7" cy="258.0" r="4" fill="#7dd3fc"/><circle cx="116.1" cy="258.0" r="4" fill="#7dd3fc"/><circle cx="126.5" cy="258.0" r="4" fill="#7dd3fc"/><circle cx="136.9" cy="258.0" r="4" fill="#7dd3fc"/><circle cx="147.3" cy="258.0" r="4" fill="#7dd3fc"/><circle cx="157.7" cy="258.0" r="4" fill="#7dd3fc"/><circle cx="220.2" cy="267.1" r="4" fill="#7dd3fc"/><circle cx="293.1" cy="278.3" r="4" fill="#7dd3fc"/><circle cx="366.0" cy="233.7" r="4" fill="#7dd3fc"/></g>
+
+      <text x="64.0" y="345" text-anchor="end" transform="rotate(-38 64.0 345)" class="date">10/10</text>
+
+
+
+
+
+
+
+
+
+
+<text x="227.2" y="257.1" text-anchor="start" class="value">¥2591.10</text>
+      <text x="220.2" y="345" text-anchor="end" transform="rotate(-38 220.2 345)" class="date">10/25</text>
+
+
+<text x="359.0" y="223.7" text-anchor="end" class="value">¥2657</text>
+      <text x="366.0" y="345" text-anchor="end" transform="rotate(-38 366.0 345)" class="date">11/08</text>
+      <text x="54" y="372" class="kind">Latest observed: 2026-11-08</text>
+
+
+  </g>
+<g>
+    <rect x="430" y="108" width="370" height="285" rx="24" class="panel"/>
+    <text x="454" y="142" class="category">GPU</text>
+    <text x="454" y="168" class="product">MSI RTX 5070 VENTUS 3X 12G</text>
+    <line x1="454" y1="322" x2="776" y2="322" class="axis"/>
+    <g clip-path="url(#plot-1)"><polyline points="464.0,256.0 474.4,256.0 484.8,256.0 495.2,256.0 505.7,256.0 516.1,256.0 526.5,256.0 536.9,256.0 547.3,256.0" fill="none" stroke="#c4b5fd" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="464.0" cy="256.0" r="4" fill="#c4b5fd"/><circle cx="474.4" cy="256.0" r="4" fill="#c4b5fd"/><circle cx="484.8" cy="256.0" r="4" fill="#c4b5fd"/><circle cx="495.2" cy="256.0" r="4" fill="#c4b5fd"/><circle cx="505.7" cy="256.0" r="4" fill="#c4b5fd"/><circle cx="516.1" cy="256.0" r="4" fill="#c4b5fd"/><circle cx="526.5" cy="256.0" r="4" fill="#c4b5fd"/><circle cx="536.9" cy="256.0" r="4" fill="#c4b5fd"/><circle cx="547.3" cy="256.0" r="4" fill="#c4b5fd"/></g>
+
+      <text x="464.0" y="345" text-anchor="end" transform="rotate(-38 464.0 345)" class="date">10/10</text>
+
+
+
+
+
+
+
+
+<text x="554.3" y="246.0" text-anchor="start" class="value">¥4464.34</text>
+      <text x="547.3" y="345" text-anchor="end" transform="rotate(-38 547.3 345)" class="date">10/18</text>
+      <text x="454" y="372" class="kind">Latest observed: 2026-10-18</text>
+
+
+  </g>
+<g>
+    <rect x="830" y="108" width="370" height="285" rx="24" class="panel"/>
+    <text x="854" y="142" class="category">Motherboard</text>
+    <text x="854" y="168" class="product">ASUS TUF GAMING B850M-PLUS WIFI7</text>
+    <line x1="854" y1="322" x2="1176" y2="322" class="axis"/>
+    <g clip-path="url(#plot-2)"><polyline points="864.0,279.2 874.4,279.2 916.1,280.1 926.5,280.1 936.9,280.1 947.3,280.1 957.7,280.1 1020.2,231.9 1072.3,231.9 1166.0,233.8" fill="none" stroke="#86efac" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="864.0" cy="279.2" r="4" fill="#86efac"/><circle cx="874.4" cy="279.2" r="4" fill="#86efac"/><circle cx="916.1" cy="280.1" r="4" fill="#86efac"/><circle cx="926.5" cy="280.1" r="4" fill="#86efac"/><circle cx="936.9" cy="280.1" r="4" fill="#86efac"/><circle cx="947.3" cy="280.1" r="4" fill="#86efac"/><circle cx="957.7" cy="280.1" r="4" fill="#86efac"/><circle cx="1020.2" cy="231.9" r="4" fill="#86efac"/><circle cx="1072.3" cy="231.9" r="4" fill="#86efac"/><circle cx="1166.0" cy="233.8" r="4" fill="#86efac"/></g>
+
+      <text x="864.0" y="345" text-anchor="end" transform="rotate(-38 864.0 345)" class="date">10/10</text>
+
+
+
+
+
+
+
+
+      <text x="1020.2" y="345" text-anchor="end" transform="rotate(-38 1020.2 345)" class="date">10/25</text>
+
+
+<text x="1159.0" y="223.8" text-anchor="end" class="value">¥1347</text>
+      <text x="1166.0" y="345" text-anchor="end" transform="rotate(-38 1166.0 345)" class="date">11/08</text>
+      <text x="854" y="372" class="kind">Latest observed: 2026-11-08</text>
+
+
+  </g>
+<g>
+    <rect x="30" y="427" width="370" height="285" rx="24" class="panel"/>
+    <text x="54" y="461" class="category">DRAM</text>
+    <text x="54" y="487" class="product">Kingston FURY Beast DDR5-6000 32GB</text>
+    <line x1="54" y1="641" x2="376" y2="641" class="axis"/>
+    <g clip-path="url(#plot-3)"></g>
+
+    <text x="215" y="581" text-anchor="middle" class="sparse">No same-SKU quote in 30 days</text>
+
+  </g>
+<g>
+    <rect x="430" y="427" width="370" height="285" rx="24" class="panel"/>
+    <text x="454" y="461" class="category">HDD</text>
+    <text x="454" y="487" class="product">Seagate IronWolf Pro 8TB ST8000NE001</text>
+    <line x1="454" y1="641" x2="776" y2="641" class="axis"/>
+    <g clip-path="url(#plot-4)"><polyline points="464.0,610.9 474.4,610.9 484.8,610.9 495.2,610.9 505.7,610.9 516.1,610.9 526.5,539.1 536.9,539.1 547.3,539.1 557.7,539.1 620.2,539.1 693.1,539.1 766.0,539.1" fill="none" stroke="#fcd34d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="464.0" cy="610.9" r="4" fill="#fcd34d"/><circle cx="474.4" cy="610.9" r="4" fill="#fcd34d"/><circle cx="484.8" cy="610.9" r="4" fill="#fcd34d"/><circle cx="495.2" cy="610.9" r="4" fill="#fcd34d"/><circle cx="505.7" cy="610.9" r="4" fill="#fcd34d"/><circle cx="516.1" cy="610.9" r="4" fill="#fcd34d"/><circle cx="526.5" cy="539.1" r="4" fill="#fcd34d"/><circle cx="536.9" cy="539.1" r="4" fill="#fcd34d"/><circle cx="547.3" cy="539.1" r="4" fill="#fcd34d"/><circle cx="557.7" cy="539.1" r="4" fill="#fcd34d"/><circle cx="620.2" cy="539.1" r="4" fill="#fcd34d"/><circle cx="693.1" cy="539.1" r="4" fill="#fcd34d"/><circle cx="766.0" cy="539.1" r="4" fill="#fcd34d"/></g>
+
+      <text x="464.0" y="664" text-anchor="end" transform="rotate(-38 464.0 664)" class="date">10/10</text>
+
+
+
+
+
+
+
+
+
+
+
+
+<text x="759.0" y="529.1" text-anchor="end" class="value">¥3550</text>
+      <text x="766.0" y="664" text-anchor="end" transform="rotate(-38 766.0 664)" class="date">11/08</text>
+      <text x="454" y="691" class="kind">Latest observed: 2026-11-08</text>
+
+
+  </g>
+<g>
+    <rect x="830" y="427" width="370" height="285" rx="24" class="panel"/>
+    <text x="854" y="461" class="category">SSD</text>
+    <text x="854" y="487" class="product">ZHITAI Ti600 2TB</text>
+    <line x1="854" y1="641" x2="1176" y2="641" class="axis"/>
+    <g clip-path="url(#plot-5)"><polyline points="864.0,545.5 874.4,545.5 884.8,580.9 895.2,580.9 905.7,545.5 916.1,604.5 926.5,604.5 936.9,545.5 947.3,545.5 957.7,604.5 1020.2,546.7 1093.1,604.5 1166.0,586.8" fill="none" stroke="#fdba74" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="864.0" cy="545.5" r="4" fill="#fdba74"/><circle cx="874.4" cy="545.5" r="4" fill="#fdba74"/><circle cx="884.8" cy="580.9" r="4" fill="#fdba74"/><circle cx="895.2" cy="580.9" r="4" fill="#fdba74"/><circle cx="905.7" cy="545.5" r="4" fill="#fdba74"/><circle cx="916.1" cy="604.5" r="4" fill="#fdba74"/><circle cx="926.5" cy="604.5" r="4" fill="#fdba74"/><circle cx="936.9" cy="545.5" r="4" fill="#fdba74"/><circle cx="947.3" cy="545.5" r="4" fill="#fdba74"/><circle cx="957.7" cy="604.5" r="4" fill="#fdba74"/><circle cx="1020.2" cy="546.7" r="4" fill="#fdba74"/><circle cx="1093.1" cy="604.5" r="4" fill="#fdba74"/><circle cx="1166.0" cy="586.8" r="4" fill="#fdba74"/></g>
+
+      <text x="864.0" y="664" text-anchor="end" transform="rotate(-38 864.0 664)" class="date">10/10</text>
+
+
+
+
+
+
+
+
+
+
+      <text x="957.7" y="664" text-anchor="end" transform="rotate(-38 957.7 664)" class="date">10/19</text>
+
+
+
+<text x="1159.0" y="576.8" text-anchor="end" class="value">¥1729</text>
+      <text x="1166.0" y="664" text-anchor="end" transform="rotate(-38 1166.0 664)" class="date">11/08</text>
+      <text x="854" y="691" class="kind">Latest observed: 2026-11-08</text>
+
+
+  </g>
+  <text x="30" y="739" class="subtitle">Source: data/deep-radar-hardware-prices-cn.json · Same-SKU observations only; missing quotes are not carried forward.</text>
+</svg>
