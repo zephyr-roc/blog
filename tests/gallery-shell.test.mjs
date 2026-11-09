@@ -29,8 +29,8 @@ test("EdgeOne keeps its Vinext server files while publishing static assets", asy
   assert.equal(Object.hasOwn(config, "framework"), false, "framework preset must be configured on EdgeOne project, not in edgeone.json");
   assert.equal(config.outputDirectory, "dist/client");
   assert.match(config.buildCommand, /pnpm build/);
-  assert.match(prepare, /Retained dist\\/server/);
-  assert.doesNotMatch(prepare, /await rm\\(path\\.join\\(root, "dist\\/server"/);
-  assert.match(prepare, /await rm\\(path\\.join\\(root, "dist\\/standalone"/);
-  assert.match(prepare, /await exportResponse\\(urlPath\\)/);
+  assert.match(prepare, /Retained dist\/server/);
+  assert.doesNotMatch(prepare, /await rm\(path\.join\(root, "dist\/server"/);
+  assert.match(prepare, /await rm\(path\.join\(root, "dist\/standalone"/);
+  assert.match(prepare, /await exportResponse\(urlPath\)/);
 });
