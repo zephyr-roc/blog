@@ -47,3 +47,34 @@ test("photo viewer hides both blog Navigation and gallery-open arrow", async () 
   assert.match(bridge, /afilmory:viewer-state/);
   assert.doesNotMatch(bridge, /\.pb-safe|blog:viewport/);
 });
+
+test("embedded viewport cover is applied only for an authenticated blog parent", async () => {
+  const { default: vm } = await import("node:vm");
+  const source = await read("public/afilmory-embed-bridge.js");
+  const createEnvironment = (referer) => {
+    const attrs = new Map([["content", "width=device-width, initial-scale=1"]]);
+    const meta = { getAttribute: (k) => attrs.get(k), setAttribute: (k, v) => attrs.set(k, v) };
+    const messages = [];
+    const win = {
+      parent: { postMessage: (data, origin) => messages.push({ data, origin }) },
+      location: { pathname: "/" },
+      history: { pushState() {}, replaceState() {} },
+      addEventListener() {},
+      setInterval() { return 1; },
+      clearInterval() {},
+    };
+    const doc = {
+      referrer: referer,
+      visibilityState: "visible",
+      querySelector: (selector) => selector === 'meta[name="viewport"]' ? meta : null,
+    };
+    const context = { window: win, document: doc, URL, Set, Number, queueMicrotask, console };
+    vm.runInNewContext(source, context);
+    return { meta, messages, attrs, win };
+  };
+  const embedded = createEnvironment("https://www.ready-jump.top/gallery");
+  assert.match(embedded.attrs.get("content"), /viewport-fit=cover/);
+  assert.equal((embedded.attrs.get("content").match(/viewport-fit/g) || []).length, 1);
+  const untrusted = createEnvironment("https://other.example/gallery");
+  assert.doesNotMatch(untrusted.attrs.get("content"), /viewport-fit/);
+});

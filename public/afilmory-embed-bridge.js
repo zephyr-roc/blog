@@ -13,6 +13,23 @@
     if (allowedParents.has(origin)) parentOrigin = origin;
   } catch { /* Use the validated parent handshake when referrer is unavailable. */ }
 
+  // Embedded Safari does not inherit the parent's viewport-fit=cover.
+  // Apply this only after verifying the parent is our blog; a standalone
+  // Afilmory window keeps its original viewport and all original styling.
+  const enableEmbeddedCover = () => {
+    if (!parentOrigin) return;
+    const meta = document.querySelector('meta[name="viewport"]');
+    if (!meta) return;
+    const content = meta.getAttribute("content") || "width=device-width, initial-scale=1";
+    if (/(?:^|,)\s*viewport-fit\s*=\s*cover\s*(?:,|$)/i.test(content)) return;
+    const cleaned = content
+      .replace(/(?:^|,)\s*viewport-fit\s*=\s*[^,]*/gi, "")
+      .replace(/^\s*,\s*|\s*,\s*$/g, "")
+      .trim();
+    meta.setAttribute("content", [cleaned, "viewport-fit=cover"].filter(Boolean).join(", "));
+  };
+  enableEmbeddedCover();
+
   const publish = (force = false) => {
     if (!parentOrigin) return;
     const path = window.location.pathname;
@@ -40,6 +57,7 @@
     if (event.data?.version !== 1 || event.data?.type !== "blog:request-viewer-state") return;
 
     parentOrigin = event.origin;
+    enableEmbeddedCover();
     window.parent.postMessage({ type: "afilmory:bridge-ready", version: 1 }, parentOrigin);
     publish(true);
   });

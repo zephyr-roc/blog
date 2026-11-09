@@ -6,17 +6,22 @@
 
 打开大图时同时隐藏博客 **Navigation** 和右侧 **独立打开箭头**，并设为 `inert`；关闭详情后两者恢复。
 
-仅博客的 `/gallery` 页面声明 `viewportFit: "cover"`，使 Safari 允许瀑布流真正铺到安全区最底部；照片详情仍采用 `100svh` 保证缩略图和直方图处于可视区域。Vinext 1.4.4 可直接序列化此元数据，不再需要构建后篡改 HTML。Afilmory 内部 CSS、安全区和照片内容保持不变，也不使用屏幕尺寸 JavaScript 拉伸 iframe。
+博客 `/gallery` 页面和**经来源校验的嵌入式 Afilmory 文档**都启用 `viewport-fit=cover`，以允许瀑布流尽可能延伸到 Safari 安全区域。桥接脚本只修改嵌入文档的 viewport 元数据，不更改图片栅格、`pb-20`、Afilmory 的滚动方式或独立窗口的布局。照片详情依旧由博客容器限制为 `100svh`，保护缩略图和直方图。iOS Safari 的跨域 iframe 合成层可能仍有裁切限制，必须真机确认绘制范围。
 
 ## Afilmory 必须加载桥接脚本
 
 `nas.afilmory.ready-jump.top` 与博客不同源，博客**无法自行读取 iframe 内的 URL 或照片详情状态**。必须在 NAS 自建 Afilmory 的 HTML 模板／可持久化启动补丁中注入：
 
 ```html
-<script defer src="https://www.ready-jump.top/afilmory-embed-bridge.js"></script>
+<script src="https://www.ready-jump.top/afilmory-embed-bridge.js"></script>
 ```
 
 这行脚本必须出现在 **Afilmory 实际返回的 HTML** 中，不能只放到博客页面。升级 Afilmory 时需保留注入方式。脚本只汇报 `/photos/:photoId` 是否打开，不修改任何布局或内边距。
+
+
+**Safari 关键点：** 建议把上面的脚本放在 NAS Afilmory HTML 的 `<head>` 中，紧跟 `<meta name="viewport" ...>` 之后、Afilmory 应用脚本之前，并**不要加 `defer`**。这样可尽早设置嵌入文档的 `viewport-fit=cover`，避免先用非全屏视口布局再调整。原站独立打开时脚本立即退出，不改变它的显示方式。现有 `defer` 注入如无法调整，也可以先验证，但 Safari 首次绘制可能已采用旧视口。
+
+验证时，请在浏览器开发工具中切到 Afilmory iframe 上下文，运行 `document.querySelector('meta[name="viewport"]')?.content`：嵌入时应包含 `viewport-fit=cover`；直接打开 Afilmory 时不应被桥接脚本修改。如果父页面 `document.body.dataset.galleryBridgeReady` 仍为 `"false"`，说明 NAS 尚未加载或成功执行桥接脚本。
 
 ## 验证
 
