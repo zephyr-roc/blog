@@ -4639,7 +4639,7 @@ a {
   .gallery-manager__actions { width: 100%; justify-content: flex-end; }
 }
 
-/* Afilmory owns scrolling. Use a route data attribute rather than :has()
+/* Afilmory owns scrolling; use a route data attribute rather than :has()
    so this also works in older Safari, Chrome and Firefox. */
 html[data-gallery-active="true"],
 html[data-gallery-active="true"] body {
