@@ -19,5 +19,5 @@ test("gallery shell renders only the embed and its two navigation controls", asy
   assert.match(chrome, /!isGallery && <BackToTopButton \/>/);
   assert.match(chrome, /!isGallery && footer/);
   assert.match(css, /\.experience-shell\.gallery-shell::before,[\s\S]*?content: none;/);
-  assert.match(css, /\.experience-shell\.gallery-shell\s*\{\s*background: #09090e;\s*background-image: none;/);
+  assert.match(css, /\.experience-shell\.gallery-shell\s*\{[\s\S]*?background: #09090e;\s*background-image: none;/);
 });
