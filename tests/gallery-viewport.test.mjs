@@ -16,11 +16,11 @@ test("gallery uses one native dynamic viewport in both list and photo detail", a
   assert.ok(start >= 0 && end > start);
   const galleryCss = css.slice(start, end);
 
-  assert.match(galleryCss, /\\.experience-shell\\.gallery-shell\\s*\\{[^}]*height: 100vh;\\s*height: 100dvh;/);
-  assert.match(galleryCss, /\\.gallery-embed\\s*\\{[^}]*position: relative;[^}]*height: 100%;/);
+  assert.match(galleryCss, /\.experience-shell\.gallery-shell\s*\{[^}]*height: 100vh;\s*height: 100dvh;/);
+  assert.match(galleryCss, /\.gallery-embed\s*\{[^}]*position: relative;[^}]*height: 100%;/);
   assert.doesNotMatch(galleryCss, /100lvh|100svh|visualViewport|--gallery-visual|--gallery-controls-reserve/);
-  assert.doesNotMatch(galleryCss, /body\\[data-gallery-viewer-open="true"\\] \\.gallery-shell/);
-  assert.doesNotMatch(viewport, /visualViewport|innerHeight|screenHeight|style\\.setProperty/);
+  assert.doesNotMatch(galleryCss, /body\[data-gallery-viewer-open="true"\] \.gallery-shell/);
+  assert.doesNotMatch(viewport, /visualViewport|innerHeight|screenHeight|style\.setProperty/);
   assert.doesNotMatch(button, /viewport-fit=cover/);
 });
 
