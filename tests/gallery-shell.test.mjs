@@ -42,5 +42,5 @@ test("Vinext never sees a conflicting public/_next directory", async () => {
     { code: "ENOENT" },
   );
   const ignore = await readFile(new URL(".gitignore", root), "utf8");
-  assert.match(ignore, /^\\/public\\/_next\\/$/m);
+  assert.match(ignore, /^\/public\/_next\/$/m);
 });
