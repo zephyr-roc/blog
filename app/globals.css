@@ -4639,9 +4639,11 @@ a {
   .gallery-manager__actions { width: 100%; justify-content: flex-end; }
 }
 
-/* The masonry view can extend behind Safari's browser chrome (large viewport).
-   Full-photo controls must stay in the small, unobscured viewport instead.
-   The iframe itself is never unmounted or reloaded on the mode change. */
+/* The masonry view fills Safari's large viewport, including beneath the
+   toolbar; the photo viewer uses the unobscured small viewport instead.
+   Give the iframe an EXPLICIT viewport height: Safari/WebKit can misresolve
+   height: 100% through nested containers, leaving much of the screen empty.
+   The iframe is not reloaded when switching modes. */
 html[data-gallery-active="true"],
 html[data-gallery-active="true"] body {
   overflow: hidden;
@@ -4670,28 +4672,33 @@ html[data-gallery-active="true"] body {
   background-image: none;
 }
 
-/* Only photo detail is constrained to Safari's unobscured safe viewport.
-   CSS viewport units provide a legacy fallback; no physical-screen JS math. */
-html[data-gallery-active="true"] body[data-gallery-viewer-open="true"] .experience-shell.gallery-shell {
-  height: 100vh;
-  height: 100svh;
-}
-
-/* Afilmory's own bottom controls belong to the iframe's viewport. */
+/* Position the iframe at the viewport origin; no percentage-height chain. */
 .gallery-embed {
-  position: relative;
+  position: absolute;
   z-index: 2;
+  inset: 0;
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  height: 100lvh;
   min-height: 0;
 }
 
 .gallery-embed__frame {
   display: block;
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  height: 100lvh;
   border: 0;
   background: #09090e;
+}
+
+/* Photo detail: reduce ALL three viewport heights together so Afilmory's
+   thumbnails, histogram and bottom controls remain above Safari's toolbar. */
+html[data-gallery-active="true"] body[data-gallery-viewer-open="true"] .experience-shell.gallery-shell,
+html[data-gallery-active="true"] body[data-gallery-viewer-open="true"] .gallery-embed,
+html[data-gallery-active="true"] body[data-gallery-viewer-open="true"] .gallery-embed__frame {
+  height: 100vh;
+  height: 100svh;
 }
 
 @media (max-width: 900px) {
