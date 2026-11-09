@@ -23,6 +23,9 @@ test("masonry iframe has explicit large viewport height, detail uses small viewp
   assert.doesNotMatch(galleryCss, /height: 100%;|100dvh|visualViewport|--gallery-visual|--gallery-controls-reserve/);
   assert.doesNotMatch(viewport, /visualViewport|innerHeight|screenHeight|style\.setProperty/);
   assert.doesNotMatch(button, /viewport-fit=cover/);
+  const galleryPage = await read("app/gallery/page.tsx");
+  assert.match(galleryPage, /viewportFit:\\s*"cover"/);
+  assert.match(galleryPage, /export const viewport: Viewport/);
   const prepare = await read("scripts/prepare-cloudflare.mjs");
   assert.doesNotMatch(prepare, /viewport-fit=cover/);
   assert.match(prepare, /Retained dist\/server/);

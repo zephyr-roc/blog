@@ -6,7 +6,7 @@
 
 打开大图时同时隐藏博客 **Navigation** 和右侧 **独立打开箭头**，并设为 `inert`；关闭详情后两者恢复。
 
-不修改 `viewport-fit`、Afilmory 内部 CSS、安全区或照片内容，也不通过屏幕尺寸 JavaScript 强行拉伸 iframe。
+仅博客的 `/gallery` 页面声明 `viewportFit: "cover"`，使 Safari 允许瀑布流真正铺到安全区最底部；照片详情仍采用 `100svh` 保证缩略图和直方图处于可视区域。Vinext 1.4.4 可直接序列化此元数据，不再需要构建后篡改 HTML。Afilmory 内部 CSS、安全区和照片内容保持不变，也不使用屏幕尺寸 JavaScript 拉伸 iframe。
 
 ## Afilmory 必须加载桥接脚本
 
