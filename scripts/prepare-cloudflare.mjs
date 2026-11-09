@@ -1,23 +1,9 @@
-import { readdir, readFile, writeFile, mkdir, access, copyFile } from "node:fs/promises";
+import { readdir, readFile, writeFile, mkdir, access, copyFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const assets = path.join(root, "dist/client");
-// Vinext beta omits viewportFit from its viewport serializer. Put cover in
-// the initial static document so Safari applies safe-area layout before the
-// iframe is created, rather than waiting for a client-side effect.
-const galleryFile = path.join(assets, "gallery.html");
-const galleryHtml = await readFile(galleryFile, "utf8");
-const viewportTags = galleryHtml.match(/<meta\b[^>]*\bname="viewport"[^>]*>/g) ?? [];
-if (viewportTags.length !== 1 || !/content="[^"]*"/.test(viewportTags[0])) {
-  throw new Error("Gallery must have exactly one viewport meta tag with content");
-}
-const galleryViewport = viewportTags[0].replace(/content="([^"]*)"/, (_, content) =>
-  `content="${content.replace(/,?\s*viewport-fit=[^,]+/g, "")}, viewport-fit=cover"`,
-);
-await writeFile(galleryFile, galleryHtml.replace(viewportTags[0], galleryViewport));
-
 const fontFile = path.join(root, ".vinext/NotoSansCJKsc-Regular.otf");
 await mkdir(path.dirname(fontFile), { recursive: true });
 try { await access(fontFile); }
@@ -134,3 +120,12 @@ console.log(`Cloudflare static build ready: ${pages} HTML pages, ${postKeys.leng
 const deployDirectory = path.join(root, ".wrangler/deploy");
 await mkdir(deployDirectory, { recursive: true });
 await writeFile(path.join(deployDirectory, "config.json"), JSON.stringify({ configPath: "../../wrangler.static.jsonc" }));
+
+// The runtime SSR bundle is only needed above to render the static pages,
+// feed and social images. Neither EdgeOne's dist/client output nor Cloudflare's
+// static Worker needs it after export. Remove it so deployment builders don't
+// accidentally package a large Node SSR function with the static site.
+await rm(path.join(root, "dist/server"), { recursive: true, force: true });
+await rm(path.join(root, "dist/standalone"), { recursive: true, force: true });
+console.log("Pruned build-only SSR output; deploy dist/client as static assets.");
+

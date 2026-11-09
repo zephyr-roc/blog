@@ -22,6 +22,9 @@ test("gallery uses one native dynamic viewport in both list and photo detail", a
   assert.doesNotMatch(galleryCss, /body\[data-gallery-viewer-open="true"\] \.gallery-shell/);
   assert.doesNotMatch(viewport, /visualViewport|innerHeight|screenHeight|style\.setProperty/);
   assert.doesNotMatch(button, /viewport-fit=cover/);
+  const prepare = await read("scripts/prepare-cloudflare.mjs");
+  assert.doesNotMatch(prepare, /viewport-fit=cover/);
+  assert.match(prepare, /rm\(path\.join\(root, "dist\/server"\)/);
 });
 
 test("viewer messages only hide blog Navigation, not the gallery window button", async () => {
