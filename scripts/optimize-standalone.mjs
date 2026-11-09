@@ -71,6 +71,12 @@ export async function optimizeStandalone(root = process.cwd(), log = console.log
   await deduplicatePublic(standalone, saved);
   const after = await folderSize(standalone);
   log('[standalone] ' + human(before.bytes) + ' -> ' + human(after.bytes) + ', saved ' + human(before.bytes - after.bytes) + ' (' + saved.count + ' non-runtime/duplicate files)');
+  // These groups correspond to the files the EdgeOne SSR adapter may package.
+  // A category view makes the 128 MiB limit diagnosable beyond a file top-N.
+  for (const segment of ['node_modules', 'dist/server', 'dist/client', 'public']) {
+    const category = await folderSize(path.join(standalone, segment));
+    log('[standalone] category ' + segment + ': ' + human(category.bytes) + ' (' + category.count + ' files)');
+  }
   const files = [];
   await visit(standalone, async file => files.push({ file: path.relative(standalone, file), bytes: (await stat(file)).size }));
   for (const item of files.sort((a, b) => b.bytes - a.bytes).slice(0, 15)) {
