@@ -22,12 +22,15 @@ test("gallery shell renders only the embed and its two navigation controls", asy
   assert.match(css, /\.experience-shell\.gallery-shell\s*\{[\s\S]*?background: #09090e;\s*background-image: none;/);
 });
 
-test("EdgeOne publishes the static client output instead of Vinext SSR", async () => {
+test("EdgeOne keeps its Vinext server files while publishing static assets", async () => {
   const config = JSON.parse(await readFile(new URL("edgeone.json", root), "utf8"));
   const prepare = await readFile(new URL("scripts/prepare-cloudflare.mjs", root), "utf8");
 
   assert.equal(Object.hasOwn(config, "framework"), false, "framework preset must be configured on EdgeOne project, not in edgeone.json");
   assert.equal(config.outputDirectory, "dist/client");
   assert.match(config.buildCommand, /pnpm build/);
-  assert.match(prepare, /rm\(path\.join\(root, "dist\/server"\)/);
+  assert.match(prepare, /Retained dist\\/server/);
+  assert.doesNotMatch(prepare, /await rm\\(path\\.join\\(root, "dist\\/server"/);
+  assert.match(prepare, /await rm\\(path\\.join\\(root, "dist\\/standalone"/);
+  assert.match(prepare, /await exportResponse\\(urlPath\\)/);
 });

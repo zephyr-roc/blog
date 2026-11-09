@@ -1,4 +1,4 @@
-import { readdir, readFile, writeFile, mkdir, access, copyFile, rm } from "node:fs/promises";
+import { readdir, readFile, writeFile, mkdir, access, copyFile, rm, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -121,11 +121,40 @@ const deployDirectory = path.join(root, ".wrangler/deploy");
 await mkdir(deployDirectory, { recursive: true });
 await writeFile(path.join(deployDirectory, "config.json"), JSON.stringify({ configPath: "../../wrangler.static.jsonc" }));
 
-// The runtime SSR bundle is only needed above to render the static pages,
-// feed and social images. Neither EdgeOne's dist/client output nor Cloudflare's
-// static Worker needs it after export. Remove it so deployment builders don't
-// accidentally package a large Node SSR function with the static site.
-await rm(path.join(root, "dist/server"), { recursive: true, force: true });
+// All HTML, feeds and OG/Twitter cards were generated above at build time.
+// EdgeOne's Vinext adapter checks for both dist/client and dist/server. Keep
+// the actual Vinext server bundle intact; removing it caused deployment to
+// fail even though all 209 pages were statically exported.
+//
+// The standalone Node package is a separate, duplicate server distribution
+// which is not used by the EdgeOne adapter or the Cloudflare static Worker.
+// Source maps are optional debug output, not imports or runtime dependencies.
+const serverDir = path.join(root, "dist/server");
+await access(path.join(serverDir, "index.js"));
 await rm(path.join(root, "dist/standalone"), { recursive: true, force: true });
-console.log("Pruned build-only SSR output; deploy dist/client as static assets.");
+
+const files = [];
+async function inspectServer(directory) {
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const absolute = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      await inspectServer(absolute);
+    } else if (entry.isFile()) {
+      if (entry.name.endsWith(".map")) {
+        await rm(absolute);
+        continue;
+      }
+      const size = (await stat(absolute)).size;
+      files.push({ name: path.relative(serverDir, absolute), size });
+    }
+  }
+}
+await inspectServer(serverDir);
+const totalServerSize = files.reduce((sum, file) => sum + file.size, 0);
+const prettySize = bytes => `${(bytes / 1024 / 1024).toFixed(2)} MiB`;
+console.log(`Retained dist/server: ${files.length} files, ${prettySize(totalServerSize)} (excluding source maps).`);
+for (const file of files.sort((a, b) => b.size - a.size).slice(0, 12)) {
+  console.log(`  SSR file: ${prettySize(file.size)}  ${file.name}`);
+}
+console.log("All social cards are pre-rendered in dist/client; deploy still targets dist/client.");
 
