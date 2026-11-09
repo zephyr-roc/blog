@@ -1,15 +1,23 @@
-# Afilmory 详情与 Blog 底栏联动
+# Afilmory 详情与博客 Navigation 联动
 
-Blog 的 iframe 接收端已支持：照片详情打开时隐藏导航与独立打开按钮，关闭时恢复。当前 Afilmory 页面未发送状态事件，所以需要在 **NAS 的 Afilmory HTML 模板**（现有自建启动补丁中）加入一次：
+博客的 `/gallery` 页面现在只负责嵌入 Afilmory，并保留底部 Navigation 与独立打开箭头。**不再修改 Safari 的 viewport-fit、iframe 高度或 Afilmory 内部的安全区**；iframe 默认使用较保守的 `100svh`（旧浏览器回退 `100vh`），让浏览器工具栏占据自己的空间。
+
+打开大图时，仅隐藏博客的 **Navigation**；关闭大图后恢复。右侧独立打开箭头保持不变。
+
+## Afilmory 必须加载桥接脚本
+
+`nas.afilmory.ready-jump.top` 与博客不同源，博客**无法自行读取 iframe 内的 URL 或照片详情状态**。必须在 NAS 自建 Afilmory 的 HTML 模板／可持久化启动补丁中注入：
 
 ```html
 <script defer src="https://www.ready-jump.top/afilmory-embed-bridge.js"></script>
 ```
 
-放在 Afilmory 的应用脚本附近即可。应修改自建启动补丁或服务端 HTML 模板，让容器更新后仍保留；不要只手改一次运行中容器的文件。此脚本随 Blog 发布，直接在新窗口打开 Afilmory 时不会执行联动逻辑。
+这行脚本必须出现在 **Afilmory 实际返回的 HTML** 中，不能只放到博客页面。升级 Afilmory 时需保留注入方式。脚本只汇报 `/photos/:photoId` 是否打开，不修改任何布局或内边距。
 
-脚本根据当前 Afilmory 的 `/photos/:photoId` 路由，在 pushState、replaceState 和返回/前进时通知父窗口。不轮询照片、不传图片或个人信息，只发送打开/关闭状态。只向 ready-jump.top / www.ready-jump.top 发送通知；Blog 校验来源域名、iframe 窗口、协议版本和布尔字段。
+## 验证
 
-验收：从 Blog 进入画廊，点照片后底栏和箭头淡出；关闭详情、浏览器后退后恢复。刷新 iframe 或从照片链接直接进入时也应同步状态。升级 Afilmory 若更改照片路由，需要同步更新桥接脚本。
+在 Afilmory iframe 执行上下文中运行 `window.__BLOG_GALLERY_BRIDGE__`，预期为 `true`。
 
-没有安装这行脚本时，Blog 保持底栏可见，避免把普通画廊点击误判成打开详情。
+在博客父页面控制台中运行 `document.body.dataset.galleryBridgeReady`，预期为 `"true"`。打开照片时 `document.body.dataset.galleryViewerOpen` 应变为 `"true"`，关闭后恢复为 `"false"`。
+
+如果脚本未注入，Navigation 无法根据跨域 iframe 的照片状态隐藏。不要通过 iframe 点击或获得焦点推断照片已打开，这会误隐藏普通画廊浏览时的 Navigation。
