@@ -26,7 +26,7 @@ test("EdgeOne publishes the static client output instead of Vinext SSR", async (
   const config = JSON.parse(await readFile(new URL("edgeone.json", root), "utf8"));
   const prepare = await readFile(new URL("scripts/prepare-cloudflare.mjs", root), "utf8");
 
-  assert.equal(config.framework, "other");
+  assert.equal(Object.hasOwn(config, "framework"), false, "framework preset must be configured on EdgeOne project, not in edgeone.json");
   assert.equal(config.outputDirectory, "dist/client");
   assert.match(config.buildCommand, /pnpm build/);
   assert.match(prepare, /rm\(path\.join\(root, "dist\/server"\)/);
