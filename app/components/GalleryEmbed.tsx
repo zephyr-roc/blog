@@ -40,12 +40,14 @@ export function GalleryEmbed() {
 
   useEffect(() => {
     document.body.dataset.galleryViewerOpen = String(viewerOpen);
-    const navigation = document.querySelector<HTMLElement>(".liquid-navigation");
-    const priorInert = navigation?.inert;
-    if (navigation) navigation.inert = viewerOpen || Boolean(priorInert);
+    const controls = [...document.querySelectorAll<HTMLElement>(".liquid-navigation, .gallery-open-button")];
+    const priorInert = controls.map(control => control.inert);
+    controls.forEach((control, index) => {
+      control.inert = viewerOpen || priorInert[index];
+    });
     return () => {
       delete document.body.dataset.galleryViewerOpen;
-      if (navigation && priorInert !== undefined) navigation.inert = priorInert;
+      controls.forEach((control, index) => { control.inert = priorInert[index]; });
     };
   }, [viewerOpen]);
 

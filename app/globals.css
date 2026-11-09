@@ -4639,9 +4639,9 @@ a {
   .gallery-manager__actions { width: 100%; justify-content: flex-end; }
 }
 
-/* Let the browser determine the gallery viewport, just like Afilmory.
-   Dynamic viewport height applies to both the gallery and the photo viewer;
-   no safe-area or photo-state-specific size adjustments are necessary. */
+/* The masonry view can extend behind Safari's browser chrome (large viewport).
+   Full-photo controls must stay in the small, unobscured viewport instead.
+   The iframe itself is never unmounted or reloaded on the mode change. */
 html[data-gallery-active="true"],
 html[data-gallery-active="true"] body {
   overflow: hidden;
@@ -4663,11 +4663,18 @@ html[data-gallery-active="true"] body {
   overflow: hidden;
   width: 100%;
   height: 100vh;
-  height: 100dvh;
+  height: 100lvh;
   min-height: 0;
   padding: 0;
   background: #09090e;
   background-image: none;
+}
+
+/* Only photo detail is constrained to Safari's unobscured safe viewport.
+   CSS viewport units provide a legacy fallback; no physical-screen JS math. */
+html[data-gallery-active="true"] body[data-gallery-viewer-open="true"] .experience-shell.gallery-shell {
+  height: 100vh;
+  height: 100svh;
 }
 
 /* Afilmory's own bottom controls belong to the iframe's viewport. */
@@ -4851,14 +4858,16 @@ html[data-gallery-active="true"] body {
   opacity: 0;
 }
 
-body[data-gallery-viewer-open="true"] .liquid-navigation {
+body[data-gallery-viewer-open="true"] .liquid-navigation,
+body[data-gallery-viewer-open="true"] .gallery-open-button {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
   transform: translateY(24px) scale(.96);
 }
 
-body[data-gallery-viewer-open] .liquid-navigation {
+body[data-gallery-viewer-open] .liquid-navigation,
+body[data-gallery-viewer-open] .gallery-open-button {
   transition: opacity 220ms ease, visibility 220ms ease, transform 280ms cubic-bezier(.2,.8,.2,1);
 }
 
@@ -4877,7 +4886,8 @@ body[data-gallery-viewer-open] .liquid-navigation {
   .liquid-navigation__label,
   .liquid-navigation__refraction,
   .liquid-navigation__indicator,
-  body[data-gallery-viewer-open] .liquid-navigation {
+  body[data-gallery-viewer-open] .liquid-navigation,
+  body[data-gallery-viewer-open] .gallery-open-button {
     transition: none;
   }
 }
