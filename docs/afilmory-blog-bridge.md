@@ -1,6 +1,6 @@
 # Afilmory 详情与博客 Navigation 联动
 
-博客的 `/gallery` 页面现在只负责嵌入 Afilmory，并保留底部 Navigation 与独立打开箭头。**不再修改 Safari 的 viewport-fit、iframe 高度或 Afilmory 内部的安全区**；iframe 默认使用较保守的 `100svh`（旧浏览器回退 `100vh`），让浏览器工具栏占据自己的空间。
+博客的 `/gallery` 页面现在只负责嵌入 Afilmory，并保留底部 Navigation 与独立打开箭头。**不修改 Safari 的 `viewport-fit`、Afilmory 内部安全区或 iframe 内容**。普通画廊列表允许使用 `100lvh` 延伸到浏览器底部安全区；当照片详情打开时，外层容器自动缩为 `100svh`，不再压到 Safari 工具栏之下（旧浏览器回退 `100vh`）。iframe 本身不卸载、不重新加载。
 
 打开大图时，仅隐藏博客的 **Navigation**；关闭大图后恢复。右侧独立打开箭头保持不变。
 

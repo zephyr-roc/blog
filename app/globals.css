@@ -4639,9 +4639,9 @@ a {
   .gallery-manager__actions { width: 100%; justify-content: flex-end; }
 }
 
-/* Afilmory owns its scrolling and viewport. Use the small viewport so the
-   iframe never extends below Safari's visible browser toolbar. Do not manually
-   stretch the iframe or add a second safe-area offset. */
+/* Gallery list may extend into the browser's bottom safe area. The photo
+   viewer must instead fit Safari's smallest unobscured viewport. Keep all
+   sizing in CSS so the iframe never remounts when the viewer opens. */
 html[data-gallery-active="true"],
 html[data-gallery-active="true"] body {
   overflow: hidden;
@@ -4663,11 +4663,18 @@ html[data-gallery-active="true"] body {
   overflow: hidden;
   width: 100%;
   height: 100vh;
-  height: 100svh;
+  height: 100lvh;
   min-height: 0;
   padding: 0;
   background: #09090e;
   background-image: none;
+}
+
+/* When Afilmory opens a full photo, do not let its thumbnail strip, metadata,
+   histogram or other fixed bottom controls fall beneath Safari's toolbar. */
+html[data-gallery-active="true"] body[data-gallery-viewer-open="true"] .gallery-shell {
+  height: 100vh;
+  height: 100svh;
 }
 
 /* Afilmory's own bottom controls belong to the iframe's viewport. */
