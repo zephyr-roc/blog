@@ -46,3 +46,7 @@ yarn-error.log*
 /gallery/source/nas/
 /gallery/source/nas-manifest.json
 /gallery/source/.nas-staging-*/
+
+# Vinext/Next internal assets are generated into dist/client/_next at build.
+# Do not keep manually copied legacy chunks inside public/_next.
+/public/_next/

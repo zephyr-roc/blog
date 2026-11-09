@@ -34,3 +34,13 @@ test("EdgeOne builds the optimized standalone package while Cloudflare stays sta
   assert.match(prepare, /await rm\(path\.join\(root, "dist\/standalone"/);
   assert.match(prepare, /await exportResponse\(urlPath\)/);
 });
+
+test("Vinext never sees a conflicting public/_next directory", async () => {
+  const { stat } = await import("node:fs/promises");
+  await assert.rejects(
+    stat(new URL("public/_next", root)),
+    { code: "ENOENT" },
+  );
+  const ignore = await readFile(new URL(".gitignore", root), "utf8");
+  assert.match(ignore, /^\\/public\\/_next\\/$/m);
+});
