@@ -4655,6 +4655,19 @@ body:has(.gallery-shell) > .back-to-top-button {
   display: none;
 }
 
+/* The gallery is an embedded app, not a decorative blog surface.
+   No grid, stars, grain or gradient should render behind Afilmory. */
+.experience-shell.gallery-shell::before,
+.experience-shell.gallery-shell::after {
+  content: none;
+  display: none;
+}
+
+.experience-shell.gallery-shell {
+  background: #09090e;
+  background-image: none;
+}
+
 .experience-shell.gallery-shell {
   display: flex;
   flex-direction: column;

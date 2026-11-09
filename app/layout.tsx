@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import "@fontsource-variable/jetbrains-mono";
-import { BackToTopButton } from "./components/BackToTopButton";
-import { GlassMotionController } from "./components/GlassMotionController";
-import { LiquidGlassNavigation } from "./components/LiquidGlassNavigation";
+import { SiteChrome } from "./components/SiteChrome";
 import {
   serializeJsonLd,
   SITE_DESCRIPTION,
@@ -84,10 +82,8 @@ export default function RootLayout({
       </head>
       <body>
         {children}
-        <GlassMotionController />
-        <LiquidGlassNavigation />
-        <BackToTopButton />
-        <footer className="global-footer" data-nosnippet style={{ textAlign: "center", padding: "4rem 1rem 8rem", fontSize: "0.75rem", color: "rgba(255,255,255,0.4)" }}>
+        <SiteChrome footer={
+          <footer className="global-footer" data-nosnippet style={{ textAlign: "center", padding: "4rem 1rem 8rem", fontSize: "0.75rem", color: "rgba(255,255,255,0.4)" }}>
           <div style={{ marginBottom: "1.5rem" }}>
             <p style={{ margin: "0 0 0.75rem", opacity: 0.5, letterSpacing: "0.05em" }}>友情链接</p>
             <div style={{ display: "flex", justifyContent: "center", gap: "1.5rem", flexWrap: "wrap" }}>
@@ -118,7 +114,8 @@ export default function RootLayout({
               Copyright © 2026 Zephyr
             </a>
           </div>
-        </footer>
+          </footer>
+        } />
       </body>
     </html>
   );
