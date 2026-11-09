@@ -1,59 +1,27 @@
-# EdgeOne 自动构建：Vinext 静态导出
+# EdgeOne Vinext Standalone 自动部署
 
-本项目仍由 EdgeOne Git 集成自动构建和部署，不使用“直接上传”项目，也不需要手动下载 GitHub Actions 构建包。
+保留 EdgeOne 原有 Git 集成、Vinext 框架和 **standalone 目录**，不使用手动上传。Vinext 官方 standalone 产物位于 `dist/standalone`。
 
-## 构建配置
+## EdgeOne 构建设置
 
-仓库根目录 `edgeone.json`：
+根目录 `./`，安装 `pnpm install --frozen-lockfile`，构建命令 `SHOW_ICP=1 pnpm build:edgeone`，输出目录 `dist/standalone`。配置在仓库 `edgeone.json`，与上述一致。Node.js 构建版本建议 24.x。
 
-```json
-{
-  "buildCommand": "SHOW_ICP=1 pnpm build",
-  "outputDirectory": "dist/client"
-}
-```
+**两套构建相互独立：**
 
-安装命令为 `pnpm install --frozen-lockfile`，包管理器 pnpm 11。Node.js 最好选 24.x；若日志仍提示 Node 22 的 engine warning，只要后续构建成功，它不是当前的阻塞点。
+- EdgeOne：`pnpm build:edgeone` → Vinext `output: standalone` → 自动执行 `scripts/optimize-standalone.mjs`。
+- Cloudflare：原本的 `pnpm build` 仍然静态导出 `dist/client`、194 篇文章和 388 张分享图，不修改 Cloudflare 部署流程。
 
-项目仍使用 Vinext（Vite 8 + React 19），静态页面采用 `output: "export"`，CSS/JS、HTML、RSC、RSS、站点地图、分享图等由 `dist/client` 提供。备案号在 EdgeOne 构建中由 `SHOW_ICP=1` 启用。不要添加伪造的 `next.config.*` 或 `.next` 清单。
+## 155 MiB → 128 MiB 的产物优化
 
-## SSR 产物与 128 MiB 限制
+Vinext standalone 会复制客户端资源、`public`、服务端及其运行依赖。优化器在 **Vinext 构建和 standalone 拷贝结束之后**执行：
 
-在 2026 年 11 月的构建日志中：
+1. 删除 `dist/standalone/node_modules` 中的 source map、`.d.ts` 类型声明、测试目录、说明文档等非运行时内容。
+2. 删除 standalone 服务端和根 `dist/server` 的 source map；**不删除实际 JS 服务端入口**。
+3. 将 `dist/standalone/public` 与 `dist/standalone/dist/client` 相同路径、相同大小、SHA-256 相同的文件去重，仅删除重复的 `public` 副本。Vinext Node 服务从 `dist/client` 提供静态资源。
+4. **保留**运行时 JS、JSON、WASM、原生 `.node`、字体以及不重复的图片和资源；不清理未知作用的依赖。
 
-- `Prerendered 209 routes`
-- `194 article keys`
-- `388 social images`
+EdgeOne 日志会出现 `[standalone] 155.xx MiB -> ... MiB` 与最大的 15 个文件。这里是 standalone 目录大小，EdgeOne 最终 SSR Function 打包体积仍可能有所不同。
 
-分享卡片已经在 `scripts/prepare-cloudflare.mjs` **构建阶段生成到 `dist/client`**，并不需要在用户请求时运行 `next/og` SSR。RSS、sitemap、robots 同样在构建时导出。
+**限制：** 没有完整 EdgeOne 打包产物，因此目前不能保证一次降至 128 MiB。如果日志仍超过限制，应以优化器提供的文件排名判断下一轮精简点，而不是直接删除 `node_modules` 或禁用照片/分享图。
 
-然而 EdgeOne 的构建后检测仍要求同时存在 `dist/client` 与 `dist/server`，所以不能删除 `dist/server`；这样做会报：
-
-```text
-[StaticAssetsBuilder][✘] Vinext build did not emit dist/client and dist/server
-```
-
-当前构建脚本完成分享图导出后：
-
-1. **保留真实的 `dist/server`** 和所有运行时 JS 依赖，不用空文件假装 SSR 入口；
-2. 移除可选的 `*.map` 服务端 source map；
-3. 删除重复的 `dist/standalone` Node 发行包；
-4. 输出 `Retained dist/server: ... MiB` 及 12 个最大的服务器端文件，供下一轮体积优化定位。
-
-**注意：** Vinext 的 SSR Node Function 在 EdgeOne 最终打包时可能还会被追踪 `node_modules` 等依赖，因此 `dist/server` 的目录大小**不等于**平台最终检测的函数包大小。此前平台曾提示 155 MiB > 128 MiB，本轮的安全清理不能保证最终降到 128 MiB 以下。如果还有体积错误，应该根据新的 Top 12 文件和打包日志针对性剔除构建期依赖，而非破坏服务器依赖图。
-
-EdgeOne 静态托管不运行 `worker/static.ts`（这个文件只用于 Cloudflare D1 点赞 API）；迁移域名时还需确认点赞的 API 回源、文章直达路径、分享图 MIME、重定向与画廊。
-
-## 排查与验证
-
-保留构建命令 `SHOW_ICP=1 pnpm build`、输出 `dist/client`，并在 EdgeOne Git 部署日志中核对：
-
-```text
-Cloudflare static build ready: ...
-Retained dist/server: ... MiB
-All social cards are pre-rendered in dist/client
-```
-
-若依旧有 `Cloud SSR Node functions package size exceeds 128MiB limit`，继续排查服务器依赖尺寸；若仍有 `Vinext build did not emit dist/client and dist/server`，则检查构建是否真的使用到本次更新的 commit。
-
-Safari 画廊不会再被构建脚本强制注入 `viewport-fit=cover`；这和 SSR 包体积是独立问题。
+分享图预渲染对 Cloudflare 静态构建已完成；Standalone 的 `next/og` 路由是否可完全移出服务端依赖需要单独验证，不能只删除 `@vercel/og`，否则可能导致分享图返回 500。
