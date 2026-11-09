@@ -1,51 +1,43 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { galleryInteractiveHeight, galleryPaintHeight } from "../app/lib/gallery-viewport.mjs";
+import { readFile } from "node:fs/promises";
+import { galleryViewportRect } from "../app/lib/gallery-viewport.mjs";
 
-const phone = {
-  isPhone: true, standalone: false, scale: 1,
-  width: 393, height: 738, screenWidth: 393, screenHeight: 852, safeTop: 59,
-};
+const root = new URL("../", import.meta.url);
 
-test("covers the area below Safari's reported viewport without counting the status area twice", () => {
-  assert.equal(galleryPaintHeight(phone), 793);
-  assert.equal(galleryPaintHeight({ ...phone, height: 810 }), 810);
+test("follows the actual visual viewport rather than full physical screen height", () => {
+  assert.deepEqual(galleryViewportRect({
+    visualHeight: 738, visualWidth: 393, visualOffsetTop: 0,
+    layoutHeight: 852, layoutWidth: 393,
+  }), { top: 0, left: 0, width: 393, height: 738, layoutHeight: 738 });
 });
 
-test("recalculates for a full-width landscape window", () => {
-  assert.equal(galleryPaintHeight({ ...phone, width: 852, screenWidth: 852, height: 320, screenHeight: 393, safeTop: 0 }), 393);
+test("moves with a changing toolbar or keyboard without extending the iframe", () => {
+  assert.deepEqual(galleryViewportRect({
+    visualHeight: 620, visualWidth: 393, visualOffsetTop: 12,
+    layoutHeight: 852, layoutWidth: 393,
+  }), { top: 12, left: 0, width: 393, height: 620, layoutHeight: 632 });
 });
 
-test("does not impose physical screen height on desktop, split windows, standalone or zoomed pages", () => {
-  for (const patch of [{ isPhone: false }, { width: 320 }, { standalone: true }, { scale: 2 }]) {
-    assert.equal(galleryPaintHeight({ ...phone, ...patch }), null);
-  }
+test("supports browsers without visualViewport and avoids zoom-dependent resizing", () => {
+  assert.deepEqual(galleryViewportRect({
+    layoutHeight: 800, layoutWidth: 1200,
+  }), { top: 0, left: 0, width: 1200, height: 800, layoutHeight: 800 });
+  assert.deepEqual(galleryViewportRect({
+    visualHeight: 320, visualWidth: 250, visualScale: 2,
+    layoutHeight: 780, layoutWidth: 390,
+  }), { top: 0, left: 0, width: 390, height: 780, layoutHeight: 780 });
+  assert.equal(galleryViewportRect({ layoutHeight: 0, layoutWidth: 0 }), null);
 });
 
-test("ignores unusable screen and safe-area measurements", () => {
-  for (const patch of [{ screenHeight: 0 }, { width: NaN }, { scale: NaN }, { safeTop: -1 }, { safeTop: 852 }]) {
-    assert.equal(galleryPaintHeight({ ...phone, ...patch }), null);
-  }
-});
-
-
-test("keeps the iframe aligned with the visual viewport without double-subtracting safe area", () => {
-  assert.equal(galleryInteractiveHeight({
-    visualHeight: 738,
-    visualOffsetTop: 0,
-    layoutHeight: 852,
-  }), 738);
-
-  assert.equal(galleryInteractiveHeight({
-    visualHeight: 738,
-    visualOffsetTop: 12,
-    layoutHeight: 852,
-  }), 750);
-});
-
-test("falls back to the layout viewport when visualViewport is unavailable", () => {
-  assert.equal(galleryInteractiveHeight({
-    visualHeight: undefined,
-    layoutHeight: 800,
-  }), 800);
+test("gallery viewport CSS has modern, legacy and no-clipping fallbacks", async () => {
+  const css = await readFile(new URL("app/globals.css", root), "utf8");
+  const component = await readFile(new URL("app/components/GalleryViewport.tsx", root), "utf8");
+  const galleryCss = css.slice(css.indexOf("/* Afilmory owns scrolling;"));
+  assert.doesNotMatch(galleryCss, /100lvh|contain: strict|contain: layout paint style/);
+  assert.match(galleryCss, /position: absolute;[\s\S]*?z-index: 2/);
+  assert.match(galleryCss, /height: 100vh;[\s\S]*?height: 100svh;[\s\S]*?height: 100dvh;/);
+  assert.match(galleryCss, /gallery-controls-reserve/);
+  assert.match(component, /visualViewport\?\.addEventListener\("resize", schedule\)/);
+  assert.match(component, /visualViewport\?\.addEventListener\("scroll", schedule\)/);
 });
