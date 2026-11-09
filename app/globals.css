@@ -4717,6 +4717,15 @@ html[data-gallery-active="true"] body[data-gallery-viewer-open="true"] .gallery-
     bottom: max(12px, env(safe-area-inset-bottom));
   }
 
+  /* QQ's iOS in-app WebView has no bottom browser toolbar here. It can
+     already reserve part of the home-indicator area, so applying the entire
+     safe-area inset again lifts both floating controls unnecessarily.
+     Keep a minimum 12px margin; adjust only this embedded QQ context. */
+  html[data-gallery-active="true"][data-gallery-ios-qq="true"] body .liquid-navigation,
+  html[data-gallery-active="true"][data-gallery-ios-qq="true"] body .gallery-open-button {
+    bottom: max(12px, calc(env(safe-area-inset-bottom, 0px) - 14px));
+  }
+
   html[data-gallery-active="true"] body .liquid-navigation__surface {
     --segment-width: min(104px, calc((100vw - 130px - env(safe-area-inset-left) - env(safe-area-inset-right)) / 5));
     --surface-padding: 6px;

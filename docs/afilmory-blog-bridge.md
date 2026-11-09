@@ -30,3 +30,7 @@
 在博客父页面控制台中运行 `document.body.dataset.galleryBridgeReady`，预期为 `"true"`。打开照片时 `document.body.dataset.galleryViewerOpen` 应变为 `"true"`，关闭后恢复为 `"false"`。
 
 如果脚本未注入，Navigation 无法根据跨域 iframe 的照片状态隐藏。不要通过 iframe 点击或获得焦点推断照片已打开，这会误隐藏普通画廊浏览时的 Navigation。
+
+## QQ iOS 内置浏览器的浮动控件高度
+
+如果通过 iOS QQ 内置 WebView 打开 `/gallery`，而 QQ 本身没有底部浏览器工具栏，仍可能出现 Navigation 与右侧独立打开箭头被 `env(safe-area-inset-bottom)` 额外抬高。博客只对 QQ App 的 iOS User-Agent（而非独立 QQ 浏览器、Safari 或 Android QQ）启用修正：在保留至少 12px 底部间距的前提下，从报告的安全区值中减去 14px。两个控件使用同一偏移量并继续保持相互对齐；大图时仍同时隐藏。这个兼容修正不改变 iframe 本身的高度或 Afilmory 安全区逻辑。

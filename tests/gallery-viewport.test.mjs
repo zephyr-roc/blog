@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
+import { isIosQQInAppBrowser } from "../app/lib/gallery-browser.mjs";
 
 const root = new URL("../", import.meta.url);
 const read = name => readFile(new URL(name, root), "utf8");
@@ -77,4 +78,21 @@ test("embedded viewport cover is applied only for an authenticated blog parent",
   assert.equal((embedded.attrs.get("content").match(/viewport-fit/g) || []).length, 1);
   const untrusted = createEnvironment("https://other.example/gallery");
   assert.doesNotMatch(untrusted.attrs.get("content"), /viewport-fit/);
+});
+
+test("only iOS QQ in-app gallery shifts its floating controls closer to the bottom", async () => {
+  const qq = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 QQ/9.1.75.604 Core/WKWebView";
+  const qqBrowser = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 MQQBrowser/16.1 Mobile Safari/604.1";
+  const safari = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 Version/17.4 Mobile/15E148 Safari/604.1";
+  const androidQQ = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Mobile Safari/537.36 QQ/9.1.75.604";
+  assert.equal(isIosQQInAppBrowser(qq), true);
+  assert.equal(isIosQQInAppBrowser(safari), false);
+  assert.equal(isIosQQInAppBrowser(qqBrowser), false);
+  assert.equal(isIosQQInAppBrowser(androidQQ), false);
+
+  const css = await read("app/globals.css");
+  const galleryViewport = await read("app/components/GalleryViewport.tsx");
+  assert.match(css, /html\[data-gallery-active="true"\]\[data-gallery-ios-qq="true"\] body \.liquid-navigation,[\s\S]*?html\[data-gallery-active="true"\]\[data-gallery-ios-qq="true"\] body \.gallery-open-button\s*\{\s*bottom: max\(12px, calc\(env\(safe-area-inset-bottom, 0px\) - 14px\)\);/);
+  assert.match(galleryViewport, /isIosQQInAppBrowser\(navigator.userAgent\)/);
+  assert.match(galleryViewport, /delete root.dataset.galleryIosQq;/);
 });
