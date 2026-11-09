@@ -1,4 +1,5 @@
 {
   "buildCommand": "SHOW_ICP=1 pnpm build",
-  "outputDirectory": "dist/client"
+  "outputDirectory": "dist/client",
+  "framework": "other"
 }

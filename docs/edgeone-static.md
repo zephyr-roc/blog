@@ -20,3 +20,19 @@
 在 EdgeOne 控制台的项目设置 → 构建部署配置，确认 **框架预设为 Vite / 静态网站，而不是 Next.js SSR**，构建命令 `SHOW_ICP=1 pnpm build`，输出目录 `dist/client`。如果仍显示 Cloud SSR Node Function 上传阶段，需要检查平台是否启用了自动框架 SSR Adapter；不要为了通过体积检查直接删掉客户端静态文件、图片或文章内容。
 
 另外，静态构建不再强制给 `gallery.html` 注入 `viewport-fit=cover`。Safari 的地址栏/安全区交给浏览器和 Afilmory 本身处理。
+
+## 2026-11：静态导出被误识别为 Vinext SSR
+
+若构建日志先出现 `Cloudflare static build ready` 和 `Pruned build-only SSR output`，紧接着报：
+
+```text
+[StaticAssetsBuilder][✘] Vinext build did not emit dist/client and dist/server
+```
+
+说明 HTML、图片和客户端资源已完成生成，**失败发生于 EdgeOne 对框架产物的二次识别**。`dist/server` 是用于**构建时**预渲染动态页面、RSS 和分享卡片的服务端产物，清理它是有意的：因为此前保留时触发了 `Cloud SSR Node functions package size exceeds 128MiB limit (155MiB)`。
+
+EdgeOne 应按 **Other / 其他框架（纯静态网站）** 部署本项目，而不是 Vinext/SSR。仓库根目录的 `edgeone.json` 已显式设置 `"framework": "other"`、静态构建命令和 `"outputDirectory": "dist/client"`。
+
+如果平台仍显示 `Vinext build did not emit dist/client and dist/server`，说明控制台的框架预设/自动检测依然在选择 Vinext 适配器。到 **项目设置 → 构建部署配置**，将框架预设改为 **Other / 其他框架（静态）**，保留构建命令 `SHOW_ICP=1 pnpm build` 与输出目录 `dist/client`，然后重新部署。不要恢复打包 `dist/server` 作为绕过方式，否则仍会遇到 128 MiB 限制。
+
+`Unsupported engine wanted node >=24` 是独立警告，本次 209 个路由及 194 篇文章均已完成静态导出，不是导致此错误的直接原因。当前编译环境使用 Node 22；如平台支持，可另行升级构建 Node 版本，但不要把版本警告和 SSR 产物识别错误混为一谈。
