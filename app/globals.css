@@ -4639,21 +4639,13 @@ a {
   .gallery-manager__actions { width: 100%; justify-content: flex-end; }
 }
 
-/* Afilmory owns scrolling; keep the parent unscrollable without making it
-   larger than the real viewport. The route data attribute handles browsers
-   that do not support :has(). */
-html:has(.gallery-shell),
-body:has(.gallery-shell),
+/* Afilmory owns scrolling. Use a route data attribute rather than :has()
+   so this also works in older Safari, Chrome and Firefox. */
 html[data-gallery-active="true"],
 html[data-gallery-active="true"] body {
   overflow: hidden;
   overscroll-behavior: none;
   background: #09090e;
-}
-
-body:has(.gallery-shell) > .global-footer,
-body:has(.gallery-shell) > .back-to-top-button {
-  display: none;
 }
 
 /* No blog background particles, grid or color overlays on the gallery. */
@@ -4713,7 +4705,6 @@ html[data-gallery-viewport-ready="true"] .gallery-embed {
 }
 
 @media (max-width: 900px) {
-  body:has(.gallery-shell),
   html[data-gallery-active="true"] body {
     --liquid-navigation-height: 64px;
     /* Keep Afilmory's own bottom chrome above the parent navigation. This also
@@ -4723,12 +4714,10 @@ html[data-gallery-viewport-ready="true"] .gallery-embed {
     );
   }
 
-  body[data-gallery-viewer-open="true"]:has(.gallery-shell),
   html[data-gallery-active="true"] body[data-gallery-viewer-open="true"] {
     --gallery-controls-reserve: 0px;
   }
 
-  body:has(.gallery-shell) .liquid-navigation,
   html[data-gallery-active="true"] body .liquid-navigation {
     left: max(12px, env(safe-area-inset-left));
     bottom: max(12px, env(safe-area-inset-bottom));
@@ -4740,28 +4729,24 @@ html[data-gallery-viewport-ready="true"] .gallery-embed {
     bottom: max(12px, env(safe-area-inset-bottom));
   }
 
-  body:has(.gallery-shell) .liquid-navigation__surface,
   html[data-gallery-active="true"] body .liquid-navigation__surface {
     --segment-width: min(104px, calc((100vw - 130px - env(safe-area-inset-left) - env(safe-area-inset-right)) / 5));
     --surface-padding: 6px;
     padding: 6px;
   }
 
-  body:has(.gallery-shell) .liquid-navigation__item,
   html[data-gallery-active="true"] body .liquid-navigation__item {
     min-width: var(--segment-width);
     height: 50px;
     padding-inline: 0;
   }
 
-  body:has(.gallery-shell) .liquid-navigation__indicator,
   html[data-gallery-active="true"] body .liquid-navigation__indicator {
     top: 6px;
     left: 6px;
     height: 50px;
   }
 
-  body:has(.gallery-shell) .liquid-navigation__refraction,
   html[data-gallery-active="true"] body .liquid-navigation__refraction {
     height: 50px;
   }
