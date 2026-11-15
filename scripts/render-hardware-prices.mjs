@@ -49,7 +49,9 @@ const selectLabels = (points) => {
       selected[selected.length - 1] = point;
     }
   }
-  if (selected[0] !== points[0]) selected.unshift(points[0]);
+  if (selected[0] !== points[0] && (!selected[0] || selected[0].x - points[0].x >= 88)) {
+    selected.unshift(points[0]);
+  }
   return new Set(selected);
 };
 
